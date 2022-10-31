@@ -1,8 +1,9 @@
+# API utility class involved in executing an API call
 class ApiHelper
   # Serializes an array parameter (creates key value pairs).
-  # @param [String] The name of the parameter.
-  # @param [Array] The value of the parameter.
-  # @param [String] The format of the serialization.
+  # @param [String] key The name of the parameter.
+  # @param [Array] array The value of the parameter.
+  # @param [String] formatting The format of the serialization.
   def self.serialize_array(key, array, formatting: 'indexed')
     tuples = []
 
@@ -20,9 +21,9 @@ class ApiHelper
   end
 
   # Replaces template parameters in the given url.
-  # @param [String] The query string builder to replace the template
+  # @param [String] query_builder The query string builder to replace the template
   # parameters.
-  # @param [Hash] The parameters to replace in the url.
+  # @param [Hash] parameters The parameters to replace in the url.
   def self.append_url_with_template_parameters(query_builder, parameters)
     # perform parameter validation
     unless query_builder.instance_of? String
@@ -58,8 +59,8 @@ class ApiHelper
   end
 
   # Appends the given set of parameters to the given query string.
-  # @param [String] The query string builder to add the query parameters to.
-  # @param [Hash] The parameters to append.
+  # @param [String] query_builder The query string builder to add the query parameters to.
+  # @param [Hash] parameters The parameters to append.
   def self.append_url_with_query_parameters(query_builder, parameters)
     # Perform parameter validation.
     unless query_builder.instance_of? String
@@ -93,7 +94,7 @@ class ApiHelper
   end
 
   # Validates and processes the given Url.
-  # @param [String] The given Url to process.
+  # @param [String] url The given Url to process.
   # @return [String] Pre-processed Url as string.
   def self.clean_url(url)
     # Perform parameter validation.
@@ -121,7 +122,7 @@ class ApiHelper
   end
 
   # Parses JSON string.
-  # @param [String] A JSON string.
+  # @param [String] json A JSON string.
   def self.json_deserialize(json)
     JSON.parse(json)
   rescue StandardError
@@ -129,19 +130,19 @@ class ApiHelper
   end
 
   # Parses JSON string.
-  # @param [object] The object to serialize.
+  # @param [object] obj The object to serialize.
   def self.json_serialize(obj)
     serializable_types.map { |x| obj.is_a? x }.any? ? obj.to_s : obj.to_json
   end
 
   # Removes elements with empty values from a hash.
-  # @param [Hash] The hash to clean.
+  # @param [Hash] hash The hash to clean.
   def self.clean_hash(hash)
     hash.delete_if { |_key, value| value.to_s.strip.empty? }
   end
 
   # Form encodes a hash of parameters.
-  # @param [Hash] The hash of parameters to encode.
+  # @param [Hash] form_parameters The hash of parameters to encode.
   # @return [Hash] A hash with the same parameters form encoded.
   def self.form_encode_parameters(form_parameters)
     array_serialization = 'indexed'
@@ -154,8 +155,8 @@ class ApiHelper
   end
 
   # Process complex types in query_params.
-  # @param [Hash] The hash of query parameters.
-  # @return [Hash] A hash with the processed query parameters.
+  # @param [Hash] query_parameters The hash of query parameters.
+  # @return [Hash] array_serialization A hash with the processed query parameters.
   def self.process_complex_types_parameters(query_parameters, array_serialization)
     processed_params = {}
     query_parameters.each do |key, value|
@@ -196,8 +197,8 @@ class ApiHelper
   end
 
   # Form encodes an object.
-  # @param [Dynamic] An object to form encode.
-  # @param [String] The name of the object.
+  # @param [Dynamic] obj An object to form encode.
+  # @param [String] instance_name The name of the object.
   # @return [Hash] A form encoded representation of the object in the form
   # of a hash.
   def self.form_encode(obj, instance_name, formatting: 'indexed')
@@ -247,8 +248,8 @@ class ApiHelper
   end
 
   # Retrieves a field from a Hash/Array based on an Array of keys/indexes
-  # @param [Hash, Array] The hash to extract data from
-  # @param [Array<String, Integer>] The keys/indexes to use
+  # @param [Hash, Array] obj The hash to extract data from
+  # @param [Array<String, Integer>] keys The keys/indexes to use
   # @return [Object] The extracted value
   def self.map_response(obj, keys)
     val = obj
@@ -271,18 +272,17 @@ class ApiHelper
   end
 
   # Deserialize the value against the template (group of types).
-  # @param [String] The value to be deserialized.
-  # @param [String] The parameter indicates the type-combination
-  # against which the value will be mapped (oneOf(Integer, String)).
+  # @param [String] value The value to be deserialized.
+  # @param [String] template The type-combination group against which the value will be mapped (oneOf(Integer, String)).
   def self.deserialize(template, value)
     decoded = APIHelper.json_deserialize(value)
     map_types(decoded, template)
   end
 
   # Validates and processes the value against the template(group of types).
-  # @param [String] The value to be mapped against the template.
-  # @param [String] The parameter indicates the group of types (oneOf(Integer, String)).
-  # @param [String] The parameter indicates the group (oneOf|anyOf).
+  # @param [String] value The value to be mapped against the template.
+  # @param [String] template The parameter indicates the group of types (oneOf(Integer, String)).
+  # @param [String] group_name The parameter indicates the group (oneOf|anyOf).
   def self.map_types(value, template, group_name: nil)
     result_value = nil
     matches = 0
@@ -327,10 +327,10 @@ class ApiHelper
   end
 
   # Validates and processes the value against the [Hash] type.
-  # @param [String] The value to be mapped against the type.
-  # @param [String] The possible type of the value.
-  # @param [String] The parameter indicates the group (oneOf|anyOf).
-  # @param [Integer] The parameter indicates the number of matches of value against types.
+  # @param [String] value The value to be mapped against the type.
+  # @param [String] type The possible type of the value.
+  # @param [String] group_name The parameter indicates the group (oneOf|anyOf).
+  # @param [Integer] matches The parameter indicates the number of matches of value against types.
   def self.map_hash_type(value, type, group_name, matches)
     if value.instance_of? Hash
       decoded = {}
@@ -348,10 +348,10 @@ class ApiHelper
   end
 
   # Validates and processes the value against the [Array] type.
-  # @param [String] The value to be mapped against the type.
-  # @param [String] The possible type of the value.
-  # @param [String] The parameter indicates the group (oneOf|anyOf).
-  # @param [Integer] The parameter indicates the number of matches of value against types.
+  # @param [String] value The value to be mapped against the type.
+  # @param [String] type The possible type of the value.
+  # @param [String] group_name The parameter indicates the group (oneOf|anyOf).
+  # @param [Integer] matches The parameter indicates the number of matches of value against types.
   def self.map_array_type(value, type, group_name, matches)
     if value.instance_of? Array
       decoded = []
@@ -369,10 +369,10 @@ class ApiHelper
   end
 
   # Validates and processes the value against the type.
-  # @param [String] The value to be mapped against the type.
-  # @param [String] The possible type of the value.
-  # @param [String] The parameter indicates the group (oneOf|anyOf).
-  # @param [Integer] The parameter indicates the number of matches of value against types.
+  # @param [String] value The value to be mapped against the type.
+  # @param [String] type The possible type of the value.
+  # @param [String] _group_name The parameter indicates the group (oneOf|anyOf).
+  # @param [Integer] matches The parameter indicates the number of matches of value against types.
   def self.map_type(value, type, _group_name, matches)
     if Tester.constants.select do |c|
       Tester.const_get(c).to_s == "Tester::#{type}"
@@ -385,9 +385,9 @@ class ApiHelper
   end
 
   # Validates and processes the value against the complex types.
-  # @param [String] The value to be mapped against the type.
-  # @param [String] The possible type of the value.
-  # @param [Integer] The parameter indicates the number of matches of value against types.
+  # @param [String] value The value to be mapped against the type.
+  # @param [String] type The possible type of the value.
+  # @param [Integer] matches The parameter indicates the number of matches of value against types.
   def self.map_complex_type(value, type, matches)
     obj = Tester.const_get(type)
     value = if obj.respond_to? 'from_hash'
@@ -400,9 +400,9 @@ class ApiHelper
   end
 
   # Validates and processes the value against the data types.
-  # @param [String] The value to be mapped against the type.
-  # @param [String] The possible type of the value.
-  # @param [Integer] The parameter indicates the number of matches of value against types.
+  # @param [String] value The value to be mapped against the type.
+  # @param [String] element The possible type of the value.
+  # @param [Integer] matches The parameter indicates the number of matches of value against types.
   def self.map_data_type(value, element, matches)
     element = element.split('|').map { |x| Object.const_get x }
     matches += 1 if element.all? { |x| APIHelper.data_types.include?(x) } &&
@@ -411,13 +411,14 @@ class ApiHelper
   end
 
   # Validates the value against the template(group of types).
-  # @param [String] The value to be mapped against the type.
-  # @param [String] The parameter indicates the group of types (oneOf(Integer, String)).
+  # @param [String] value The value to be mapped against the type.
+  # @param [String] template The parameter indicates the group of types (oneOf(Integer, String)).
   def self.validate_types(value, template)
     map_types(APIHelper.json_deserialize(value.to_json), template)
   end
 
   # Get content-type depending on the value
+  # @param [Object] value The value for which the content-type is resolved.
   def self.get_content_type(value)
     if serializable_types.map { |x| value.is_a? x }.any?
       'text/plain; charset=utf-8'

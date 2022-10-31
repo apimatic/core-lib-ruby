@@ -5,3 +5,7 @@ require 'apimatic_core_interfaces'
 
 require_relative 'apimatic-core/configurations/global_configuration'
 require_relative 'apimatic-core/utilities/api_helper'
+require_relative 'apimatic-core/utilities/date_time_helper'
+require_relative 'apimatic-core/utilities/comparison_helper'
+require_relative 'apimatic-core/utilities/file_helper'
+require_relative 'apimatic-core/utilities/xml_helper'
