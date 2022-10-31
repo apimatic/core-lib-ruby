@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.name = 'apimatic-core'
+  s.name = 'apimatic_core'
   s.version = '0.1.0'
   s.summary = 'A library that contains apimatic-apimatic-core logic and utilities for consuming REST APIs using Python SDKs generated '\
               'by APIMatic.'
@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email = 'support@apimatic.io'
   s.homepage = 'https://apimatic.io'
   s.license = 'APIMATIC REFERENCE SOURCE LICENSE'
-  s.add_dependency('apimatic-core-interfaces', '~> 0.1.0')
+  s.add_dependency('apimatic_core_interfaces', '~> 0.1.0')
   s.add_dependency('logging', '~> 2.3')
   s.add_development_dependency('minitest', '~> 5.14', '>= 5.14.1')
   s.add_development_dependency('minitest-proveit', '~> 1.0')
