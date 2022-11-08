@@ -1,26 +1,25 @@
 class EndpointLogger
-
-  attr_accessor :logger
+  attr_reader :logger
 
   def initialize(logger)
     @logger = logger
   end
 
-  def self.info(info_message)
-    if @logger
+  def info(info_message)
+    if @logger != nil
       @logger.info(info_message)
     end
   end
 
-  def self.debug(debug_message)
-    if @logger
+  def debug(debug_message)
+    if @logger != nil
       @logger.debug(debug_message)
     end
   end
 
-  def self.error(error_message, exc_info = true)
-    if @logger
-      @logger.error(error_message, exc_info)
+  def error(error)
+    if @logger != nil
+      @logger.error(error)
     end
   end
 end
