@@ -187,8 +187,7 @@ class RequestBuilder
     _url = process_url(global_configuration)
     _request_headers = process_headers(global_configuration)
     _request_body = process_body()
-    _http_request = HttpRequest.New(http_method: @http_method, query_url: _url,
-                                    headers: _request_headers, parameters: _request_body)
+    _http_request = HttpRequest.new(@http_method, _url, headers: _request_headers, parameters: _request_body)
     apply_auth(global_configuration.get_auth_managers(), _http_request)
 
     return _http_request
