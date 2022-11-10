@@ -1,5 +1,5 @@
 module CoreLibrary
-  # API utility class involved in executing an API call
+  # API utility class involved in executing an API
   class ApiHelper
     # Serializes an array parameter (creates key value pairs).
     # @param [String] key The name of the parameter.
@@ -21,6 +21,63 @@ module CoreLibrary
       tuples
     end
 
+    def self.deserialize_primitive_types(response, type, is_array)
+      unless is_array and type.nil?
+        return type.call(response)
+      else
+        return ApiHelper.json_deserialize(response)
+
+      end
+    end
+
+    def self.deserialize_datetime(response, datetime_format, is_array)
+      if is_array
+        decoded = ApiHelper.json_deserialize(response)
+      end
+      if datetime_format == DateTimeFormat::HTTP_DATE_TIME
+        unless is_array
+          return DateTime.httpdate(response)
+        else
+          return decoded.map { |element| DateTime.httpdate(element) }
+        end
+      elsif datetime_format == DateTimeFormat::RFC3339_DATE_TIME
+        unless is_array
+          return DateTime.httpdate(response)
+        else
+          return decoded.map { |element| DateTime.rfc3339(element) }
+        end
+      elsif datetime_format == DateTimeFormat::UNIX_DATE_TIME
+        unless is_array
+          return Time.at(response.to_i).utc.to_datetime
+        else
+          return decoded.map { |element| Time.at(element).utc.to_datetime }
+        end
+      end
+    end
+
+    def date_deserializer(response, is_array)
+      if is_array
+        decoded = ApiHelper.json_deserialize(response)
+        decoded.map { |element| Date.iso8601(element) }
+      end
+      Date.iso8601(response)
+    end
+
+    def dynamic_deserializer(response, is_array = true)
+      decoded = ApiHelper.json_deserialize(response) unless response.nil? ||
+        response.to_s.strip.empty?
+      decoded
+    end
+
+    def custom_type_deserializer(response, deserialize_into, is_array)
+      decoded = ApiHelper.json_deserialize(response)
+      unless is_array
+        return deserialize_into.call(decoded)
+      else
+        return decoded.map { |element| deserialize_into.call(element) }
+      end
+    end
+
     # Replaces template parameters in the given url.
     # @param [String] query_builder The query string builder to replace the template
     # parameters.
@@ -29,7 +86,7 @@ module CoreLibrary
       # perform parameter validation
       unless query_builder.instance_of? String
         raise ArgumentError, 'Given value for parameter \"query_builder\" is
-            invalid.'
+          invalid.'
       end
 
       # Return if there are no parameters to replace.
@@ -66,7 +123,7 @@ module CoreLibrary
       # Perform parameter validation.
       unless query_builder.instance_of? String
         raise ArgumentError, 'Given value for parameter \"query_builder\"
-            is invalid.'
+          is invalid.'
       end
 
       # Return if there are no parameters to replace.
