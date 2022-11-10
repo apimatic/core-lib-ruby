@@ -1,6 +1,5 @@
 require 'date'
 require 'json'
-require 'logging'
 
 require_relative 'apimatic-core/request_builder'
 require_relative 'apimatic-core/api_call'
@@ -17,6 +16,7 @@ require_relative 'apimatic-core/http/response/http_response'
 
 require_relative 'apimatic-core/types/parameter'
 require_relative 'apimatic-core/types/error_case'
+require_relative 'apimatic-core/types/base_model'
 
 
 require_relative 'apimatic-core/utilities/api_helper'

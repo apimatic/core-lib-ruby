@@ -12,7 +12,6 @@ Gem::Specification.new do |s|
   s.homepage = 'https://apimatic.io'
   s.license = 'APIMATIC REFERENCE SOURCE LICENSE'
   s.add_dependency('apimatic_core_interfaces', '~> 0.1.0')
-  s.add_dependency('logging', '~> 2.3')
   s.add_dependency('nokogiri', '~> 1.10', '>=1.10.10')
   s.add_development_dependency('minitest', '~> 5.14', '>= 5.14.1')
   s.add_development_dependency('minitest-proveit', '~> 1.0')
