@@ -2,7 +2,7 @@ module CoreLibrary
   # A class to hold the global configurations for the core library. This class is initiated from the SDK.
   class GlobalConfiguration
 
-    def initialize
+    def initialize(client_configuration: HttpClientConfiguration.new)
       @client_configuration = nil
       @global_errors = nil
       @global_headers = {}
