@@ -1,7 +1,5 @@
-# API utility class involved in executing an API
-require 'apimatic_core_interfaces'
-
 module CoreLibrary
+  # API utility class involved in executing an API
   class ApiHelper
     # Serializes an array parameter (creates key value pairs).
     # @param [String] key The name of the parameter.
