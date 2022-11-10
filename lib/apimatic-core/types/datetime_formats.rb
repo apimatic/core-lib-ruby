@@ -14,7 +14,6 @@ class DateTimeFormat
   UNIX_DATE_TIME = "UnixDateTime".freeze,
 
   RFC3339_DATE_TIME = "RFC3339DateTime".freeze
-
   ].freeze
   end
 
