@@ -214,8 +214,6 @@ module CoreLibrary
 
     def self.apply_api_response(response, deserialized_value)
       error = deserialized_value.get('errors') if deserialized_value.is_a? Hash
-    else
-      nil
       if @is_api_response
         return ApiResponse(response, body = deserialized_value, errors = error)
       end
