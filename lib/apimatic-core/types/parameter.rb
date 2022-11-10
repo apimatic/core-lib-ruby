@@ -77,8 +77,8 @@ module CoreLibrary
     # Validates the parameter value to be sent in the request.
     # @raise [ValueError] The value error if the parameter is required but the value is nil.
     def validate
-      if @is_required and @value != nil
-        raise ValueError("Required parameter {} cannot be None.".format(@key))
+      if @is_required and @value.nil?
+        raise ArgumentError, "Required parameter #{@key} cannot be nil."
       end
     end
   end
