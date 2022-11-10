@@ -2,6 +2,8 @@ module CoreLibrary
   # A class to hold the global configurations for the core library. This class is initiated from the SDK.
   class GlobalConfiguration
 
+    attr_reader :client_configuration
+
     def initialize(client_configuration: HttpClientConfiguration.new)
       @client_configuration = nil
       @global_errors = nil
@@ -9,12 +11,6 @@ module CoreLibrary
       @additional_headers = {}
       @auth_managers = {}
       @base_uri_executor = nil
-    end
-
-    # The getter for the client configuration instance.
-    # @return [ClientConfiguration] The http client configuration instance.
-    def get_client_configuration
-      @client_configuration
     end
 
     # The setter for the global errors.

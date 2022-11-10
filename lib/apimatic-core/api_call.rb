@@ -44,7 +44,7 @@ module CoreLibrary
     # @return The deserialized endpoint response.
     def execute
       begin
-        _client_configuration = @global_configuration.get_client_configuration
+        _client_configuration = @global_configuration.client_configuration
 
         if not _client_configuration.http_client.nil?
           raise ValueError("An HTTP client instance is required to execute an Api call.")
