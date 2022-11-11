@@ -210,10 +210,12 @@ module CoreLibrary
     # @param [String] url The URL of the endpoint.
     # @return [String] The URL with resolved query parameters if any.
     def get_updated_url_with_query_params(url)
-      if @additional_query_params.present?
-        add_additional_query_params()
-      end
-      if @query_params.present?
+      _has_additional_query_params = (not @additional_query_params.nil? and @additional_query_params.any?)
+      _has_query_params = (not @query_params.nil? and @query_params.any?)
+
+      add_additional_query_params() if _has_additional_query_params
+
+      if _has_query_params
         # TODO: add Array serialization format support while writing the POC
         return ApiHelper.append_url_with_query_parameters(url, @query_params)
       else
@@ -236,19 +238,23 @@ module CoreLibrary
       _global_headers = global_configuration.get_global_headers()
       _additional_headers = global_configuration.get_additional_headers()
 
-      if _global_headers.present? or _additional_headers.present? or @header_params.present?
+      _has_global_headers = (not _global_headers.nil? and _global_headers.any?)
+      _has_additional_headers = (not _additional_headers.nil? and _additional_headers.any?)
+      _has_local_headers = (not @header_params.nil? and @header_params.any?)
+
+      if _has_global_headers or _has_additional_headers or _has_local_headers
         @endpoint_logger.info("Preparing headers for #{@endpoint_name_for_logging}.")
       end
 
-      if _global_headers.present?
+      if _has_global_headers
         _request_headers.merge!(_global_headers)
       end
 
-      if _additional_headers.present?
+      if _has_additional_headers
         _request_headers.merge!(_additional_headers)
       end
 
-      if @header_params.present?
+      if _has_local_headers
         _request_headers.merge!(@header_params)
       end
 
@@ -258,22 +264,27 @@ module CoreLibrary
     # Processes the body parameter of the request (including form param, json body or xml body).
     # @return [Object] The body param to be sent in the request.
     def process_body
-      if @form_params.present? or @additional_form_params.present? or not @body_param.nil?
+      _has_form_params = (not @form_params.nil? and @form_params.any?)
+      _has_additional_form_params = (not @additional_form_params.nil? and @additional_form_params.any?)
+      _has_body_param = (not @body_param.nil?)
+      _has_body_serializer = (not @body_serializer.nil?)
+      _has_xml_attributes = (not @xml_attributes.nil?)
+
+      if _has_form_params or _has_additional_form_params
         @endpoint_logger.info("Preparing form parameters for #{@endpoint_name_for_logging}.")
-      end
-      if not @body_param.nil?
+      elsif _has_body_param
         @endpoint_logger.info("Preparing body parameters for #{@endpoint_name_for_logging}.")
       end
 
-      if not @xml_attributes.nil?
+      if _has_xml_attributes
         return self.process_xml_parameters(@body_serializer)
-      elsif @form_params.present? or @additional_form_params.present?
-        add_additional_form_params()
+      elsif _has_form_params or _has_additional_form_params
+        add_additional_form_params() if _has_additional_form_params
         # TODO: add Array serialization format support while writing the POC
         return ApiHelper.form_encode_parameters(@form_params)
-      elsif not @body_param.nil? and not @body_serializer.nil?
+      elsif _has_body_param and _has_body_serializer
         return @body_serializer.call(resolve_body_param())
-      elsif not @body_param.nil? and @body_serializer.nil?
+      elsif _has_body_param and not _has_body_serializer
         return resolve_body_param()
       end
     end
@@ -287,11 +298,9 @@ module CoreLibrary
 
     # Adds the additional form parameters.
     def add_additional_form_params
-      if @additional_form_params.present?
-        @additional_form_params.each { |key, value|
-          @form_params[key] = value
-        }
-      end
+      @additional_form_params.each { |key, value|
+        @form_params[key] = value
+      }
     end
 
     # Resolves the body parameter to appropriate type.

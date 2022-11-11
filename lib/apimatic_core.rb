@@ -2,6 +2,7 @@ require 'date'
 require 'json'
 
 require_relative 'apimatic-core/request_builder'
+require_relative 'apimatic-core/response_handler'
 require_relative 'apimatic-core/api_call'
 
 require_relative 'apimatic-core/factories/http_response_factory'

@@ -3,60 +3,6 @@ require_relative '../apimatic_core'
 module CoreLibrary
   class ResponseHandler
 
-    attr_accessor :deserializer
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :convertor
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :deserialize_into
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :is_api_response
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :is_nullify404
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :local_errors
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :datetime_format
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :is_xml_response
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :xml_item_name
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :root_element_name
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :endpoint_name_for_logging
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :endpoint_logger
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :is_primitive_response
-
-    # TODO: Write general description for this method
-    # @return [String]
-    attr_accessor :is_response_array
-
     def initialize
       @deserializer = nil
       @convertor = nil
@@ -133,6 +79,7 @@ module CoreLibrary
       @endpoint_logger = endpoint_logger
       self
     end
+
     def is_primitive_response(is_primitive_response)
       @is_primitive_response = is_primitive_response
       self
@@ -143,13 +90,12 @@ module CoreLibrary
       self
     end
 
-    def self.handle(response, global_errors)
-      @endpoint_logger.info('Validating response for {}.'.format(@endpoint_name_for_logging))
+    def handle(response, global_errors)
+      @endpoint_logger.info("Validating response for #{@endpoint_name_for_logging}.")
 
       # checking Nullify 404
       if response.status_code == 404 and @is_nullify404
-        @endpoint_logger.info('Status code 404 received for {}. Returning None.'.format(
-          @endpoint_name_for_logging))
+        @endpoint_logger.info("Status code 404 received for #{@endpoint_name_for_logging}. Returning None.")
         return nil
       end
 
@@ -168,7 +114,7 @@ module CoreLibrary
       return deserialized_value
     end
 
-    def self.validate(response, global_errors)
+    def validate(response, global_errors)
       actual_status_code = response.status_code.to_s
       if @local_errors
         @local_errors.each do |expected_status_code, error_case|
@@ -191,14 +137,14 @@ module CoreLibrary
       end
     end
 
-    def self.apply_xml_deserializer(response)
+    def apply_xml_deserializer(response)
       if @xml_item_name
         return @deserializer.call(response.raw_body, @root_element_name, @xml_item_name, @deserialize_into, @datetime_format)
       end
       return @deserializer.call(response.raw_body, @root_element_name, @deserialize_into, @datetime_format)
     end
 
-    def self.apply_deserializer(response)
+    def apply_deserializer(response)
       if @is_xml_response
         return apply_xml_deserializer(response)
       elsif @deserializer and @datetime_format
@@ -212,7 +158,7 @@ module CoreLibrary
       end
     end
 
-    def self.apply_api_response(response, deserialized_value)
+    def apply_api_response(response, deserialized_value)
       error = deserialized_value.get('errors') if deserialized_value.is_a? Hash
       if @is_api_response
         return ApiResponse(response, body = deserialized_value, errors = error)
@@ -220,7 +166,7 @@ module CoreLibrary
       return deserialized_value
     end
 
-    def self.apply_convertor(deserialized_value)
+    def apply_convertor(deserialized_value)
       if @convertor
         return @convertor.call(deserialized_value)
       end

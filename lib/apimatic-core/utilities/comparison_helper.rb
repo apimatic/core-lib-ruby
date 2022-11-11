@@ -38,7 +38,7 @@ module CoreLibrary
         for key in expected_body.keys
           return false unless actual_body.keys.include? key
           if check_values or expected_body[key].instance_of? Hash
-            return false unless TestHelper.match_body(expected_body[key],
+            return false unless match_body(expected_body[key],
                                                       actual_body[key],
                                                       check_values: check_values,
                                                       check_order: check_order,
@@ -53,7 +53,7 @@ module CoreLibrary
           previous_matches = Array.new
           expected_body.each.with_index do |expected_element, i|
             matches = (actual_body.map.with_index do |received_element, j|
-              j if TestHelper.match_body(expected_element,
+              j if match_body(expected_element,
                                          received_element,
                                          check_values: check_values,
                                          check_order: check_order,

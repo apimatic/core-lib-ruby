@@ -25,14 +25,14 @@ module CoreLibrary
       unless is_array and type.nil?
         return type.call(response)
       else
-        return ApiHelper.json_deserialize(response)
+        return json_deserialize(response)
 
       end
     end
 
     def self.deserialize_datetime(response, datetime_format, is_array)
       if is_array
-        decoded = ApiHelper.json_deserialize(response)
+        decoded = json_deserialize(response)
       end
       if datetime_format == DateTimeFormat::HTTP_DATE_TIME
         unless is_array
@@ -55,22 +55,22 @@ module CoreLibrary
       end
     end
 
-    def date_deserializer(response, is_array)
+    def self.date_deserializer(response, is_array)
       if is_array
-        decoded = ApiHelper.json_deserialize(response)
+        decoded = json_deserialize(response)
         decoded.map { |element| Date.iso8601(element) }
       end
       Date.iso8601(response)
     end
 
-    def dynamic_deserializer(response, is_array = true)
-      decoded = ApiHelper.json_deserialize(response) unless response.nil? ||
+    def self.dynamic_deserializer(response, is_array = true)
+      decoded = json_deserialize(response) unless response.nil? ||
         response.to_s.strip.empty?
       decoded
     end
 
-    def custom_type_deserializer(response, deserialize_into, is_array)
-      decoded = ApiHelper.json_deserialize(response)
+    def self.custom_type_deserializer(response, deserialize_into, is_array)
+      decoded = json_deserialize(response)
       unless is_array
         return deserialize_into.call(decoded)
       else
@@ -137,7 +137,7 @@ module CoreLibrary
         unless value.nil?
           if value.instance_of? Array
             value.compact!
-            APIHelper.serialize_array(
+            serialize_array(
               key, value, formatting: array_serialization
             ).each do |element|
               seperator = query_builder.include?('?') ? '&' : '?'
@@ -206,7 +206,7 @@ module CoreLibrary
       array_serialization = 'indexed'
       encoded = {}
       form_parameters.each do |key, value|
-        encoded.merge!(APIHelper.form_encode(value, key, formatting:
+        encoded.merge!(form_encode(value, key, formatting:
           array_serialization))
       end
       encoded
@@ -218,7 +218,7 @@ module CoreLibrary
     def self.process_complex_types_parameters(query_parameters, array_serialization)
       processed_params = {}
       query_parameters.each do |key, value|
-        processed_params.merge!(APIHelper.form_encode(value, key, formatting:
+        processed_params.merge!(form_encode(value, key, formatting:
           array_serialization))
       end
       processed_params
@@ -271,28 +271,28 @@ module CoreLibrary
       elsif obj.instance_of? Array
         if formatting == 'indexed'
           obj.each_with_index do |value, index|
-            retval.merge!(APIHelper.form_encode(value, "#{instance_name}[#{index}]"))
+            retval.merge!(form_encode(value, "#{instance_name}[#{index}]"))
           end
-        elsif APIHelper.serializable_types.map { |x| obj[0].is_a? x }.any?
+        elsif serializable_types.map { |x| obj[0].is_a? x }.any?
           obj.each do |value|
             abc = if formatting == 'unindexed'
-                    APIHelper.form_encode(value, "#{instance_name}[]",
+                    form_encode(value, "#{instance_name}[]",
                                           formatting: formatting)
                   else
-                    APIHelper.form_encode(value, instance_name,
+                    form_encode(value, instance_name,
                                           formatting: formatting)
                   end
-            retval = APIHelper.custom_merge(retval, abc)
+            retval = custom_merge(retval, abc)
           end
         else
           obj.each_with_index do |value, index|
-            retval.merge!(APIHelper.form_encode(value, "#{instance_name}[#{index}]",
+            retval.merge!(form_encode(value, "#{instance_name}[#{index}]",
                                                 formatting: formatting))
           end
         end
       elsif obj.instance_of? Hash
         obj.each do |key, value|
-          retval.merge!(APIHelper.form_encode(value, "#{instance_name}[#{key}]",
+          retval.merge!(form_encode(value, "#{instance_name}[#{key}]",
                                               formatting: formatting))
         end
       elsif obj.instance_of? File
@@ -333,7 +333,7 @@ module CoreLibrary
     # @param [String] value The value to be deserialized.
     # @param [String] template The type-combination group against which the value will be mapped (oneOf(Integer, String)).
     def self.deserialize(template, value)
-      decoded = APIHelper.json_deserialize(value)
+      decoded = json_deserialize(value)
       map_types(decoded, template)
     end
 
@@ -463,7 +463,7 @@ module CoreLibrary
     # @param [Integer] matches The parameter indicates the number of matches of value against types.
     def self.map_data_type(value, element, matches)
       element = element.split('|').map { |x| Object.const_get x }
-      matches += 1 if element.all? { |x| APIHelper.data_types.include?(x) } &&
+      matches += 1 if element.all? { |x| data_types.include?(x) } &&
         element.any? { |x| (value.instance_of? x) || (value.class.ancestors.include? x) }
       [value, matches]
     end
@@ -472,7 +472,7 @@ module CoreLibrary
     # @param [String] value The value to be mapped against the type.
     # @param [String] template The parameter indicates the group of types (oneOf(Integer, String)).
     def self.validate_types(value, template)
-      map_types(APIHelper.json_deserialize(value.to_json), template)
+      map_types(json_deserialize(value.to_json), template)
     end
 
     # Get content-type depending on the value

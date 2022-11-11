@@ -5,7 +5,7 @@ module CoreLibrary
     attr_reader :client_configuration
 
     def initialize(client_configuration: HttpClientConfiguration.new)
-      @client_configuration = nil
+      @client_configuration = client_configuration
       @global_errors = nil
       @global_headers = {}
       @additional_headers = {}
