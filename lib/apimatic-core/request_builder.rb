@@ -78,7 +78,7 @@ module CoreLibrary
     # The setter for the form parameter to be sent in the request.
     # @param [Parameter] form_param The form parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
-    def query_param(form_param)
+    def form_param(form_param)
       form_param.validate
       @form_params[form_param.get_key] = form_param.get_value
       self
@@ -183,12 +183,14 @@ module CoreLibrary
 
     # Builds the Http Request.
     # @param [GlobalConfiguration] global_configuration The global configuration to be used while preparing the request.
+    # @param [Hash] endpoint_context The endpoint configuration to be used while executing the request.
     # @return [HttpRequest] An instance of HttpRequest.
-    def build(global_configuration)
+    def build(global_configuration, endpoint_context)
       _url = process_url(global_configuration)
       _request_headers = process_headers(global_configuration)
       _request_body = process_body()
-      _http_request = HttpRequest.new(@http_method, _url, headers: _request_headers, parameters: _request_body)
+      _http_request = HttpRequest.new(@http_method, _url, headers: _request_headers, parameters: _request_body,
+                                      context: endpoint_context)
       apply_auth(global_configuration.get_auth_managers(), _http_request)
 
       return _http_request

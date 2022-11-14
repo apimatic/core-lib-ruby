@@ -41,8 +41,8 @@ module CoreLibrary
     # @param [String] name The name of the query parameter.
     # @param [String] value The value of the query parameter.
     def add_query_parameter(name, value)
-      @query_url = CoreApiHelper.append_url_with_query_parameters(@query_url, { name => value })
-      @query_url = CoreApiHelper.clean_url(@query_url)
+      @query_url = ApiHelper.append_url_with_query_parameters(@query_url, { name => value })
+      @query_url = ApiHelper.clean_url(@query_url)
     end
   end
 end

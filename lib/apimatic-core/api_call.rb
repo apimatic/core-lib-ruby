@@ -14,6 +14,7 @@ module CoreLibrary
       @response_handler = ResponseHandler.new
       @endpoint_logger = EndpointLogger.new(logger)
       @endpoint_name_for_logging = nil
+      @endpoint_context = {}
     end
 
     # The setter for the request builder to be used for building the request of an API call.
@@ -40,6 +41,15 @@ module CoreLibrary
       self
     end
 
+    # The setter for the context for an endpoint call.
+    # @param [String] context_key The name of the endpoint context.
+    # @param [Object] context_value The value of the endpoint context.
+    # @return [ApiCall] An updated instance of ApiCall.
+    def endpoint_context(context_key, context_value)
+      @endpoint_context[context_key] = context_value
+      self
+    end
+
     # Executes the API call using provided HTTP client, request builder and response handler objects.
     # @return The deserialized endpoint response.
     def execute
@@ -53,7 +63,7 @@ module CoreLibrary
         _http_request = @request_builder
                           .endpoint_logger(@endpoint_logger)
                           .endpoint_name_for_logging(@endpoint_name_for_logging)
-                          .build(@global_configuration)
+                          .build(@global_configuration, @endpoint_context)
         @endpoint_logger.debug("Raw request for #{@endpoint_name_for_logging} is: #{_http_request.inspect}")
 
         _http_callback = _client_configuration.http_callback
