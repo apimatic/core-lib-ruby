@@ -289,6 +289,7 @@ module CoreLibrary
       elsif _has_body_param and not _has_body_serializer
         return resolve_body_param()
       end
+      
       return {}
     end
 
