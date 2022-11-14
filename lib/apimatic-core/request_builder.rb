@@ -52,8 +52,8 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def template_param(template_param)
       template_param.validate
-      @template_params[template_param.get_key] = {'value': template_param.get_value,
-                                                  'encode': template_param.need_to_encode}
+      @template_params[template_param.get_key] = {'value' => template_param.get_value,
+                                                  'encode' => template_param.need_to_encode}
       self
     end
 
@@ -289,6 +289,7 @@ module CoreLibrary
       elsif _has_body_param and not _has_body_serializer
         return resolve_body_param()
       end
+      return {}
     end
 
     # Processes the XML body parameter.
