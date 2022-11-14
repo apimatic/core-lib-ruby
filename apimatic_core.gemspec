@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.license = 'APIMATIC REFERENCE SOURCE LICENSE'
   s.add_dependency('apimatic_core_interfaces', '~> 0.1.0')
   s.add_dependency('nokogiri', '~> 1.10', '>=1.10.10')
+  s.add_dependency('faraday-multipart', '~> 1.0')
   s.add_development_dependency('minitest', '~> 5.14', '>= 5.14.1')
   s.add_development_dependency('minitest-proveit', '~> 1.0')
   s.required_ruby_version = ['>= 2.6']

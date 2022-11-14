@@ -12,7 +12,7 @@ module CoreLibrary
       @form_params = {}
       @additional_form_params = {}
       @additional_query_params = {}
-      @multipart_params = []
+      @multipart_params = {}
       @body_param = nil
       @should_wrap_body_param = nil
       @body_serializer = nil
@@ -105,7 +105,7 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def multipart_param(multipart_param)
       multipart_param.validate()
-      @multipart_params.append(multipart_param)
+      @multipart_params[multipart_param.get_key] = get_part(multipart_param)
       self
     end
 
@@ -114,7 +114,7 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def body_param(body_param)
       body_param.validate()
-      if body_param.get_key() != nil
+      if !body_param.get_key().nil?
         if @body_param == nil
           @body_param = {}
         end
@@ -212,8 +212,8 @@ module CoreLibrary
     # @param [String] url The URL of the endpoint.
     # @return [String] The URL with resolved query parameters if any.
     def get_updated_url_with_query_params(url)
-      _has_additional_query_params = (not @additional_query_params.nil? and @additional_query_params.any?)
-      _has_query_params = (not @query_params.nil? and @query_params.any?)
+      _has_additional_query_params = (!@additional_query_params.nil? and @additional_query_params.any?)
+      _has_query_params = (!@query_params.nil? and @query_params.any?)
 
       add_additional_query_params() if _has_additional_query_params
 
@@ -240,9 +240,9 @@ module CoreLibrary
       _global_headers = global_configuration.get_global_headers()
       _additional_headers = global_configuration.get_additional_headers()
 
-      _has_global_headers = (not _global_headers.nil? and _global_headers.any?)
-      _has_additional_headers = (not _additional_headers.nil? and _additional_headers.any?)
-      _has_local_headers = (not @header_params.nil? and @header_params.any?)
+      _has_global_headers = (!_global_headers.nil? and _global_headers.any?)
+      _has_additional_headers = (!_additional_headers.nil? and _additional_headers.any?)
+      _has_local_headers = (!@header_params.nil? and @header_params.any?)
 
       if _has_global_headers or _has_additional_headers or _has_local_headers
         @endpoint_logger.info("Preparing headers for #{@endpoint_name_for_logging}.")
@@ -266,11 +266,12 @@ module CoreLibrary
     # Processes the body parameter of the request (including form param, json body or xml body).
     # @return [Object] The body param to be sent in the request.
     def process_body
-      _has_form_params = (not @form_params.nil? and @form_params.any?)
-      _has_additional_form_params = (not @additional_form_params.nil? and @additional_form_params.any?)
-      _has_body_param = (not @body_param.nil?)
-      _has_body_serializer = (not @body_serializer.nil?)
-      _has_xml_attributes = (not @xml_attributes.nil?)
+      _has_form_params = (!@form_params.nil? and @form_params.any?)
+      _has_additional_form_params = (!@additional_form_params.nil? and @additional_form_params.any?)
+      _has_multipart_param = (!@multipart_params.nil? and @multipart_params.any?)
+      _has_body_param = !@body_param.nil?
+      _has_body_serializer = !@body_serializer.nil?
+      _has_xml_attributes = !@xml_attributes.nil?
 
       if _has_form_params or _has_additional_form_params
         @endpoint_logger.info("Preparing form parameters for #{@endpoint_name_for_logging}.")
@@ -280,6 +281,8 @@ module CoreLibrary
 
       if _has_xml_attributes
         return self.process_xml_parameters(@body_serializer)
+      elsif _has_multipart_param
+        return ApiHelper.form_encode_parameters(@multipart_params)
       elsif _has_form_params or _has_additional_form_params
         add_additional_form_params() if _has_additional_form_params
         # TODO: add Array serialization format support while writing the POC
@@ -291,6 +294,21 @@ module CoreLibrary
       end
       
       return {}
+    end
+
+    # Processes the part of a multipart request and assign appropriate part value and its content-type.
+    # @param [Parameter] multipart_param The multipart parameter to be sent in the request.
+    # @return [UploadIO] The translated Faraday's UploadIO instance.
+    def get_part(multipart_param)
+      param_value = multipart_param.get_value
+      if param_value.is_a? FileWrapper
+        part = param_value.file
+        part_content_type = param_value.content_type
+      else
+        part = param_value
+        part_content_type = multipart_param.get_default_content_type
+      end
+      Faraday::UploadIO.new(part, part_content_type)
     end
 
     # Processes the XML body parameter.
