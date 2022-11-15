@@ -214,22 +214,15 @@ module CoreLibrary
     def get_updated_url_with_query_params(url)
       _has_additional_query_params = (!@additional_query_params.nil? and @additional_query_params.any?)
       _has_query_params = (!@query_params.nil? and @query_params.any?)
+      _query_params = @query_params
+      _query_params.merge!(@additional_query_params) if _has_additional_query_params
 
-      add_additional_query_params() if _has_additional_query_params
-
-      if _has_query_params
+      if (!_query_params.nil? and _query_params.any?)
         # TODO: add Array serialization format support while writing the POC
-        return ApiHelper.append_url_with_query_parameters(url, @query_params)
+        return ApiHelper.append_url_with_query_parameters(url, _query_params)
       else
         return url
       end
-    end
-
-    # Adds the additional query parameters.
-    def add_additional_query_params
-      @additional_query_params.each { |key, value|
-        @query_params[key] = value
-      }
     end
 
     # Processes all request headers (including local, global and additional).
@@ -281,12 +274,13 @@ module CoreLibrary
 
       if _has_xml_attributes
         return self.process_xml_parameters(@body_serializer)
-      elsif _has_multipart_param
-        return ApiHelper.form_encode_parameters(@multipart_params)
-      elsif _has_form_params or _has_additional_form_params
-        add_additional_form_params() if _has_additional_form_params
+      elsif _has_form_params or _has_additional_form_params or _has_multipart_param
+        _form_params = @form_params
+        _form_params.merge!(@form_params) if _has_form_params
+        _form_params.merge!(@multipart_params) if _has_multipart_param
+        _form_params.merge!(@additional_form_params) if _has_additional_form_params
         # TODO: add Array serialization format support while writing the POC
-        return ApiHelper.form_encode_parameters(@form_params)
+        return ApiHelper.form_encode_parameters(_form_params)
       elsif _has_body_param and _has_body_serializer
         return @body_serializer.call(resolve_body_param())
       elsif _has_body_param and not _has_body_serializer
@@ -316,13 +310,6 @@ module CoreLibrary
     # @return [String] The serialized xml body.
     def process_xml_parameters(body_serializer)
       # TODO: add code while writing the POC
-    end
-
-    # Adds the additional form parameters.
-    def add_additional_form_params
-      @additional_form_params.each { |key, value|
-        @form_params[key] = value
-      }
     end
 
     # Resolves the body parameter to appropriate type.
