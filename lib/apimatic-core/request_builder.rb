@@ -219,7 +219,7 @@ module CoreLibrary
 
       if _has_query_params
         # TODO: add Array serialization format support while writing the POC
-        return ApiHelper.append_url_with_query_parameters(url, @query_params)
+        return ApiHelper.append_url_with_query_parameters(url, @query_params, @array_serialization_format)
       else
         return url
       end

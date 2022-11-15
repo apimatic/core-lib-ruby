@@ -119,7 +119,8 @@ module CoreLibrary
     # Appends the given set of parameters to the given query string.
     # @param [String] query_builder The query string builder to add the query parameters to.
     # @param [Hash] parameters The parameters to append.
-    def self.append_url_with_query_parameters(query_builder, parameters)
+    # @param [String] array_serialization The serialization format
+    def self.append_url_with_query_parameters(query_builder, parameters, array_serialization)
       # Perform parameter validation.
       unless query_builder.instance_of? String
         raise ArgumentError, 'Given value for parameter \"query_builder\"
@@ -129,7 +130,6 @@ module CoreLibrary
       # Return if there are no parameters to replace.
       return query_builder if parameters.nil?
 
-      array_serialization = 'indexed'
       parameters = process_complex_types_parameters(parameters, array_serialization)
 
       parameters.each do |key, value|
