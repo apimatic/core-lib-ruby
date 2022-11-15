@@ -45,7 +45,7 @@ module CoreLibrary
       self
     end
 
-    def local_errors(error_code, description, exception_type)
+    def local_error(error_code, description, exception_type)
       @local_errors[error_code.to_s] = ErrorCase.new.description(description).exception_type(exception_type)
       self
     end
@@ -116,24 +116,22 @@ module CoreLibrary
 
     def validate(response, global_errors)
       actual_status_code = response.status_code.to_s
-      if @local_errors
-        @local_errors.each do |expected_status_code, error_case|
-          if actual_status_code == expected_status_code
-            raise error_case.get_exception_type.new error_case.get_description(), response
-          end
-        end
-      end
-      if @global_errors
-        @global_errors.each do |expected_status_code, error_case|
-          if actual_status_code == expected_status_code
-            raise error_case.get_exception_type.new error_case.get_description(), response
-          end
-        end
+
+      contains_local_errors = (!@local_errors.nil? and @local_errors.any?)
+      if contains_local_errors
+        error_case = @local_errors[actual_status_code]
+        raise error_case.get_exception_type.new error_case.get_description(), response if !error_case.nil?
       end
 
-      if (response.status_code < 200 or response.status_code > 208) and global_errors['default']
+      contains_global_errors = (!global_errors.nil? and global_errors.any?)
+      if contains_global_errors
+        error_case = global_errors[actual_status_code]
+        raise error_case.get_exception_type.new error_case.get_description(), response if !error_case.nil?
+      end
+
+      if (response.status_code < 200 or response.status_code > 208)
         error_case = global_errors['default']
-        raise error_case.get_exception_type.new error_case.get_description(), response
+        raise error_case.get_exception_type.new error_case.get_description(), response if !error_case.nil?
       end
     end
 
