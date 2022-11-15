@@ -218,8 +218,7 @@ module CoreLibrary
       _query_params.merge!(@additional_query_params) if _has_additional_query_params
 
       if (!_query_params.nil? and _query_params.any?)
-        # TODO: add Array serialization format support while writing the POC
-        return ApiHelper.append_url_with_query_parameters(url, _query_params)
+        return ApiHelper.append_url_with_query_parameters(url, _query_params, @array_serialization_format)
       else
         return url
       end
