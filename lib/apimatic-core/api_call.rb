@@ -69,7 +69,7 @@ module CoreLibrary
         _http_callback = _client_configuration.http_callback
         if not _http_callback.nil?
           update_http_callback(_http_callback,
-                               Proc.new do _http_callback&.on_before_request(_http_request) end,
+                               proc do _http_callback&.on_before_request(_http_request) end,
                                "Calling the on_before_request method of"+
                                  " http_call_back for #{@endpoint_name_for_logging}.")
         end
@@ -79,7 +79,7 @@ module CoreLibrary
 
         if not _http_callback.nil?
           update_http_callback(_http_callback,
-                               Proc.new do _http_callback&.on_after_response(_http_response) end,
+                               proc do _http_callback&.on_after_response(_http_response) end,
                                "Calling the on_after_response method of"+
                                  " http_call_back for #{@endpoint_name_for_logging}.")
         end

@@ -36,21 +36,21 @@ module CoreLibrary
       end
       if datetime_format == DateTimeFormat::HTTP_DATE_TIME
         unless is_array
-          return DateTime.httpdate(response)
+          return DateTimeHelper.from_rfc1123(response)
         else
-          return decoded.map { |element| DateTime.httpdate(element) }
+          return decoded.map { |element| DateTimeHelper.from_rfc1123(element) }
         end
       elsif datetime_format == DateTimeFormat::RFC3339_DATE_TIME
         unless is_array
-          return DateTime.httpdate(response)
+          return DateTimeHelper.from_rfc3339(response)
         else
-          return decoded.map { |element| DateTime.rfc3339(element) }
+          return decoded.map { |element| DateTimeHelper.from_rfc3339(element) }
         end
       elsif datetime_format == DateTimeFormat::UNIX_DATE_TIME
         unless is_array
-          return Time.at(response.to_i).utc.to_datetime
+          return DateTimeHelper.from_unix(response)
         else
-          return decoded.map { |element| Time.at(element).utc.to_datetime }
+          return decoded.map { |element| DateTimeHelper.from_unix(element) }
         end
       end
     end
@@ -58,7 +58,7 @@ module CoreLibrary
     def self.date_deserializer(response, is_array)
       if is_array
         decoded = json_deserialize(response)
-        decoded.map { |element| Date.iso8601(element) }
+        return decoded.map { |element| Date.iso8601(element) }
       end
       Date.iso8601(response)
     end

@@ -18,6 +18,7 @@ module CoreLibrary
       @endpoint_logger = nil
       @is_primitive_response = false
       @is_response_array = false
+      @is_response_void = false
     end
 
     def deserializer(deserializer)
@@ -90,6 +91,11 @@ module CoreLibrary
       self
     end
 
+    def is_response_void(is_response_void)
+      @is_response_void = is_response_void
+      self
+    end
+
     def handle(response, global_errors)
       @endpoint_logger.info("Validating response for #{@endpoint_name_for_logging}.")
 
@@ -101,6 +107,8 @@ module CoreLibrary
 
       # validating response if configured
       self.validate(response, global_errors)
+
+      return if @is_response_void
 
       # applying deserializer if configured
       deserialized_value = self.apply_deserializer(response)
