@@ -202,8 +202,7 @@ module CoreLibrary
     # Form encodes a hash of parameters.
     # @param [Hash] form_parameters The hash of parameters to encode.
     # @return [Hash] A hash with the same parameters form encoded.
-    def self.form_encode_parameters(form_parameters)
-      array_serialization = 'indexed'
+    def self.form_encode_parameters(form_parameters, array_serialization)
       encoded = {}
       form_parameters.each do |key, value|
         encoded.merge!(form_encode(value, key, formatting:

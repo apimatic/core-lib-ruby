@@ -279,7 +279,7 @@ module CoreLibrary
         _form_params.merge!(@multipart_params) if _has_multipart_param
         _form_params.merge!(@additional_form_params) if _has_additional_form_params
         # TODO: add Array serialization format support while writing the POC
-        return ApiHelper.form_encode_parameters(_form_params)
+        return ApiHelper.form_encode_parameters(_form_params, @array_serialization_format)
       elsif _has_body_param and _has_body_serializer
         return @body_serializer.call(resolve_body_param())
       elsif _has_body_param and not _has_body_serializer
