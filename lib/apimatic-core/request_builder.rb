@@ -52,8 +52,8 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def template_param(template_param)
       template_param.validate
-      @template_params[template_param.get_key] = {'value' => template_param.get_value,
-                                                  'encode' => template_param.need_to_encode}
+      @template_params[template_param.get_key] = { 'value' => template_param.get_value,
+                                                   'encode' => template_param.need_to_encode }
       self
     end
 
@@ -272,7 +272,7 @@ module CoreLibrary
       end
 
       if _has_xml_attributes
-        return self.process_xml_parameters(@body_serializer)
+        return self.process_xml_parameters()
       elsif _has_form_params or _has_additional_form_params or _has_multipart_param
         _form_params = @form_params
         _form_params.merge!(@form_params) if _has_form_params
@@ -285,7 +285,7 @@ module CoreLibrary
       elsif _has_body_param and not _has_body_serializer
         return resolve_body_param()
       end
-      
+
       return {}
     end
 
@@ -305,10 +305,13 @@ module CoreLibrary
     end
 
     # Processes the XML body parameter.
-    # @param [Callable] body_serializer The body serializer callable.
+
     # @return [String] The serialized xml body.
-    def process_xml_parameters(body_serializer)
+    def process_xml_parameters()
       # TODO: add code while writing the POC
+      if @xml_attributes.array_item_name
+        @body_serializer.call(@xml_attributes.root_element_name, @xml_attributes.array_item_name, @xml_attributes.value)
+      end
     end
 
     # Resolves the body parameter to appropriate type.
@@ -319,7 +322,7 @@ module CoreLibrary
       #   if @body_param.content_type:
       #     @header_params['content-type'] = @body_param.content_type
       #   return @body_param.file_stream
-        return @body_param
+      return @body_param
     end
 
     # Applies the configured auth onto the http request.
