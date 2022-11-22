@@ -272,7 +272,7 @@ module CoreLibrary
       end
 
       if _has_xml_attributes
-        return self.process_xml_parameters()
+        return process_xml_parameters
       elsif _has_form_params or _has_additional_form_params or _has_multipart_param
         _form_params = @form_params
         _form_params.merge!(@form_params) if _has_form_params
@@ -307,11 +307,12 @@ module CoreLibrary
     # Processes the XML body parameter.
 
     # @return [String] The serialized xml body.
-    def process_xml_parameters()
+    def process_xml_parameters
       # TODO: add code while writing the POC
       if @xml_attributes.array_item_name
         @body_serializer.call(@xml_attributes.root_element_name, @xml_attributes.array_item_name, @xml_attributes.value)
       end
+      @body_serializer.call(@xml_attributes.root_element_name, @xml_attributes.value)
     end
 
     # Resolves the body parameter to appropriate type.
