@@ -18,8 +18,8 @@ module CoreLibrary
       self
     end
 
-    def array_item_name(root_element_name)
-      @root_element_name = root_element_name
+    def array_item_name(array_item_name)
+      @array_item_name = array_item_name
       self
     end
 
