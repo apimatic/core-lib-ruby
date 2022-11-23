@@ -6,7 +6,7 @@ module CoreLibrary
 
     def initialize(client_configuration: HttpClientConfiguration.new)
       @client_configuration = client_configuration
-      @global_errors = nil
+      @global_errors = {}
       @global_headers = {}
       @additional_headers = {}
       @auth_managers = {}
