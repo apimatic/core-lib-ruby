@@ -309,10 +309,11 @@ module CoreLibrary
     # @return [String] The serialized xml body.
     def process_xml_parameters
       # TODO: add code while writing the POC
-      if @xml_attributes.array_item_name
-        @body_serializer.call(@xml_attributes.root_element_name, @xml_attributes.array_item_name, @xml_attributes.value)
+      if !@xml_attributes.get_array_item_name().nil?
+        @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_array_item_name,
+                              @xml_attributes.get_value)
       end
-      @body_serializer.call(@xml_attributes.root_element_name, @xml_attributes.value)
+      @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_value)
     end
 
     # Resolves the body parameter to appropriate type.
