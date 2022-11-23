@@ -337,7 +337,7 @@ module CoreLibrary
         if @auth.with_auth_managers(auth_managers).valid
           @auth.apply(http_request)
         else
-          raise @auth.error_message
+          raise InvalidAuthCredential.new(@auth.error_message)
         end
       end
     end

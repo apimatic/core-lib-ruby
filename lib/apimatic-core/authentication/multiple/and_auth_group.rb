@@ -5,7 +5,7 @@ module CoreLibrary
     # Getter for the error message for auth.
     # @return [String] The error message while applying the auth.
     def error_message
-      return self.error_messages.join(' and ')
+      self.error_messages.join(' and ')
     end
 
     def initialize(*auth_group)

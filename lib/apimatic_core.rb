@@ -10,6 +10,8 @@ require_relative 'apimatic-core/factories/http_response_factory'
 
 require_relative 'apimatic-core/configurations/global_configuration'
 
+require_relative 'apimatic-core/exceptions/invalid_auth_credential'
+
 require_relative 'apimatic-core/logger/endpoint_logger'
 
 require_relative 'apimatic-core/http/configurations/http_client_configuration'

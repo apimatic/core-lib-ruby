@@ -5,7 +5,7 @@ module CoreLibrary
     # Getter for the error message for auth.
     # @return [String] The error message while applying the auth.
     def error_message
-      return "[#{self.error_message}]"
+      "[#{@error_message}]"
     end
 
     def initialize(auth_participant)
@@ -25,7 +25,7 @@ module CoreLibrary
 
       @mapped_auth = auth_managers[@auth_participant]
 
-      return self
+      self
     end
 
     # Checks if the associated auth is valid.
