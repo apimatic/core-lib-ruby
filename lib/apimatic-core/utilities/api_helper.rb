@@ -22,12 +22,11 @@ module CoreLibrary
     end
 
     def self.deserialize_primitive_types(response, type, is_array)
-      unless is_array and type.nil?
-        return type.call(response)
-      else
+      if is_array
         return json_deserialize(response)
-
       end
+      raise ArgumentError, 'callable has not been not provided for deserializer.' if type.nil?
+      return type.call(response)
     end
 
     def self.deserialize_datetime(response, datetime_format, is_array)

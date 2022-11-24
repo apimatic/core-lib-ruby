@@ -21,18 +21,6 @@ class Validate < CoreLibrary::BaseModel
     @_hash
   end
 
-  # An array for optional fields
-  def self.optionals
-    %w[
-      address
-    ]
-  end
-
-  # An array for nullable fields
-  def self.nullables
-    []
-  end
-
   def initialize(field = nil,
                  name = nil,
                  address = SKIP,
