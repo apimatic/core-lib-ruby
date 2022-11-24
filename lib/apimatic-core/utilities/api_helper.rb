@@ -69,12 +69,12 @@ module CoreLibrary
       decoded
     end
 
-    def self.custom_type_deserializer(response, deserialize_into, is_array)
+    def self.custom_type_deserializer(response, deserialize_into, is_array, sdk_module)
       decoded = json_deserialize(response)
       unless is_array
-        return deserialize_into.call(decoded)
+        return deserialize_into.call(decoded, sdk_module)
       else
-        return decoded.map { |element| deserialize_into.call(element) }
+        return decoded.map { |element| deserialize_into.call(element, sdk_module) }
       end
     end
 
@@ -120,7 +120,7 @@ module CoreLibrary
     # @param [String] query_builder The query string builder to add the query parameters to.
     # @param [Hash] parameters The parameters to append.
     # @param [String] array_serialization The serialization format
-    def self.append_url_with_query_parameters(query_builder, parameters, array_serialization)
+    def self.append_url_with_query_parameters(query_builder, parameters, array_serialization, global_configuration)
       # Perform parameter validation.
       unless query_builder.instance_of? String
         raise ArgumentError, 'Given value for parameter \"query_builder\"
@@ -130,7 +130,7 @@ module CoreLibrary
       # Return if there are no parameters to replace.
       return query_builder if parameters.nil?
 
-      parameters = process_complex_types_parameters(parameters, array_serialization)
+      parameters = process_complex_types_parameters(parameters, array_serialization, global_configuration.get_sdk_module)
 
       parameters.each do |key, value|
         seperator = query_builder.include?('?') ? '&' : '?'
@@ -202,11 +202,11 @@ module CoreLibrary
     # Form encodes a hash of parameters.
     # @param [Hash] form_parameters The hash of parameters to encode.
     # @return [Hash] A hash with the same parameters form encoded.
-    def self.form_encode_parameters(form_parameters)
+    def self.form_encode_parameters(form_parameters, global_configuration)
       array_serialization = 'indexed'
       encoded = {}
       form_parameters.each do |key, value|
-        encoded.merge!(form_encode(value, key, formatting:
+        encoded.merge!(form_encode(value, key, global_configuration.get_sdk_module, formatting:
           array_serialization))
       end
       encoded
@@ -215,10 +215,10 @@ module CoreLibrary
     # Process complex types in query_params.
     # @param [Hash] query_parameters The hash of query parameters.
     # @return [Hash] array_serialization A hash with the processed query parameters.
-    def self.process_complex_types_parameters(query_parameters, array_serialization)
+    def self.process_complex_types_parameters(query_parameters, array_serialization, sdk_module)
       processed_params = {}
       query_parameters.each do |key, value|
-        processed_params.merge!(form_encode(value, key, formatting:
+        processed_params.merge!(ApiHelper.form_encode(value, key, sdk_module, formatting:
           array_serialization))
       end
       processed_params
@@ -259,11 +259,11 @@ module CoreLibrary
     # @param [String] instance_name The name of the object.
     # @return [Hash] A form encoded representation of the object in the form
     # of a hash.
-    def self.form_encode(obj, instance_name, formatting: 'indexed')
+    def self.form_encode(obj, instance_name, sdk_module, formatting: 'indexed')
       retval = {}
 
       # If this is a structure, resolve it's field names.
-      obj = obj.to_hash if obj.is_a? BaseModel
+      obj = obj.to_hash if obj.is_a? sdk_module::BaseModel
 
       # Create a form encoded hash for this object.
       if obj.nil?
@@ -271,28 +271,28 @@ module CoreLibrary
       elsif obj.instance_of? Array
         if formatting == 'indexed'
           obj.each_with_index do |value, index|
-            retval.merge!(form_encode(value, "#{instance_name}[#{index}]"))
+            retval.merge!(form_encode(value, "#{instance_name}[#{index}]", sdk_module))
           end
         elsif serializable_types.map { |x| obj[0].is_a? x }.any?
           obj.each do |value|
             abc = if formatting == 'unindexed'
-                    form_encode(value, "#{instance_name}[]",
+                    form_encode(value, "#{instance_name}[]", sdk_module,
                                           formatting: formatting)
                   else
-                    form_encode(value, instance_name,
+                    form_encode(value, instance_name, sdk_module,
                                           formatting: formatting)
                   end
             retval = custom_merge(retval, abc)
           end
         else
           obj.each_with_index do |value, index|
-            retval.merge!(form_encode(value, "#{instance_name}[#{index}]",
+            retval.merge!(form_encode(value, "#{instance_name}[#{index}]", sdk_module,
                                                 formatting: formatting))
           end
         end
       elsif obj.instance_of? Hash
         obj.each do |key, value|
-          retval.merge!(form_encode(value, "#{instance_name}[#{key}]",
+          retval.merge!(form_encode(value, "#{instance_name}[#{key}]", sdk_module,
                                               formatting: formatting))
         end
       elsif obj.instance_of? File
@@ -332,16 +332,16 @@ module CoreLibrary
     # Deserialize the value against the template (group of types).
     # @param [String] value The value to be deserialized.
     # @param [String] template The type-combination group against which the value will be mapped (oneOf(Integer, String)).
-    def self.deserialize(template, value)
+    def self.deserialize(template, value, sdk_module)
       decoded = json_deserialize(value)
-      map_types(decoded, template)
+      map_types(decoded, template, sdk_module: sdk_module)
     end
 
     # Validates and processes the value against the template(group of types).
     # @param [String] value The value to be mapped against the template.
     # @param [String] template The parameter indicates the group of types (oneOf(Integer, String)).
     # @param [String] group_name The parameter indicates the group (oneOf|anyOf).
-    def self.map_types(value, template, group_name: nil)
+    def self.map_types(value, template, group_name: nil, sdk_module: nil)
       result_value = nil
       matches = 0
       types = []
@@ -371,7 +371,7 @@ module CoreLibrary
           result_value, matches = map_array_type(value, element, group_name, matches)
         else
           begin
-            result_value, matches = map_type(value, element, group_name, matches)
+            result_value, matches = map_type(value, element, group_name, matches, sdk_module)
           rescue StandardError
             next
           end
@@ -431,13 +431,13 @@ module CoreLibrary
     # @param [String] type The possible type of the value.
     # @param [String] _group_name The parameter indicates the group (oneOf|anyOf).
     # @param [Integer] matches The parameter indicates the number of matches of value against types.
-    def self.map_type(value, type, _group_name, matches)
-      if Tester.constants.select do |c|
-        Tester.const_get(c).to_s == "Tester::#{type}"
+    def self.map_type(value, type, _group_name, matches, sdk_module)
+      if sdk_module.constants.select do |c|
+        sdk_module.const_get(c).to_s == "#{sdk_module.to_s}::#{type}"
       end.empty?
         value, matches = map_data_type(value, type, matches)
       else
-        value, matches = map_complex_type(value, type, matches)
+        value, matches = map_complex_type(value, type, matches, sdk_module)
       end
       [value, matches]
     end
@@ -446,8 +446,9 @@ module CoreLibrary
     # @param [String] value The value to be mapped against the type.
     # @param [String] type The possible type of the value.
     # @param [Integer] matches The parameter indicates the number of matches of value against types.
-    def self.map_complex_type(value, type, matches)
-      obj = Tester.const_get(type)
+    def self.map_complex_type(value, type, matches, sdk_module)
+      # TODO: Add a nil check on sdk_module?
+      obj = sdk_module.const_get(type)
       value = if obj.respond_to? 'from_hash'
                 obj.send('from_hash', value)
               else
@@ -471,8 +472,8 @@ module CoreLibrary
     # Validates the value against the template(group of types).
     # @param [String] value The value to be mapped against the type.
     # @param [String] template The parameter indicates the group of types (oneOf(Integer, String)).
-    def self.validate_types(value, template)
-      map_types(json_deserialize(value.to_json), template)
+    def self.validate_types(value, template, sdk_module)
+      map_types(json_deserialize(value.to_json), template, sdk_module: sdk_module)
     end
 
     # Get content-type depending on the value

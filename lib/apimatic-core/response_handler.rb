@@ -19,6 +19,7 @@ module CoreLibrary
       @is_primitive_response = false
       @is_response_array = false
       @is_response_void = false
+      @type_group = nil
     end
 
     def deserializer(deserializer)
@@ -96,7 +97,12 @@ module CoreLibrary
       self
     end
 
-    def handle(response, global_errors)
+    def type_group(type_group)
+      @type_group = type_group
+      self
+    end
+
+    def handle(response, global_errors, sdk_module)
       @endpoint_logger.info("Validating response for #{@endpoint_name_for_logging}.")
 
       # checking Nullify 404
@@ -111,7 +117,7 @@ module CoreLibrary
       return if @is_response_void
 
       # applying deserializer if configured
-      deserialized_value = self.apply_deserializer(response)
+      deserialized_value = self.apply_deserializer(response, sdk_module)
 
       # applying api_response if configured
       deserialized_value = self.apply_api_response(response, deserialized_value)
@@ -150,17 +156,22 @@ module CoreLibrary
       return @deserializer.call(response.raw_body, @root_element_name, @deserialize_into, @datetime_format)
     end
 
-    def apply_deserializer(response)
+    def apply_deserializer(response, sdk_module)
       if @is_xml_response
         return apply_xml_deserializer(response)
-      elsif @deserializer and @datetime_format
-        return @deserializer.call(response.raw_body, @datetime_format, @is_response_array)
-      elsif @deserializer and (!@deserialize_into.nil? or @is_primitive_response)
-        return @deserializer.call(response.raw_body, @deserialize_into, @is_response_array)
-      elsif @deserializer
-        return @deserializer.call(response.raw_body, @is_response_array)
-      else
+      end
+      if @deserializer.nil?
         return response.raw_body
+      end
+
+      if !@type_group.nil?
+        return @deserializer.call(@type_group, response.raw_body, sdk_module)
+      elsif @datetime_format
+        return @deserializer.call(response.raw_body, @datetime_format, @is_response_array)
+      elsif !@deserialize_into.nil? or @is_primitive_response
+        return @deserializer.call(response.raw_body, @deserialize_into, @is_response_array, sdk_module)
+      else
+        return @deserializer.call(response.raw_body, @is_response_array)
       end
     end
 

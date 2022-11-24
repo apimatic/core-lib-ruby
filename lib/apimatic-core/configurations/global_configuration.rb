@@ -27,6 +27,16 @@ module CoreLibrary
       @global_errors
     end
 
+    # Sets the current SDK module core library is being used for.
+    def sdk_module(sdk_module)
+      @sdk_module = sdk_module
+      self
+    end
+
+    def get_sdk_module
+      @sdk_module
+    end
+
     # The setter for the global headers to be attached with all requests.
     # @param [Hash] global_headers The hash of global headers.
     # @return [GlobalConfiguration] An updated instance of GlobalConfiguration.

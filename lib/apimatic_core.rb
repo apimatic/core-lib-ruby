@@ -20,7 +20,7 @@ require_relative 'apimatic-core/types/parameter'
 require_relative 'apimatic-core/types/error_case'
 require_relative 'apimatic-core/types/base_model'
 require_relative 'apimatic-core/types/file_wrapper'
-
+require_relative 'apimatic-core/types/validation_exception'
 
 require_relative 'apimatic-core/utilities/api_helper'
 require_relative 'apimatic-core/utilities/date_time_helper'

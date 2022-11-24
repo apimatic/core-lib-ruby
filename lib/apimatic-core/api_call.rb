@@ -63,7 +63,8 @@ module CoreLibrary
         _http_request = @request_builder
                           .endpoint_logger(@endpoint_logger)
                           .endpoint_name_for_logging(@endpoint_name_for_logging)
-                          .build(@global_configuration, @endpoint_context)
+                          .global_configuration(@global_configuration)
+                          .build(@endpoint_context)
         @endpoint_logger.debug("Raw request for #{@endpoint_name_for_logging} is: #{_http_request.inspect}")
 
         _http_callback = _client_configuration.http_callback
@@ -87,7 +88,7 @@ module CoreLibrary
         _deserialized_response = @response_handler
                                    .endpoint_logger(@endpoint_logger)
                                    .endpoint_name_for_logging(@endpoint_name_for_logging)
-                                   .handle(_http_response, @global_configuration.get_global_errors)
+                                   .handle(_http_response, @global_configuration.get_global_errors, @global_configuration.get_sdk_module)
         _deserialized_response
       rescue Exception => exception
         @endpoint_logger.error(exception)

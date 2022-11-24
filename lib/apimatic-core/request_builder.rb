@@ -52,8 +52,8 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def template_param(template_param)
       template_param.validate
-      @template_params[template_param.get_key] = {'value' => template_param.get_value,
-                                                  'encode' => template_param.need_to_encode}
+      @template_params[template_param.get_key] = { 'value' => template_param.get_value,
+                                                   'encode' => template_param.need_to_encode }
       self
     end
 
@@ -181,27 +181,30 @@ module CoreLibrary
       self
     end
 
+    def global_configuration(global_configuration)
+      @global_configuration = global_configuration
+      self
+    end
+
     # Builds the Http Request.
-    # @param [GlobalConfiguration] global_configuration The global configuration to be used while preparing the request.
     # @param [Hash] endpoint_context The endpoint configuration to be used while executing the request.
     # @return [HttpRequest] An instance of HttpRequest.
-    def build(global_configuration, endpoint_context)
-      _url = process_url(global_configuration)
-      _request_headers = process_headers(global_configuration)
+    def build(endpoint_context)
+      _url = process_url()
+      _request_headers = process_headers(@global_configuration)
       _request_body = process_body()
       _http_request = HttpRequest.new(@http_method, _url, headers: _request_headers, parameters: _request_body,
                                       context: endpoint_context)
-      apply_auth(global_configuration.get_auth_managers(), _http_request)
+      apply_auth(@global_configuration.get_auth_managers(), _http_request)
 
       return _http_request
     end
 
     # Processes and resolves the endpoint URL.
-    # @param [GlobalConfiguration] global_configuration The global configuration to be used while processing the URL.
     # @return [String] The processed URL.
-    def process_url(global_configuration)
+    def process_url
       @endpoint_logger.info("Preparing query URL for #{@endpoint_name_for_logging}.")
-      _base_url = global_configuration.get_base_uri_executor.call(@server)
+      _base_url = @global_configuration.get_base_uri_executor.call(@server)
       _updated_url_with_template_params = ApiHelper.append_url_with_template_parameters(@path, @template_params)
       _url = _base_url + _updated_url_with_template_params
       _url = get_updated_url_with_query_params(_url)
@@ -218,7 +221,7 @@ module CoreLibrary
       _query_params.merge!(@additional_query_params) if _has_additional_query_params
 
       if (!_query_params.nil? and _query_params.any?)
-        return ApiHelper.append_url_with_query_parameters(url, _query_params, @array_serialization_format)
+        return ApiHelper.append_url_with_query_parameters(url, _query_params, @array_serialization_format, @global_configuration)
       else
         return url
       end
@@ -249,6 +252,7 @@ module CoreLibrary
       end
 
       if _has_local_headers
+        ApiHelper.clean_hash(@header_params)
         _request_headers.merge!(@header_params)
       end
 
@@ -279,13 +283,13 @@ module CoreLibrary
         _form_params.merge!(@multipart_params) if _has_multipart_param
         _form_params.merge!(@additional_form_params) if _has_additional_form_params
         # TODO: add Array serialization format support while writing the POC
-        return ApiHelper.form_encode_parameters(_form_params)
+        return ApiHelper.form_encode_parameters(_form_params, @global_configuration)
       elsif _has_body_param and _has_body_serializer
         return @body_serializer.call(resolve_body_param())
       elsif _has_body_param and not _has_body_serializer
         return resolve_body_param()
       end
-      
+
       return {}
     end
 
@@ -319,7 +323,7 @@ module CoreLibrary
       #   if @body_param.content_type:
       #     @header_params['content-type'] = @body_param.content_type
       #   return @body_param.file_stream
-        return @body_param
+      return @body_param
     end
 
     # Applies the configured auth onto the http request.
