@@ -51,7 +51,7 @@ module CoreLibrary
     # @param [Parameter] template_param The template parameter of the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def template_param(template_param)
-      template_param.validate
+      template_param.validate(sdk_module: @global_configuration.get_sdk_module)
       @template_params[template_param.get_key] = {  'value' => template_param.get_value,
                                                     'encode' => template_param.need_to_encode  }
       self
@@ -61,7 +61,7 @@ module CoreLibrary
     # @param [Parameter] header_param The header parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def header_param(header_param)
-      header_param.validate
+      header_param.validate(sdk_module: @global_configuration.get_sdk_module)
       @header_params[header_param.get_key] = header_param.get_value
       self
     end
@@ -70,7 +70,7 @@ module CoreLibrary
     # @param [Parameter] query_param The query parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def query_param(query_param)
-      query_param.validate
+      query_param.validate(sdk_module: @global_configuration.get_sdk_module)
       @query_params[query_param.get_key] = query_param.get_value
       self
     end
@@ -79,7 +79,7 @@ module CoreLibrary
     # @param [Parameter] form_param The form parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def form_param(form_param)
-      form_param.validate
+      form_param.validate(sdk_module: @global_configuration.get_sdk_module)
       @form_params[form_param.get_key] = form_param.get_value
       self
     end
@@ -104,7 +104,7 @@ module CoreLibrary
     # @param [Parameter] multipart_param The multipart parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def multipart_param(multipart_param)
-      multipart_param.validate()
+      multipart_param.validate(sdk_module: @global_configuration.get_sdk_module)
       @multipart_params[multipart_param.get_key] = get_part(multipart_param)
       self
     end
@@ -113,7 +113,7 @@ module CoreLibrary
     # @param [Parameter] body_param The body parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def body_param(body_param)
-      body_param.validate()
+      body_param.validate(sdk_module: @global_configuration.get_sdk_module)
       if !body_param.get_key().nil?
         if @body_param == nil
           @body_param = {}

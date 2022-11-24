@@ -1,5 +1,5 @@
 module CoreLibrary
-# This data class represents the parameter to be sent in the request.
+  # This data class represents the parameter to be sent in the request.
   class Parameter
 
     def initialize
@@ -74,11 +74,25 @@ module CoreLibrary
       @default_content_type
     end
 
+    # Template in case of oneOf or anyOf
+    def template(template)
+      @template = template
+      self
+    end
+
     # Validates the parameter value to be sent in the request.
     # @raise [ValueError] The value error if the parameter is required but the value is nil.
-    def validate
+    def validate(sdk_module: nil)
       if @is_required and @value.nil?
         raise ArgumentError, "Required parameter #{@key} cannot be nil."
+      end
+
+      unless @template.nil?
+        if sdk_module.nil?
+          raise StandardError, "No SDK module set for parameter validation!"
+        end
+
+        ApiHelper.validate_types(@value, @template, sdk_module)
       end
     end
   end

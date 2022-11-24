@@ -130,7 +130,7 @@ module CoreLibrary
       # Return if there are no parameters to replace.
       return query_builder if parameters.nil?
 
-      parameters = process_complex_types_parameters(parameters, array_serialization, global_configuration.get_sdk_module)
+      parameters = process_complex_types_parameters(parameters, array_serialization)
 
       parameters.each do |key, value|
         seperator = query_builder.include?('?') ? '&' : '?'
@@ -214,7 +214,7 @@ module CoreLibrary
     # Process complex types in query_params.
     # @param [Hash] query_parameters The hash of query parameters.
     # @return [Hash] array_serialization A hash with the processed query parameters.
-    def self.process_complex_types_parameters(query_parameters, array_serialization, sdk_module)
+    def self.process_complex_types_parameters(query_parameters, array_serialization)
       processed_params = {}
       query_parameters.each do |key, value|
         processed_params.merge!(ApiHelper.form_encode(value, key, formatting:

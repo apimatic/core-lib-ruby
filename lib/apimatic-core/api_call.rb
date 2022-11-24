@@ -63,7 +63,6 @@ module CoreLibrary
         _http_request = @request_builder
                           .endpoint_logger(@endpoint_logger)
                           .endpoint_name_for_logging(@endpoint_name_for_logging)
-                          .global_configuration(@global_configuration)
                           .build(@endpoint_context)
         @endpoint_logger.debug("Raw request for #{@endpoint_name_for_logging} is: #{_http_request.inspect}")
 
