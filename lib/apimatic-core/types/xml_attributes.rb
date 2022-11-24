@@ -23,5 +23,16 @@ module CoreLibrary
       self
     end
 
+    def get_root_element_name
+      return @root_element_name
+    end
+
+    def get_value
+      return @value
+    end
+
+    def get_array_item_name
+      return @array_item_name
+    end
   end
 end
