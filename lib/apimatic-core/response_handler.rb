@@ -1,5 +1,3 @@
-require_relative '../apimatic_core'
-
 module CoreLibrary
   class ResponseHandler
 
