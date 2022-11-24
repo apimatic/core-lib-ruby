@@ -92,14 +92,14 @@ module CoreLibrary
         end
       end
 
-      def deserialize_xml(xml, root_element_name, clazz, datetime_format: nil)
+      def deserialize_xml(xml, root_element_name, clazz, datetime_format= nil)
         doc = Nokogiri::XML::Document.parse xml
         from_element(doc, root_element_name, clazz,
                      datetime_format: datetime_format)
       end
 
       def deserialize_xml_to_array(xml, root_element_name, item_name, clazz,
-                                   datetime_format: nil)
+                                   datetime_format= nil)
         doc = Nokogiri::XML::Document.parse xml
         from_element_to_array(doc, item_name, clazz,
                               wrapping_element_name: root_element_name,
@@ -107,7 +107,7 @@ module CoreLibrary
       end
 
       def deserialize_xml_to_hash(xml, root_element_name, clazz,
-                                  datetime_format: nil)
+                                  datetime_format= nil)
         doc = Nokogiri::XML::Document.parse xml
         from_element_to_hash(doc, root_element_name, clazz,
                              datetime_format: datetime_format)

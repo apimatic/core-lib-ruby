@@ -52,8 +52,8 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def template_param(template_param)
       template_param.validate
-      @template_params[template_param.get_key] = { 'value' => template_param.get_value,
-                                                   'encode' => template_param.need_to_encode }
+      @template_params[template_param.get_key] = {  'value' => template_param.get_value,
+                                                    'encode' => template_param.need_to_encode  }
       self
     end
 
@@ -191,8 +191,8 @@ module CoreLibrary
     # @return [HttpRequest] An instance of HttpRequest.
     def build(endpoint_context)
       _url = process_url()
-      _request_headers = process_headers(@global_configuration)
       _request_body = process_body()
+      _request_headers = process_headers(@global_configuration)
       _http_request = HttpRequest.new(@http_method, _url, headers: _request_headers, parameters: _request_body,
                                       context: endpoint_context)
       apply_auth(@global_configuration.get_auth_managers(), _http_request)
@@ -276,14 +276,14 @@ module CoreLibrary
       end
 
       if _has_xml_attributes
-        return self.process_xml_parameters(@body_serializer)
+        return process_xml_parameters
       elsif _has_form_params or _has_additional_form_params or _has_multipart_param
         _form_params = @form_params
         _form_params.merge!(@form_params) if _has_form_params
         _form_params.merge!(@multipart_params) if _has_multipart_param
         _form_params.merge!(@additional_form_params) if _has_additional_form_params
         # TODO: add Array serialization format support while writing the POC
-        return ApiHelper.form_encode_parameters(_form_params, @global_configuration)
+        return ApiHelper.form_encode_parameters(_form_params, @array_serialization_format)
       elsif _has_body_param and _has_body_serializer
         return @body_serializer.call(resolve_body_param())
       elsif _has_body_param and not _has_body_serializer
@@ -309,35 +309,42 @@ module CoreLibrary
     end
 
     # Processes the XML body parameter.
-    # @param [Callable] body_serializer The body serializer callable.
+
     # @return [String] The serialized xml body.
-    def process_xml_parameters(body_serializer)
+    def process_xml_parameters
       # TODO: add code while writing the POC
+      if !@xml_attributes.get_array_item_name().nil?
+        @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_array_item_name,
+                              @xml_attributes.get_value)
+      end
+      @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_value)
     end
 
     # Resolves the body parameter to appropriate type.
     # @return [Hash] The resolved body parameter as per the type.
     def resolve_body_param
-      # TODO: add code while writing the POC
-      # if ApiHelper.is_file_wrapper_instance(@body_param):
-      #   if @body_param.content_type:
-      #     @header_params['content-type'] = @body_param.content_type
-      #   return @body_param.file_stream
-      return @body_param
+      if !@body_param.nil? and @body_param.is_a? FileWrapper
+        @header_params['content-type'] = @body_param.file.content_type if !@body_param.file.nil? and
+          !@body_param.file.content_type.nil?
+        @header_params['content-length'] = @body_param.file.size.to_s
+        return @body_param.file
+      elsif !@body_param.nil? and @body_param.is_a? File
+        @header_params['content-length'] = @body_param.size.to_s
+      end
+      @body_param
     end
 
     # Applies the configured auth onto the http request.
     # @param [Hash] auth_managers The hash of auth managers.
     # @param [HttpRequest] http_request The HTTP request on which the auth is to be applied.
     def apply_auth(auth_managers, http_request)
-      # TODO: Uncomment following code when the auth flow is refactored.
-      # if not @auth.nil?
-      #   if @auth.with_auth_managers(auth_managers).is_valid
-      #     @auth.apply(http_request)
-      #   else
-      #     raise PermissionError(@auth.error_message)
-      #   end
-      # end
+      if !@auth.nil?
+        if @auth.with_auth_managers(auth_managers).valid
+          @auth.apply(http_request)
+        else
+          raise InvalidAuthCredential.new(@auth.error_message)
+        end
+      end
     end
   end
 end

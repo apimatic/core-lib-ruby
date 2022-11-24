@@ -12,8 +12,7 @@ module CoreLibrary
       @local_errors = {}
       @datetime_format = nil
       @is_xml_response = false
-      @xml_item_name = nil
-      @root_element_name = nil
+      @xml_attribute = nil
       @endpoint_name_for_logging = nil
       @endpoint_logger = nil
       @is_primitive_response = false
@@ -62,13 +61,8 @@ module CoreLibrary
       self
     end
 
-    def xml_item_name(xml_item_name)
-      @xml_item_name = xml_item_name
-      self
-    end
-
-    def root_element_name(root_element_name)
-      @root_element_name = root_element_name
+    def xml_attribute(xml_attribute)
+      @xml_attribute = xml_attribute
       self
     end
 
@@ -150,10 +144,12 @@ module CoreLibrary
     end
 
     def apply_xml_deserializer(response)
-      if @xml_item_name
-        return @deserializer.call(response.raw_body, @root_element_name, @xml_item_name, @deserialize_into, @datetime_format)
+      if !@xml_attribute.get_array_item_name.nil?
+        return @deserializer.call(response.raw_body, @xml_attribute.get_root_element_name,
+                                  @xml_attribute.get_array_item_name, @deserialize_into, @datetime_format)
       end
-      return @deserializer.call(response.raw_body, @root_element_name, @deserialize_into, @datetime_format)
+      return @deserializer.call(response.raw_body, @xml_attribute.get_root_element_name,
+                                @deserialize_into, @datetime_format)
     end
 
     def apply_deserializer(response, sdk_module)
@@ -177,8 +173,8 @@ module CoreLibrary
 
     def apply_api_response(response, deserialized_value)
       if @is_api_response
-        error = deserialized_value.get('errors') if deserialized_value.is_a? Hash
-        return ApiResponse(response, body = deserialized_value, errors = error)
+        errors = deserialized_value.get('errors') if deserialized_value.is_a? Hash
+        return ApiResponse.new(response, data: deserialized_value, errors: errors)
       end
       return deserialized_value
     end
