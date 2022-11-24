@@ -205,7 +205,7 @@ module CoreLibrary
     def self.form_encode_parameters(form_parameters, array_serialization)
       encoded = {}
       form_parameters.each do |key, value|
-        encoded.merge!(form_encode(value, key, global_configuration.get_sdk_module, formatting:
+        encoded.merge!(form_encode(value, key, formatting:
           array_serialization))
       end
       encoded
@@ -217,7 +217,7 @@ module CoreLibrary
     def self.process_complex_types_parameters(query_parameters, array_serialization, sdk_module)
       processed_params = {}
       query_parameters.each do |key, value|
-        processed_params.merge!(ApiHelper.form_encode(value, key, sdk_module, formatting:
+        processed_params.merge!(ApiHelper.form_encode(value, key, formatting:
           array_serialization))
       end
       processed_params
@@ -258,11 +258,11 @@ module CoreLibrary
     # @param [String] instance_name The name of the object.
     # @return [Hash] A form encoded representation of the object in the form
     # of a hash.
-    def self.form_encode(obj, instance_name, sdk_module, formatting: 'indexed')
+    def self.form_encode(obj, instance_name, formatting: 'indexed')
       retval = {}
 
       # If this is a structure, resolve it's field names.
-      obj = obj.to_hash if obj.is_a? sdk_module::BaseModel
+      obj = obj.to_hash if obj.is_a? BaseModel
 
       # Create a form encoded hash for this object.
       if obj.nil?
@@ -270,28 +270,28 @@ module CoreLibrary
       elsif obj.instance_of? Array
         if formatting == 'indexed'
           obj.each_with_index do |value, index|
-            retval.merge!(form_encode(value, "#{instance_name}[#{index}]", sdk_module))
+            retval.merge!(form_encode(value, "#{instance_name}[#{index}]"))
           end
         elsif serializable_types.map { |x| obj[0].is_a? x }.any?
           obj.each do |value|
             abc = if formatting == 'unindexed'
-                    form_encode(value, "#{instance_name}[]", sdk_module,
+                    form_encode(value, "#{instance_name}[]",
                                           formatting: formatting)
                   else
-                    form_encode(value, instance_name, sdk_module,
+                    form_encode(value, instance_name,
                                           formatting: formatting)
                   end
             retval = custom_merge(retval, abc)
           end
         else
           obj.each_with_index do |value, index|
-            retval.merge!(form_encode(value, "#{instance_name}[#{index}]", sdk_module,
+            retval.merge!(form_encode(value, "#{instance_name}[#{index}]",
                                                 formatting: formatting))
           end
         end
       elsif obj.instance_of? Hash
         obj.each do |key, value|
-          retval.merge!(form_encode(value, "#{instance_name}[#{key}]", sdk_module,
+          retval.merge!(form_encode(value, "#{instance_name}[#{key}]",
                                               formatting: formatting))
         end
       elsif obj.instance_of? File
