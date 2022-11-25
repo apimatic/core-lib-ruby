@@ -21,17 +21,17 @@ module CoreLibrary
       tuples
     end
 
-    def self.deserialize_primitive_types(response, type, is_array)
+    def self.deserialize_primitive_types(response, type, is_array, should_symbolize)
       if is_array
-        return json_deserialize(response)
+        return json_deserialize(response, should_symbolize)
       end
       raise ArgumentError, 'callable has not been not provided for deserializer.' if type.nil?
       return type.call(response)
     end
 
-    def self.deserialize_datetime(response, datetime_format, is_array)
+    def self.deserialize_datetime(response, datetime_format, is_array, should_symbolize)
       if is_array
-        decoded = json_deserialize(response)
+        decoded = json_deserialize(response, should_symbolize)
       end
       if datetime_format == DateTimeFormat::HTTP_DATE_TIME
         unless is_array
@@ -54,22 +54,22 @@ module CoreLibrary
       end
     end
 
-    def self.date_deserializer(response, is_array)
+    def self.date_deserializer(response, is_array, should_symbolize)
       if is_array
-        decoded = json_deserialize(response)
+        decoded = json_deserialize(response, should_symbolize)
         return decoded.map { |element| Date.iso8601(element) }
       end
       Date.iso8601(response)
     end
 
-    def self.dynamic_deserializer(response, is_array = true)
-      decoded = json_deserialize(response) unless response.nil? ||
+    def self.dynamic_deserializer(response, is_array = true, should_symbolize)
+      decoded = json_deserialize(response, should_symbolize) unless response.nil? ||
         response.to_s.strip.empty?
       decoded
     end
 
-    def self.custom_type_deserializer(response, deserialize_into, is_array, sdk_module)
-      decoded = json_deserialize(response)
+    def self.custom_type_deserializer(response, deserialize_into, is_array, sdk_module, should_symbolize)
+      decoded = json_deserialize(response, should_symbolize)
       unless is_array
         return deserialize_into.call(decoded, sdk_module)
       else
@@ -180,8 +180,8 @@ module CoreLibrary
 
     # Parses JSON string.
     # @param [String] json A JSON string.
-    def self.json_deserialize(json)
-      JSON.parse(json)
+    def self.json_deserialize(json, should_symbolize = false)
+      JSON.parse(json, symbolize_names: should_symbolize)
     rescue StandardError
       raise TypeError, 'Server responded with invalid JSON.'
     end
@@ -275,23 +275,23 @@ module CoreLibrary
           obj.each do |value|
             abc = if formatting == 'unindexed'
                     form_encode(value, "#{instance_name}[]",
-                                          formatting: formatting)
+                                formatting: formatting)
                   else
                     form_encode(value, instance_name,
-                                          formatting: formatting)
+                                formatting: formatting)
                   end
             retval = custom_merge(retval, abc)
           end
         else
           obj.each_with_index do |value, index|
             retval.merge!(form_encode(value, "#{instance_name}[#{index}]",
-                                                formatting: formatting))
+                                      formatting: formatting))
           end
         end
       elsif obj.instance_of? Hash
         obj.each do |key, value|
           retval.merge!(form_encode(value, "#{instance_name}[#{key}]",
-                                              formatting: formatting))
+                                    formatting: formatting))
         end
       elsif obj.instance_of? File
         retval[instance_name] = UploadIO.new(
@@ -330,8 +330,8 @@ module CoreLibrary
     # Deserialize the value against the template (group of types).
     # @param [String] value The value to be deserialized.
     # @param [String] template The type-combination group against which the value will be mapped (oneOf(Integer, String)).
-    def self.deserialize(template, value, sdk_module)
-      decoded = json_deserialize(value)
+    def self.deserialize(template, value, sdk_module, should_symbolize)
+      decoded = json_deserialize(value, should_symbolize)
       map_types(decoded, template, sdk_module: sdk_module)
     end
 
@@ -470,8 +470,8 @@ module CoreLibrary
     # Validates the value against the template(group of types).
     # @param [String] value The value to be mapped against the type.
     # @param [String] template The parameter indicates the group of types (oneOf(Integer, String)).
-    def self.validate_types(value, template, sdk_module)
-      map_types(json_deserialize(value.to_json), template, sdk_module: sdk_module)
+    def self.validate_types(value, template, sdk_module, should_symbolize)
+      map_types(json_deserialize(value.to_json, should_symbolize), template, sdk_module: sdk_module)
     end
 
     # Get content-type depending on the value

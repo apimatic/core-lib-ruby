@@ -17,6 +17,7 @@ module CoreLibrary
       @is_response_array = false
       @is_response_void = false
       @type_group = nil
+      @should_symbolize = false
     end
 
     def deserializer(deserializer)
@@ -94,6 +95,11 @@ module CoreLibrary
       self
     end
 
+    def should_symbolize(should_symbolize)
+      @should_symbolize = should_symbolize
+      self
+    end
+
     def handle(response, global_errors, sdk_module)
       @endpoint_logger.info("Validating response for #{@endpoint_name_for_logging}.")
 
@@ -159,13 +165,13 @@ module CoreLibrary
       end
 
       if !@type_group.nil?
-        return @deserializer.call(@type_group, response.raw_body, sdk_module)
+        return @deserializer.call(@type_group, response.raw_body, sdk_module, @should_symbolize)
       elsif @datetime_format
-        return @deserializer.call(response.raw_body, @datetime_format, @is_response_array)
+        return @deserializer.call(response.raw_body, @datetime_format, @is_response_array, @should_symbolize)
       elsif !@deserialize_into.nil? or @is_primitive_response
-        return @deserializer.call(response.raw_body, @deserialize_into, @is_response_array, sdk_module)
+        return @deserializer.call(response.raw_body, @deserialize_into, @is_response_array, sdk_module, @should_symbolize)
       else
-        return @deserializer.call(response.raw_body, @is_response_array)
+        return @deserializer.call(response.raw_body, @is_response_array, @should_symbolize)
       end
     end
 
