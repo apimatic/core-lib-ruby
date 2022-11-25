@@ -68,12 +68,12 @@ module CoreLibrary
       decoded
     end
 
-    def self.custom_type_deserializer(response, deserialize_into, is_array, sdk_module, should_symbolize)
+    def self.custom_type_deserializer(response, deserialize_into, is_array, should_symbolize)
       decoded = json_deserialize(response, should_symbolize)
       unless is_array
-        return deserialize_into.call(decoded, sdk_module)
+        return deserialize_into.call(decoded)
       else
-        return decoded.map { |element| deserialize_into.call(element, sdk_module) }
+        return decoded.map { |element| deserialize_into.call(element) }
       end
     end
 
@@ -119,7 +119,7 @@ module CoreLibrary
     # @param [String] query_builder The query string builder to add the query parameters to.
     # @param [Hash] parameters The parameters to append.
     # @param [String] array_serialization The serialization format
-    def self.append_url_with_query_parameters(query_builder, parameters, array_serialization, global_configuration)
+    def self.append_url_with_query_parameters(query_builder, parameters, array_serialization)
       # Perform parameter validation.
       unless query_builder.instance_of? String
         raise ArgumentError, 'Given value for parameter \"query_builder\"
@@ -180,7 +180,7 @@ module CoreLibrary
 
     # Parses JSON string.
     # @param [String] json A JSON string.
-    def self.json_deserialize(json, should_symbolize = false)
+    def self.json_deserialize(json, should_symbolize)
       JSON.parse(json, symbolize_names: should_symbolize)
     rescue StandardError
       raise TypeError, 'Server responded with invalid JSON.'

@@ -80,20 +80,20 @@ module CoreLibrary
       self
     end
 
+    def get_template
+      @template
+    end
+
     # Validates the parameter value to be sent in the request.
     # @raise [ValueError] The value error if the parameter is required but the value is nil.
-    def validate(sdk_module: nil)
+    def validate
       if @is_required and @value.nil?
         raise ArgumentError, "Required parameter #{@key} cannot be nil."
       end
+    end
 
-      unless @template.nil?
-        if sdk_module.nil?
-          raise StandardError, "No SDK module set for parameter validation!"
-        end
-
-        ApiHelper.validate_types(@value, @template, sdk_module)
-      end
+    def validate_template(sdk_module)
+      ApiHelper.validate_types(@value, @template, sdk_module) unless @value.nil?
     end
   end
 end

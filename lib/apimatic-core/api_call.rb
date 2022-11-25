@@ -10,7 +10,7 @@ module CoreLibrary
 
     def initialize(global_configuration, logger:nil)
       @global_configuration = global_configuration
-      @request_builder = nil
+      @request_builder = RequestBuilder.new
       @response_handler = ResponseHandler.new
       @endpoint_logger = EndpointLogger.new(logger)
       @endpoint_name_for_logging = nil
@@ -60,9 +60,16 @@ module CoreLibrary
           raise ValueError("An HTTP client instance is required to execute an Api call.")
         end
 
+        unless @request_builder.template_validation_array.empty?
+          @request_builder.template_validation_array.each do |parameter|
+            parameter.validate_template(@global_configuration.get_sdk_module)
+          end
+        end
+
         _http_request = @request_builder
                           .endpoint_logger(@endpoint_logger)
                           .endpoint_name_for_logging(@endpoint_name_for_logging)
+                          .global_configuration(@global_configuration)
                           .build(@endpoint_context)
         @endpoint_logger.debug("Raw request for #{@endpoint_name_for_logging} is: #{_http_request.inspect}")
 
