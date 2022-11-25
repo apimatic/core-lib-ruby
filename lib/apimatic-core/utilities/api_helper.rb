@@ -180,7 +180,7 @@ module CoreLibrary
 
     # Parses JSON string.
     # @param [String] json A JSON string.
-    def self.json_deserialize(json, should_symbolize)
+    def self.json_deserialize(json, should_symbolize = false)
       JSON.parse(json, symbolize_names: should_symbolize)
     rescue StandardError
       raise TypeError, 'Server responded with invalid JSON.'
