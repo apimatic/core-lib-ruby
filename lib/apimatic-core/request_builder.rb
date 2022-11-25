@@ -21,6 +21,7 @@ module CoreLibrary
       @xml_attributes = nil
       @endpoint_name_for_logging = nil
       @endpoint_logger = nil
+      @template_validation_array = []
     end
 
     # The setter for the server.
@@ -51,7 +52,8 @@ module CoreLibrary
     # @param [Parameter] template_param The template parameter of the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def template_param(template_param)
-      template_param.validate(sdk_module: @global_configuration.get_sdk_module)
+      template_param.validate
+      conditional_add_to_template_validation_array(template_param)
       @template_params[template_param.get_key] = {  'value' => template_param.get_value,
                                                     'encode' => template_param.need_to_encode  }
       self
@@ -61,7 +63,8 @@ module CoreLibrary
     # @param [Parameter] header_param The header parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def header_param(header_param)
-      header_param.validate(sdk_module: @global_configuration.get_sdk_module)
+      header_param.validate
+      conditional_add_to_template_validation_array(header_param)
       @header_params[header_param.get_key] = header_param.get_value
       self
     end
@@ -70,7 +73,8 @@ module CoreLibrary
     # @param [Parameter] query_param The query parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def query_param(query_param)
-      query_param.validate(sdk_module: @global_configuration.get_sdk_module)
+      query_param.validate
+      conditional_add_to_template_validation_array(query_param)
       @query_params[query_param.get_key] = query_param.get_value
       self
     end
@@ -79,7 +83,8 @@ module CoreLibrary
     # @param [Parameter] form_param The form parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def form_param(form_param)
-      form_param.validate(sdk_module: @global_configuration.get_sdk_module)
+      form_param.validate
+      conditional_add_to_template_validation_array(form_param)
       @form_params[form_param.get_key] = form_param.get_value
       self
     end
@@ -104,7 +109,8 @@ module CoreLibrary
     # @param [Parameter] multipart_param The multipart parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def multipart_param(multipart_param)
-      multipart_param.validate(sdk_module: @global_configuration.get_sdk_module)
+      multipart_param.validate
+      conditional_add_to_template_validation_array(multipart_param)
       @multipart_params[multipart_param.get_key] = get_part(multipart_param)
       self
     end
@@ -113,7 +119,8 @@ module CoreLibrary
     # @param [Parameter] body_param The body parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def body_param(body_param)
-      body_param.validate(sdk_module: @global_configuration.get_sdk_module)
+      body_param.validate
+      conditional_add_to_template_validation_array(body_param)
       if !body_param.get_key().nil?
         if @body_param == nil
           @body_param = {}
@@ -186,6 +193,16 @@ module CoreLibrary
       self
     end
 
+    def template_validation_array
+      @template_validation_array
+    end
+
+    def conditional_add_to_template_validation_array(parameter)
+      unless parameter.get_template.nil?
+        @template_validation_array.push(parameter)
+      end
+    end
+
     # Builds the Http Request.
     # @param [Hash] endpoint_context The endpoint configuration to be used while executing the request.
     # @return [HttpRequest] An instance of HttpRequest.
@@ -221,7 +238,7 @@ module CoreLibrary
       _query_params.merge!(@additional_query_params) if _has_additional_query_params
 
       if (!_query_params.nil? and _query_params.any?)
-        return ApiHelper.append_url_with_query_parameters(url, _query_params, @array_serialization_format, @global_configuration)
+        return ApiHelper.append_url_with_query_parameters(url, _query_params, @array_serialization_format)
       else
         return url
       end

@@ -163,7 +163,7 @@ module CoreLibrary
       elsif @datetime_format
         return @deserializer.call(response.raw_body, @datetime_format, @is_response_array)
       elsif !@deserialize_into.nil? or @is_primitive_response
-        return @deserializer.call(response.raw_body, @deserialize_into, @is_response_array, sdk_module)
+        return @deserializer.call(response.raw_body, @deserialize_into, @is_response_array)
       else
         return @deserializer.call(response.raw_body, @is_response_array)
       end
