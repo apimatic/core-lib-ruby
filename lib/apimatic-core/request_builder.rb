@@ -207,7 +207,6 @@ module CoreLibrary
       unless @template_validation_array.empty?
         @template_validation_array.each do |parameter|
           parameter.validate_template(@global_configuration.get_sdk_module)
-          puts "Validated!"
         end
       end
     end
