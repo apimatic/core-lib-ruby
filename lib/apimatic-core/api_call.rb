@@ -60,12 +60,6 @@ module CoreLibrary
           raise ValueError("An HTTP client instance is required to execute an Api call.")
         end
 
-        unless @request_builder.template_validation_array.empty?
-          @request_builder.template_validation_array.each do |parameter|
-            parameter.validate_template(@global_configuration.get_sdk_module)
-          end
-        end
-
         _http_request = @request_builder
                           .endpoint_logger(@endpoint_logger)
                           .endpoint_name_for_logging(@endpoint_name_for_logging)
