@@ -48,6 +48,10 @@ module CoreLibrary
       self
     end
 
+    def get_http_method
+      @http_method
+    end
+
     # The setter for the template parameter of the request.
     # @param [Parameter] template_param The template parameter of the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
@@ -193,13 +197,17 @@ module CoreLibrary
       self
     end
 
-    def template_validation_array
-      @template_validation_array
-    end
-
     def conditional_add_to_template_validation_array(parameter)
       unless parameter.get_template.nil?
         @template_validation_array.push(parameter)
+      end
+    end
+
+    def validate_templates
+      unless @template_validation_array.empty?
+        @template_validation_array.each do |parameter|
+          parameter.validate_template(@global_configuration.get_sdk_module)
+        end
       end
     end
 
@@ -207,6 +215,7 @@ module CoreLibrary
     # @param [Hash] endpoint_context The endpoint configuration to be used while executing the request.
     # @return [HttpRequest] An instance of HttpRequest.
     def build(endpoint_context)
+      validate_templates
       _url = process_url()
       _request_body = process_body()
       _request_headers = process_headers(@global_configuration)
