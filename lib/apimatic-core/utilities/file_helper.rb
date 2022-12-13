@@ -14,6 +14,7 @@ module CoreLibrary
         @cache[url].binmode
         @cache[url].write(URI.open(url, {ssl_ca_cert: Certifi.where}).read)
       end
+      @cache[url].rewind
       return @cache[url].path
     end
   end

@@ -8,7 +8,7 @@ module CoreLibrary
       @auth_participants = []
       auth_group.each do |auth_participant|
         if !auth_participant.nil? and auth_participant.is_a? String
-          @auth_participants.append(Single(auth_participant))
+          @auth_participants.append(Single.new(auth_participant))
         elsif !auth_participant.nil?
           @auth_participants.append(auth_participant)
         end
@@ -23,7 +23,7 @@ module CoreLibrary
     # @return [Single] An updated instance of itself.
     def with_auth_managers(auth_managers)
       @auth_participants.each do |participant|
-        self.mapped_group.append(participant.with_auth_managers(auth_managers))
+        @mapped_group.append(participant.with_auth_managers(auth_managers))
       end
       self
     end
@@ -38,7 +38,7 @@ module CoreLibrary
     # Applies the associated auth to the HTTP request.
     # @param [HttpRequest] http_request The HTTP request on which the auth is to be applied.
     def apply(http_request)
-      if !self.is_valid_group
+      if !@is_valid_group
         return
       end
       @mapped_group.each { |participant| participant.apply(http_request) }

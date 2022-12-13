@@ -9,10 +9,10 @@ module CoreLibrary
     # @param [String|Optional] delimiter The delimiter to use while joining the properties.
     # @return [String] The encoded Base64 string.
     def self.get_base64_encoded_value(*props, delimiter: ':')
-      if !props.empty?
+      if (props.any? do |param| !param.nil? end)
         joined = props.join(delimiter)
+        Base64.strict_encode64(joined)
       end
-      Base64.strict_encode64(joined)
     end
 
 
@@ -20,14 +20,16 @@ module CoreLibrary
     # @param [int] token_expiry The expiring of a token.
     # @return [Boolean] true if token has expired, false otherwise.
     def self.is_token_expired(token_expiry)
-      !token_expiry.nil? and token_expiry < Time.now.to_i
+      raise ArgumentError, 'Token expiry can not be nil.' if token_expiry.nil?
+      token_expiry < Time.now().utc.to_i
     end
 
     # Calculates the expiry after adding the expires_in value to the current timestamp.
     # @param [int] expires_in The number of ticks after which the token would get expired.
+    # @param [int] current_timestamp The current timestamp.
     # @return [Time] The calculated expiry time of the token.
-    def self.get_token_expiry(expires_in)
-      (Time.now.to_i + expires_in.to_i)
+    def self.get_token_expiry(expires_in, current_timestamp:Time.utc.to_i)
+      (current_timestamp + expires_in)
     end
 
     # Checks whether the provided auth parameters does not contain any nil key/value.

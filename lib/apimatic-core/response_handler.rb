@@ -177,7 +177,7 @@ module CoreLibrary
 
     def apply_api_response(response, deserialized_value)
       if @is_api_response
-        errors = deserialized_value.get('errors') if deserialized_value.is_a? Hash
+        errors = ApiHelper.map_response(deserialized_value, ['errors'])
         return ApiResponse.new(response, data: deserialized_value, errors: errors)
       end
       return deserialized_value

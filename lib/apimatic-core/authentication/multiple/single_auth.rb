@@ -20,7 +20,7 @@ module CoreLibrary
     # @return [Single] An updated instance of itself.
     def with_auth_managers(auth_managers)
       if not auth_managers.key?(@auth_participant)
-        raise ArgumentError("Auth key is invalid.")
+        raise ArgumentError, "Auth key is invalid."
       end
 
       @mapped_auth = auth_managers[@auth_participant]
@@ -31,6 +31,10 @@ module CoreLibrary
     # Checks if the associated auth is valid.
     # @return [Boolean] True if the associated auth is valid, false otherwise.
     def valid
+      if @mapped_auth.nil?
+        raise ArgumentError, 'The auth manager entry must not have a nil value.'
+      end
+
       if !@mapped_auth.valid
         @error_message = @mapped_auth.error_message
         @is_valid = false

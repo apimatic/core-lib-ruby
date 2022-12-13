@@ -57,13 +57,7 @@ module CoreLibrary
         _client_configuration = @global_configuration.client_configuration
 
         if _client_configuration.http_client.nil?
-          raise ValueError("An HTTP client instance is required to execute an Api call.")
-        end
-
-        unless @request_builder.template_validation_array.empty?
-          @request_builder.template_validation_array.each do |parameter|
-            parameter.validate_template(@global_configuration.get_sdk_module)
-          end
+          raise ArgumentError, "An HTTP client instance is required to execute an Api call."
         end
 
         _http_request = @request_builder
@@ -107,9 +101,6 @@ module CoreLibrary
     # @param [Callable] callable The callable to be called for registering into the HttpCallback instance.
     # @param [String] log_message The message to be logged if HttpCallback is set.
     def update_http_callback(http_callback, callable, log_message)
-      if http_callback.nil?
-        return
-      end
       @endpoint_logger.info(log_message)
       callable.call()
     end
