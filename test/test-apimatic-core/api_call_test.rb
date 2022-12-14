@@ -1,7 +1,7 @@
 require 'minitest/autorun'
 require 'apimatic_core'
 require_relative '../test-helper/mock_helper'
-require_relative '../test-helper/mock_components/http_callback_mock'
+require_relative '../test-helper/http/http_callback_mock'
 
 class ApiCallTest < Minitest::Test
   include CoreLibrary, TestComponent

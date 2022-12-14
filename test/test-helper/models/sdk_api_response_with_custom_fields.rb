@@ -10,13 +10,7 @@ module TestComponent
     def initialize(http_response,
                    data: nil,
                    errors: nil)
-      @status_code = http_response.status_code
-      @reason_phrase = http_response.reason_phrase
-      @headers = http_response.headers
-      @raw_body = http_response.raw_body
-      @request = http_response.request
-      @errors = errors
-
+      super
       if (data.is_a? Hash) && data.keys.any?
         @body = Struct.new(*data.keys) do
           define_method(:to_s) { http_response.raw_body }
