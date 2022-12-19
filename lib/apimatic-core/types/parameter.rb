@@ -93,7 +93,7 @@ module CoreLibrary
     end
 
     def validate_template(sdk_module)
-      ApiHelper.validate_types(@value, @template, sdk_module) unless @value.nil?
+      ApiHelper.validate_types(@value, @template, sdk_module, false) unless @value.nil?
     end
   end
 end

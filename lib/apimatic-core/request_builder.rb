@@ -48,10 +48,6 @@ module CoreLibrary
       self
     end
 
-    def get_http_method
-      @http_method
-    end
-
     # The setter for the template parameter of the request.
     # @param [Parameter] template_param The template parameter of the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
@@ -133,14 +129,6 @@ module CoreLibrary
       else
         @body_param = body_param.get_value()
       end
-      self
-    end
-
-    # The setter for the flag of wrapping the body parameters in a hash.
-    # @param [Boolean] should_wrap_body_param The flag of wrapping the body parameters in a hash.
-    # @return [RequestBuilder] An updated instance of RequestBuilder.
-    def should_wrap_body_param(should_wrap_body_param)
-      @should_wrap_body_param = should_wrap_body_param
       self
     end
 
@@ -338,7 +326,6 @@ module CoreLibrary
 
     # @return [String] The serialized xml body.
     def process_xml_parameters
-      # TODO: add code while writing the POC
       if @xml_attributes.get_array_item_name()
         @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_array_item_name,
                               @xml_attributes.get_value)
