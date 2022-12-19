@@ -4,7 +4,7 @@ require_relative 'exceptions/global_test_exception'
 require_relative 'exceptions/custom_error_response_exception'
 require_relative 'exceptions/nested_model_exception'
 require_relative 'exceptions/enum_in_exception'
-require_relative 'mock_components/http_client_mock'
+require_relative 'http/http_client_mock'
 
 module TestComponent
   # An enum for SDK environments.
