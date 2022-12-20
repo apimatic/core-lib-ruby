@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency('nokogiri', '~> 1.10', '>=1.10.10')
   s.add_dependency('certifi', '~> 2018.1', '>= 2018.01.18')
   s.add_dependency('faraday-multipart', '~> 1.0')
+  s.add_development_dependency('faraday', '~> 2.0', '>= 2.0.1')
   s.add_development_dependency('minitest', '~> 5.14', '>= 5.14.1')
   s.add_development_dependency('minitest-proveit', '~> 1.0')
   s.add_development_dependency('simplecov', '~> 0.21.2')

@@ -1,7 +1,6 @@
 module CoreLibrary
   # This class is the builder of the http request for an API call.
   class RequestBuilder
-
     def initialize
       @server = nil
       @path = nil
@@ -327,8 +326,7 @@ module CoreLibrary
     # @return [String] The serialized xml body.
     def process_xml_parameters
       if @xml_attributes.get_array_item_name()
-        @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_array_item_name,
-                              @xml_attributes.get_value)
+        @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_array_item_name, @xml_attributes.get_value)
       else
         @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_value)
       end
@@ -338,8 +336,8 @@ module CoreLibrary
     # @return [Hash] The resolved body parameter as per the type.
     def resolve_body_param
       if !@body_param.nil? and @body_param.is_a? FileWrapper
-        @header_params['content-type'] = @body_param.file.content_type if !@body_param.file.nil? and
-          !@body_param.file.content_type.nil?
+        @header_params['content-type'] = @body_param.content_type if !@body_param.file.nil? and
+          !@body_param.content_type.nil?
         @header_params['content-length'] = @body_param.file.size.to_s
         return @body_param.file
       elsif !@body_param.nil? and @body_param.is_a? File

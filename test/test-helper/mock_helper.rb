@@ -5,6 +5,9 @@ require_relative 'exceptions/custom_error_response_exception'
 require_relative 'exceptions/nested_model_exception'
 require_relative 'exceptions/enum_in_exception'
 require_relative 'http/http_client_mock'
+require_relative 'models/test_logger'
+require_relative 'models/test_o_auth'
+require_relative 'models/test_o_auth_exception'
 
 module TestComponent
   # An enum for SDK environments.
@@ -71,9 +74,14 @@ module TestComponent
       HttpClientConfiguration.new(http_client: HttpClientMock.new, http_callback: http_callback)
     end
 
-    def self.create_global_config_with_auth
+    def self.create_global_config_with_auth(raiseException)
       auth_managers = {}
-      auth_managers['test_global'] = TestOAuth.new
+
+      if(raiseException == true)
+        auth_managers['test_global'] = TestOAuthException.new
+      else
+        auth_managers['test_global'] = TestOAuth.new
+      end
 
       GlobalConfiguration.new
                          .base_uri_executor(method(:get_base_uri))
@@ -94,6 +102,14 @@ module TestComponent
                          .global_errors(get_global_errors)
     end
 
+    def self.create_global_configurations_with_headers(http_callback: nil)
+      GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback))
+                         .base_uri_executor(method(:get_base_uri))
+                         .global_errors(get_global_errors)
+                         .global_headers({ "globalHeader": "value" })
+                         .additional_headers({ "additionalHeader": "value" })
+    end
+
     def self.get_base_uri(server = Server::DEFAULT)
       ENVIRONMENTS[Environment::TESTING][server]
     end
@@ -106,43 +122,26 @@ module TestComponent
                     .global_configuration(MockHelper.create_global_configurations)
     end
 
-    def self.create_basic_request_builder_with_auth
+    def self.create_basic_request_builder_with_global_headers
       RequestBuilder.new
                     .endpoint_logger(MockHelper::create_logger)
                     .server(Server::DEFAULT)
                     .path(default_path)
-                    .global_configuration(MockHelper.create_global_config_with_auth)
+                    .global_configuration(MockHelper.create_global_configurations_with_headers)
+    end
+
+    def self.create_basic_request_builder_with_auth(raiseException)
+      RequestBuilder.new
+                    .endpoint_logger(MockHelper::create_logger)
+                    .server(Server::DEFAULT)
+                    .path(default_path)
+                    .global_configuration(MockHelper.create_global_config_with_auth(raiseException))
     end
 
     def self.new_parameter(value, key: nil)
       Parameter.new.
         key(key).
         value(value)
-    end
-  end
-
-  class TestOAuth
-    def valid
-      true
-    end
-
-    def apply(http_request)
-      token = MockHelper.test_token
-      http_request.headers['Authorization'] = "Bearer #{token}"
-    end
-  end
-
-  class TestLogger
-    def info(msg)
-      puts msg
-    end
-
-    def debug(msg)
-      puts msg
-    end
-
-    def error(msg)
-      puts msg
     end
   end
 end
