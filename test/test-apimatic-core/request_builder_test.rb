@@ -327,6 +327,10 @@ class RequestBuilderTest < Minitest::Test
     assert(actual.parameters["models"].class == Multipart::Post::UploadIO)
     assert(actual.parameters["models"].content_type == "application/json")
 
+    assert(actual.parameters["file"].class == Multipart::Post::UploadIO)
+    assert(actual.parameters["file"].content_type == "application/octet-stream")
+
+
     puts "Passed!"
   end
 end
