@@ -13,6 +13,8 @@ module CoreLibrary
         ((allow_extra == false) && (actual_headers.length > expected_headers.length)))
 
       actual_headers = Hash[actual_headers.map{|k, v| [k.to_s.downcase, v]}]
+      expected_headers = Hash[expected_headers.map{|k, v| [k.to_s.downcase, v]}]
+
       expected_headers.each do |e_key, e_value|
         return false unless actual_headers.key?(e_key)
         return false if ((e_value != nil) &&

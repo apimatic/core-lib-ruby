@@ -16,14 +16,6 @@ require_relative '../test-helper/models/parent_model'
 class RequestBuilderTest < Minitest::Test
   include CoreLibrary, TestComponent
 
-  def setup
-    # Do nothing
-  end
-
-  def teardown
-    # Do nothing
-  end
-
   def test_http_method
     actual = MockHelper.create_basic_request_builder
                        .http_method(HttpMethod::GET)
