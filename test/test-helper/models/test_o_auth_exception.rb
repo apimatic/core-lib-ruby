@@ -5,6 +5,7 @@ module TestComponent
     end
 
     def error_message
+      "Invalid!"
     end
   end
 end

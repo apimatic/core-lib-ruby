@@ -7,6 +7,7 @@ class ApiCallTest < Minitest::Test
   include CoreLibrary, TestComponent
   def setup
     @request_builder = RequestBuilder.new
+                                     .server(Server::DEFAULT)
                                      .path('/test/number')
                                      .http_method(HttpMethod::GET)
                                      .header_param(Parameter.new

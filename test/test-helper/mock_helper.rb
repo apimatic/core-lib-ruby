@@ -74,7 +74,7 @@ module TestComponent
       HttpClientConfiguration.new(http_client: HttpClientMock.new, http_callback: http_callback)
     end
 
-    def self.create_global_config_with_auth(raiseException)
+    def self.create_global_config_with_auth(raiseException, http_callback: nil)
       auth_managers = {}
 
       if(raiseException == true)
@@ -83,10 +83,11 @@ module TestComponent
         auth_managers['test_global'] = TestOAuth.new
       end
 
-      GlobalConfiguration.new
+      GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback))
                          .base_uri_executor(method(:get_base_uri))
                          .global_errors(get_global_errors)
                          .auth_managers(auth_managers)
+                         .sdk_module(CoreLibrary)
     end
 
     def self.create_global_configurations(http_callback: nil)
