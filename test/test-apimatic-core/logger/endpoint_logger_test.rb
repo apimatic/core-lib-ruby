@@ -55,8 +55,7 @@ class EndpointLoggerTest < Minitest::Test
   def test_end_to_end_with_exception
     expected_logs = [
       "Preparing query URL for test_end_to_end_with_exception.",
-      "Preparing headers for test_end_to_end_with_exception.",
-      ["Invalid!"]
+      "Preparing headers for test_end_to_end_with_exception."
     ]
     response_catcher = HttpCallbackMock.new
     logger = TestLogger.new
