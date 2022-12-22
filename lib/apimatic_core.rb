@@ -29,7 +29,6 @@ require_relative 'apimatic-core/types/sdk/validation_exception'
 require_relative 'apimatic-core/types/sdk/api_exception'
 require_relative 'apimatic-core/types/xml_attributes'
 
-
 require_relative 'apimatic-core/utilities/api_helper'
 require_relative 'apimatic-core/utilities/date_time_helper'
 require_relative 'apimatic-core/utilities/comparison_helper'

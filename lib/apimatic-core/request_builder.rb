@@ -1,7 +1,6 @@
 module CoreLibrary
   # This class is the builder of the http request for an API call.
   class RequestBuilder
-
     def initialize
       @server = nil
       @path = nil
@@ -46,10 +45,6 @@ module CoreLibrary
     def http_method(http_method)
       @http_method = http_method
       self
-    end
-
-    def get_http_method
-      @http_method
     end
 
     # The setter for the template parameter of the request.
@@ -133,14 +128,6 @@ module CoreLibrary
       else
         @body_param = body_param.get_value()
       end
-      self
-    end
-
-    # The setter for the flag of wrapping the body parameters in a hash.
-    # @param [Boolean] should_wrap_body_param The flag of wrapping the body parameters in a hash.
-    # @return [RequestBuilder] An updated instance of RequestBuilder.
-    def should_wrap_body_param(should_wrap_body_param)
-      @should_wrap_body_param = should_wrap_body_param
       self
     end
 
@@ -339,10 +326,8 @@ module CoreLibrary
 
     # @return [String] The serialized xml body.
     def process_xml_parameters
-      # TODO: add code while writing the POC
       if @xml_attributes.get_array_item_name()
-        @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_array_item_name,
-                              @xml_attributes.get_value)
+        @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_array_item_name, @xml_attributes.get_value)
       else
         @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_value)
       end
@@ -352,8 +337,8 @@ module CoreLibrary
     # @return [Hash] The resolved body parameter as per the type.
     def resolve_body_param
       if !@body_param.nil? and @body_param.is_a? FileWrapper
-        @header_params['content-type'] = @body_param.file.content_type if !@body_param.file.nil? and
-          !@body_param.file.content_type.nil?
+        @header_params['content-type'] = @body_param.content_type if !@body_param.file.nil? and
+          !@body_param.content_type.nil?
         @header_params['content-length'] = @body_param.file.size.to_s
         return @body_param.file
       elsif !@body_param.nil? and @body_param.is_a? File
