@@ -8,6 +8,8 @@ module CoreLibrary
       @is_required = false
       @should_encode = false
       @default_content_type = nil
+      @value_convertor = nil
+      @template = nil
     end
 
     # The setter for the parameter key.
@@ -32,9 +34,10 @@ module CoreLibrary
       self
     end
 
-    # The getter for the parameter value.
+    # The getter for the parameter's actual/converted value where applicable.
     # @return [Object] The parameter value to send.
     def get_value
+      return @value_convertor.call(@value) unless @value_convertor.nil?
       @value
     end
 
@@ -51,6 +54,14 @@ module CoreLibrary
     # @return [Parameter] An updated instance of Parameter.
     def should_encode(should_encode)
       @should_encode = should_encode
+      self
+    end
+
+    # The setter for the function of converting value for form params.
+    # @param [Callable] value_convertor The function to execute for conversion.
+    # @return [Parameter] An updated instance of Parameter.
+    def value_convertor(value_convertor)
+      @value_convertor = value_convertor
       self
     end
 
@@ -92,8 +103,13 @@ module CoreLibrary
       end
     end
 
-    def validate_template(sdk_module)
-      ApiHelper.validate_types(@value, @template, sdk_module) unless @value.nil?
+    # Validates the oneOf/anyOf parameter value to be sent in the request.
+    # @param [Module] sdk_module The module configured by the SDK.
+    # @param [Boolean] should_symbolize_hash Whether to symbolize the hash during the deserialization of the value.
+    # @raise [ValidationException] The validation error if value violates the oneOf/anyOf constraints.
+    def validate_template(sdk_module, should_symbolize_hash=false)
+      ApiHelper.validate_types(@value, @template, sdk_module,
+                               should_symbolize_hash) unless @value.nil?
     end
   end
 end

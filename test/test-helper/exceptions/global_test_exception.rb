@@ -1,8 +1,6 @@
-require_relative 'api_exception'
-
 module TestComponent
   # To test specific global exceptions.
-  class GlobalTestException < APIException
+  class GlobalTestException < CoreLibrary::ApiException
     SKIP = Object.new
     private_constant :SKIP
 

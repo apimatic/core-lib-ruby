@@ -1,8 +1,6 @@
-require_relative 'api_exception'
-
 module TestComponent
   # custom error response class.
-  class CustomErrorResponseException < APIException
+  class CustomErrorResponseException < CoreLibrary::ApiException
     SKIP = Object.new
     private_constant :SKIP
 

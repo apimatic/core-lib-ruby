@@ -11,6 +11,8 @@ module CoreLibrary
       @additional_headers = {}
       @auth_managers = {}
       @base_uri_executor = nil
+      @sdk_module = nil
+      @symbolize_hash = false
     end
 
     # The setter for the global errors.
@@ -120,17 +122,29 @@ module CoreLibrary
       @base_uri_executor
     end
 
+    # The setter for the flag of symbolizing hash while deserialization.
+    # @param [Boolean] symbolize_hash The flag of symbolizing hash while deserialization.
+    # @return [GlobalConfiguration] An updated instance of GlobalConfiguration.
+    def symbolize_hash(symbolize_hash)
+      @symbolize_hash = symbolize_hash
+      self
+    end
+
+    # The setter for the flag of wrapping the body parameters in a hash.
+    # @return [Boolean] True if symbolizing hash is allowed during deserialization of response.
+    def should_symbolize_hash
+      @symbolize_hash
+    end
+
     # Updates the user agent template with the provided parameters and adds user agent in the global_headers.
     # @param [String] user_agent The user agent template string.
     # @param [Hash, Optional] agent_parameters The agent configurations to be replaced in the actual user agent template.
     def add_useragent_in_headers(user_agent, agent_parameters)
-      if agent_parameters
-        user_agent = ApiHelper.append_url_with_template_parameters(
+      if !agent_parameters.nil? and agent_parameters.any?
+        user_agent = ApiHelper.update_user_agent_value_with_parameters(
           user_agent, agent_parameters).gsub('  ', ' ')
       end
-      if user_agent
-        @global_headers['user-agent'] = user_agent
-      end
+      @global_headers['user-agent'] = user_agent unless user_agent.nil?
     end
   end
 end

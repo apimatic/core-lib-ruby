@@ -9,9 +9,8 @@ module CoreLibrary
     attr_reader :reason
 
     # The constructor.
-    # @param [String] The reason for raising an exception.
-    def initialize(value, template)
-      @reason = "The value #{value} provided doesn't validate against the schema #{template}"
+    # @param [String] reason The reason for raising an exception.
+    def initialize(reason)
       super(reason)
     end
   end

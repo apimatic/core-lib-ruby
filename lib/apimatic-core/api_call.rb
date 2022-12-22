@@ -88,7 +88,9 @@ module CoreLibrary
         _deserialized_response = @response_handler
                                    .endpoint_logger(@endpoint_logger)
                                    .endpoint_name_for_logging(@endpoint_name_for_logging)
-                                   .handle(_http_response, @global_configuration.get_global_errors, @global_configuration.get_sdk_module)
+                                   .handle(_http_response, @global_configuration.get_global_errors,
+                                           @global_configuration.get_sdk_module,
+                                           @global_configuration.should_symbolize_hash)
         _deserialized_response
       rescue Exception => exception
         @endpoint_logger.error(exception)

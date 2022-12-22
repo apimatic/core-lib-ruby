@@ -1,8 +1,6 @@
-require_relative 'api_exception'
-
 module TestComponent
   # Exception with string class.
-  class ExceptionWithStringException < APIException
+  class ExceptionWithStringException < CoreLibrary::ApiException
     SKIP = Object.new
     private_constant :SKIP
 

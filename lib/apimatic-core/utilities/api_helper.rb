@@ -1,3 +1,4 @@
+require 'erb'
 module CoreLibrary
   # API utility class involved in executing an API
   class ApiHelper
@@ -62,7 +63,7 @@ module CoreLibrary
       Date.iso8601(response)
     end
 
-    def self.dynamic_deserializer(response, is_array = true, should_symbolize)
+    def self.dynamic_deserializer(response, should_symbolize)
       decoded = json_deserialize(response, should_symbolize) unless response.nil? ||
         response.to_s.strip.empty?
       decoded
@@ -113,6 +114,44 @@ module CoreLibrary
         query_builder = query_builder.gsub("{#{key}}", replace_value)
       end
       query_builder
+    end
+
+    # Replaces the template parameters in the given user-agent string.
+    # @param [String] user_agent The user_agent value to be replaced with the given
+    # parameters.
+    # @param [Hash] parameters The parameters to replace in the user_agent.
+    def self.update_user_agent_value_with_parameters(user_agent, parameters)
+      # perform parameter validation
+      unless user_agent.instance_of? String
+        raise ArgumentError, 'Given value for \"user_agent\" is
+          invalid.'
+      end
+
+      # Return if there are no parameters to replace.
+      return user_agent if parameters.nil?
+
+      parameters.each do |key, val|
+        if val.nil?
+          replace_value = ''
+        elsif val['value'].instance_of? Array
+          if val['encode'] == true
+            val['value'].map! { |element| ERB::Util.url_encode(element.to_s) }
+          else
+            val['value'].map!(&:to_s)
+          end
+          replace_value = val['value'].join('/')
+        else
+          replace_value = if val['encode'] == true
+                            ERB::Util.url_encode(val['value'].to_s)
+                          else
+                            val['value'].to_s
+                          end
+        end
+
+        # Find the template parameter and replace it with its value.
+        user_agent = user_agent.gsub("#{key}", replace_value)
+      end
+      user_agent
     end
 
     # Appends the given set of parameters to the given query string.
@@ -376,7 +415,7 @@ module CoreLibrary
         end
         break if group_name == 'anyOf' && matches == 1
       end
-      raise ValidationException.new(value, template) unless matches == 1
+      raise ValidationException, "The value #{value} provided doesn't validate against the schema #{template}" unless matches == 1
 
       value = result_value unless result_value.nil?
       value

@@ -1,8 +1,6 @@
-require_relative 'api_exception'
-
 module TestComponent
   # enum in exception class.
-  class EnumInException < APIException
+  class EnumInException < CoreLibrary::ApiException
     SKIP = Object.new
     private_constant :SKIP
 

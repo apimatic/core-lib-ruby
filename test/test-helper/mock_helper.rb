@@ -21,7 +21,7 @@ module TestComponent
 
     def self.get_global_errors
       {
-        'default' => ErrorCase.new.description('Invalid response.').exception_type(GlobalTestException),
+        'default' => ErrorCase.new.description('Invalid response.').exception_type(ApiException),
         '412' => ErrorCase.new.description('Precondition Failed').exception_type(NestedModelException),
         '450' => ErrorCase.new.description('caught global exception').exception_type(CustomErrorResponseException),
         '452' => ErrorCase.new.description('global exception with string').exception_type(ExceptionWithStringException),

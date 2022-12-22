@@ -1,9 +1,8 @@
 require_relative '../models/validate'
-require_relative 'api_exception'
 
 module TestComponent
   # NestedModelException class.
-  class NestedModelException < APIException
+  class NestedModelException < CoreLibrary::ApiException
     SKIP = Object.new
     private_constant :SKIP
 

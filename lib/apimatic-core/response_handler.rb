@@ -14,10 +14,10 @@ module CoreLibrary
       @endpoint_name_for_logging = nil
       @endpoint_logger = nil
       @is_primitive_response = false
+      @is_date_response = false
       @is_response_array = false
       @is_response_void = false
       @type_group = nil
-      @should_symbolize = false
     end
 
     def deserializer(deserializer)
@@ -80,6 +80,11 @@ module CoreLibrary
       self
     end
 
+    def is_date_response(is_date_response)
+      @is_date_response = is_date_response
+      self
+    end
+
     def is_response_array(is_response_array)
       @is_response_array = is_response_array
       self
@@ -95,12 +100,7 @@ module CoreLibrary
       self
     end
 
-    def should_symbolize(should_symbolize)
-      @should_symbolize = should_symbolize
-      self
-    end
-
-    def handle(response, global_errors, sdk_module)
+    def handle(response, global_errors, sdk_module, should_symbolize_hash=false)
       @endpoint_logger.info("Validating response for #{@endpoint_name_for_logging}.")
 
       # checking Nullify 404
@@ -115,7 +115,7 @@ module CoreLibrary
       return if @is_response_void
 
       # applying deserializer if configured
-      deserialized_value = self.apply_deserializer(response, sdk_module)
+      deserialized_value = self.apply_deserializer(response, sdk_module, should_symbolize_hash)
 
       # applying api_response if configured
       deserialized_value = self.apply_api_response(response, deserialized_value)
@@ -132,18 +132,18 @@ module CoreLibrary
       contains_local_errors = (!@local_errors.nil? and @local_errors.any?)
       if contains_local_errors
         error_case = @local_errors[actual_status_code]
-        raise error_case.get_exception_type.new error_case.get_description(), response if !error_case.nil?
+        raise error_case.get_exception_type.new error_case.get_description, response if !error_case.nil?
       end
 
       contains_global_errors = (!global_errors.nil? and global_errors.any?)
       if contains_global_errors
         error_case = global_errors[actual_status_code]
-        raise error_case.get_exception_type.new error_case.get_description(), response if !error_case.nil?
+        raise error_case.get_exception_type.new error_case.get_description, response if !error_case.nil?
       end
 
       if (response.status_code < 200 or response.status_code > 208)
         error_case = global_errors['default']
-        raise error_case.get_exception_type.new error_case.get_description(), response if !error_case.nil?
+        raise error_case.get_exception_type.new error_case.get_description, response if !error_case.nil?
       end
     end
 
@@ -156,7 +156,7 @@ module CoreLibrary
                                 @deserialize_into, @datetime_format)
     end
 
-    def apply_deserializer(response, sdk_module)
+    def apply_deserializer(response, sdk_module, should_symbolize_hash)
       if @is_xml_response
         return apply_xml_deserializer(response)
       end
@@ -165,13 +165,15 @@ module CoreLibrary
       end
 
       if !@type_group.nil?
-        return @deserializer.call(@type_group, response.raw_body, sdk_module, @should_symbolize)
+        return @deserializer.call(@type_group, response.raw_body, sdk_module, should_symbolize_hash)
       elsif @datetime_format
-        return @deserializer.call(response.raw_body, @datetime_format, @is_response_array, @should_symbolize)
+        return @deserializer.call(response.raw_body, @datetime_format, @is_response_array, should_symbolize_hash)
+      elsif @is_date_response
+        return @deserializer.call(response.raw_body, @is_response_array, should_symbolize_hash)
       elsif !@deserialize_into.nil? or @is_primitive_response
-        return @deserializer.call(response.raw_body, @deserialize_into, @is_response_array, @should_symbolize)
+        return @deserializer.call(response.raw_body, @deserialize_into, @is_response_array, should_symbolize_hash)
       else
-        return @deserializer.call(response.raw_body, @is_response_array, @should_symbolize)
+        return @deserializer.call(response.raw_body, should_symbolize_hash)
       end
     end
 

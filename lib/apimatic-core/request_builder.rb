@@ -206,7 +206,8 @@ module CoreLibrary
     def validate_templates
       unless @template_validation_array.empty?
         @template_validation_array.each do |parameter|
-          parameter.validate_template(@global_configuration.get_sdk_module)
+          parameter.validate_template(@global_configuration.get_sdk_module,
+                                      @global_configuration.should_symbolize_hash)
         end
       end
     end

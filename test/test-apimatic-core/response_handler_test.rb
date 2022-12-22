@@ -69,7 +69,7 @@ class ResponseHandlerTest < Minitest::Test
     response_body_mock = '{"ServerCode": 400, "ServerMessage": "Failure Error Message"}'
     response_mock = MockHelper.create_response status_code: 400,
                                                raw_body: response_body_mock
-    assert_raises GlobalTestException do
+    assert_raises ApiException do
       @response_handler.handle(response_mock, MockHelper.get_global_errors, TestComponent)
     end
   end
@@ -80,6 +80,17 @@ class ResponseHandlerTest < Minitest::Test
     response_mock = MockHelper.create_response status_code: 400,
                                                raw_body: response_body_mock
     assert_raises LocalTestException do
+      @response_handler.local_error(400, "Local error message", LocalTestException)
+                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+    end
+  end
+
+  def test_missed_local_and_global_error_case
+    response_body_mock = '{"ServerCode": 400, "ServerMessage": "Failure Error Message", '\
+                              '"SecretMessageForEndpoint": "This is a secret message."}'
+    response_mock = MockHelper.create_response status_code: 422,
+                                               raw_body: response_body_mock
+    assert_raises ApiException do
       @response_handler.local_error(400, "Local error message", LocalTestException)
                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
     end
@@ -247,12 +258,26 @@ class ResponseHandlerTest < Minitest::Test
     assert_equal expected_response.number_of_protons, actual_response.number_of_protons
   end
 
-  def test_api_response
+  def test_dynamic_response
     response_body_mock = '{"numberOfElectrons": 23, "numberOfProtons": 43}'
     response_mock = MockHelper.create_response status_code: 200,
                                                raw_body: response_body_mock
     actual_response = @response_handler
                         .deserializer(ApiHelper.method(:dynamic_deserializer))
+                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+    expected_response = {"numberOfElectrons" => 23, "numberOfProtons" => 43}
+
+    refute_nil(actual_response)
+
+    assert_equal expected_response, actual_response
+  end
+
+  def test_api_response
+    response_body_mock = '{"numberOfElectrons": 23, "numberOfProtons": 43}'
+    response_mock = MockHelper.create_response status_code: 200,
+                                               raw_body: response_body_mock
+    actual_response = @response_handler
+                        .deserializer(ApiHelper.method(:json_deserialize))
                         .is_api_response(true)
                         .handle(response_mock, MockHelper.get_global_errors, TestComponent)
     expected_response = ApiResponse.new(response_mock,
@@ -275,11 +300,10 @@ class ResponseHandlerTest < Minitest::Test
     response_mock = MockHelper.create_response status_code: 200,
                                                raw_body: response_body_mock
     actual_response = @response_handler
-                        .deserializer(ApiHelper.method(:dynamic_deserializer))
+                        .deserializer(ApiHelper.method(:json_deserialize))
                         .is_api_response(true)
                         .convertor(SdkApiResponseWithCustomFields.method(:create))
-                        .should_symbolize(true)
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors, TestComponent, true)
     expected_response = SdkApiResponseWithCustomFields.new(response_mock,
                                                            data: {:numberOfElectrons => 23,
                                                                   :numberOfProtons => 43,
@@ -305,7 +329,7 @@ class ResponseHandlerTest < Minitest::Test
     response_mock = MockHelper.create_response status_code: 200,
                                                raw_body: response_body_mock
     actual_response = @response_handler
-                        .deserializer(ApiHelper.method(:dynamic_deserializer))
+                        .deserializer(ApiHelper.method(:json_deserialize))
                         .is_api_response(true)
                         .convertor(SdkApiResponse.method(:create))
                         .handle(response_mock, MockHelper.get_global_errors, TestComponent)
@@ -329,11 +353,10 @@ class ResponseHandlerTest < Minitest::Test
     response_mock = MockHelper.create_response status_code: 500,
                                                raw_body: response_body_mock
     actual_response = @response_handler
-                        .deserializer(ApiHelper.method(:dynamic_deserializer))
+                        .deserializer(ApiHelper.method(:json_deserialize))
                         .is_api_response(true)
                         .convertor(SdkApiResponse.method(:create))
-                        .should_symbolize(true)
-                        .handle(response_mock, {}, TestComponent)
+                        .handle(response_mock, {}, TestComponent, true)
     expected_response = SdkApiResponse.new(response_mock,
                                            data: nil,
                                            errors: %w[error1 error2])
@@ -363,6 +386,21 @@ class ResponseHandlerTest < Minitest::Test
     refute_nil(actual_response)
 
     assert_equal expected_response.to_s, actual_response.to_s
+  end
+
+  def test_date_response
+    date = Date.new(1994, 2, 13)
+    response_mock = MockHelper.create_response status_code: 200,
+                                               raw_body: date.to_s
+    actual_response = @response_handler
+                        .deserializer(ApiHelper.method(:date_deserializer))
+                        .is_date_response(true)
+                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+    expected_response = date.to_s
+
+    refute_nil(actual_response)
+
+    assert_equal expected_response, actual_response.to_s
   end
 
   def test_datetime_array_response

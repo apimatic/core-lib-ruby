@@ -1,11 +1,11 @@
-module TestComponent
-# Class for exceptions when there is a network error, status code error, etc.
-  class APIException < StandardError
+module CoreLibrary
+  # Class for exceptions when there is a network error, status code error, etc.
+  class ApiException < StandardError
     attr_reader :response, :response_code
 
     # The constructor.
     # @param [String] reason The reason for raising an exception.
-    # @param [HttpResponse] response The HttpReponse of the API call.
+    # @param [HttpResponse] response The HttpResponse of the API call.
     def initialize(reason, response)
       super(reason)
       @response = response
