@@ -158,7 +158,8 @@ module CoreLibrary
     # @param [String] query_builder The query string builder to add the query parameters to.
     # @param [Hash] parameters The parameters to append.
     # @param [String] array_serialization The serialization format
-    def self.append_url_with_query_parameters(query_builder, parameters, array_serialization)
+    def self.append_url_with_query_parameters(query_builder, parameters,
+                                              array_serialization=ArraySerializationFormat::INDEXED)
       # Perform parameter validation.
       unless query_builder.instance_of? String
         raise ArgumentError, 'Given value for parameter \"query_builder\"

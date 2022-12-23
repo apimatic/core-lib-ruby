@@ -55,7 +55,7 @@ class AuthHelperTest < Minitest::Test
   def test_get_token_expiry
     current_timestamp = Time.now().utc.to_i
     expires_in = 3600
-    actual_value = AuthHelper.get_token_expiry(expires_in, current_timestamp:current_timestamp)
+    actual_value = AuthHelper.get_token_expiry(expires_in, current_timestamp)
     expected_value = current_timestamp + expires_in
 
     refute_nil actual_value

@@ -28,8 +28,8 @@ module CoreLibrary
     # @param [int] expires_in The number of ticks after which the token would get expired.
     # @param [int] current_timestamp The current timestamp.
     # @return [Time] The calculated expiry time of the token.
-    def self.get_token_expiry(expires_in, current_timestamp:Time.utc.to_i)
-      (current_timestamp + expires_in)
+    def self.get_token_expiry(expires_in, current_timestamp)
+      current_timestamp + expires_in
     end
 
     # Checks whether the provided auth parameters does not contain any nil key/value.
