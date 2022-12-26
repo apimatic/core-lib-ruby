@@ -154,27 +154,33 @@ module CoreLibrary
     def validate(response, global_errors)
       actual_status_code = response.status_code.to_s
 
-      contains_local_errors = (!@local_errors.nil? and @local_errors.any?)
+      contains_local_errors = (!@local_errors.nil? and !@local_errors[actual_status_code].nil?)
       if contains_local_errors
         error_case = @local_errors[actual_status_code]
-        raise error_case.get_exception_type.new error_case.get_description, response if !error_case.nil?
+        raise error_case.get_exception_type.new error_case.get_description, response
       end
 
-      contains_global_errors = (!global_errors.nil? and global_errors.any?)
+      contains_local_default_error = (!@local_errors.nil? and !@local_errors['default'].nil?)
+      if contains_local_default_error
+        error_case = @local_errors['default']
+        raise error_case.get_exception_type.new error_case.get_description, response
+      end
+
+      contains_global_errors = (!global_errors.nil? and !global_errors[actual_status_code].nil?)
       if contains_global_errors
         error_case = global_errors[actual_status_code]
-        raise error_case.get_exception_type.new error_case.get_description, response if !error_case.nil?
+        raise error_case.get_exception_type.new error_case.get_description, response
       end
 
-      if (response.status_code < 200 or response.status_code > 208)
+      if response.status_code < 200 or response.status_code > 208
         error_case = global_errors['default']
-        raise error_case.get_exception_type.new error_case.get_description, response if !error_case.nil?
+        raise error_case.get_exception_type.new error_case.get_description, response unless error_case.nil?
       end
     end
 
     # Applies xml deserializer to the response.
     def apply_xml_deserializer(response)
-      if !@xml_attribute.get_array_item_name.nil?
+      unless @xml_attribute.get_array_item_name.nil?
         return @deserializer.call(response.raw_body, @xml_attribute.get_root_element_name,
                                   @xml_attribute.get_array_item_name, @deserialize_into, @datetime_format)
       end
