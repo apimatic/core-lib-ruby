@@ -22,6 +22,10 @@ module CoreLibrary
       tuples
     end
 
+    # Deserializes primitive types like Boolean, String etc.
+    # @param response The response received.
+    # @param type Type to be deserialized.
+    # @param is_array Is the response provided an array or not
     def self.deserialize_primitive_types(response, type, is_array, should_symbolize)
       if is_array
         return json_deserialize(response, should_symbolize)
@@ -30,6 +34,10 @@ module CoreLibrary
       return type.call(response)
     end
 
+    # Deserializes datetime.
+    # @param response The response received.
+    # @param datetime_format Current format of datetime.
+    # @param is_array Is the response provided an array or not
     def self.deserialize_datetime(response, datetime_format, is_array, should_symbolize)
       if is_array
         decoded = json_deserialize(response, should_symbolize)
@@ -55,6 +63,9 @@ module CoreLibrary
       end
     end
 
+    # Deserializes date.
+    # @param response The response received.
+    # @param is_array Is the response provided an array or not
     def self.date_deserializer(response, is_array, should_symbolize)
       if is_array
         decoded = json_deserialize(response, should_symbolize)
@@ -63,12 +74,18 @@ module CoreLibrary
       Date.iso8601(response)
     end
 
+    # Deserializer to use when the type of response is not known beforehand.
+    # @param response The response received.
     def self.dynamic_deserializer(response, should_symbolize)
       decoded = json_deserialize(response, should_symbolize) unless response.nil? ||
         response.to_s.strip.empty?
       decoded
     end
 
+    # Deserializes response to a known custom model type.
+    # @param response The response received.
+    # @param deserialize_into The custom model type to deserialize into.
+    # @param is_array Is the response provided an array or not
     def self.custom_type_deserializer(response, deserialize_into, is_array, should_symbolize)
       decoded = json_deserialize(response, should_symbolize)
       unless is_array
