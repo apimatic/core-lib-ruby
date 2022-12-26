@@ -179,17 +179,20 @@ module CoreLibrary
       self
     end
 
+    # Sets global configuration object for the request builder.
     def global_configuration(global_configuration)
       @global_configuration = global_configuration
       self
     end
 
+    # Add param to the template validation array, in case a template is provided.
     def conditional_add_to_template_validation_array(parameter)
       unless parameter.get_template.nil?
         @template_validation_array.push(parameter)
       end
     end
 
+    # Validates the template for the params provided with a template.
     def validate_templates
       unless @template_validation_array.empty?
         @template_validation_array.each do |parameter|

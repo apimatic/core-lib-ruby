@@ -20,12 +20,12 @@ module CoreLibrary
       @errors = errors
     end
 
-    # returns true if status_code is between 200-300
+    # Returns true if status_code is between 200-300
     def success?
       status_code >= 200 && status_code < 300
     end
 
-    # returns true if status_code is between 400-600
+    # Returns true if status_code is between 400-600
     def error?
       status_code >= 400 && status_code < 600
     end

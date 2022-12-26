@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
                   ' This includes functionality like the ability to create HTTP requests, handle responses, apply '\
                   'authentication schemes, convert API responses back to object instances, and validate user and '\
                   'server data.'
-  s.authors = ['APIMatic']
+  s.authors = ['APIMatic Ltd.']
   s.email = 'support@apimatic.io'
   s.homepage = 'https://apimatic.io'
   s.license = 'APIMATIC REFERENCE SOURCE LICENSE'

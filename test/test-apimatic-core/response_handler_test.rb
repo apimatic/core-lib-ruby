@@ -65,7 +65,17 @@ class ResponseHandlerTest < Minitest::Test
     end
   end
 
-  def test_global_error_default_global_test_exception
+  def test_local_error_default_Api_exception
+    response_body_mock = '{"ServerCode": 400, "ServerMessage": "Failure Error Message"}'
+    response_mock = MockHelper.create_response status_code: 400,
+                                               raw_body: response_body_mock
+    assert_raises ApiException do
+      @response_handler.local_error('default', "Local Default Exception", ApiException)
+                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+    end
+  end
+
+  def test_global_error_default_api_exception
     response_body_mock = '{"ServerCode": 400, "ServerMessage": "Failure Error Message"}'
     response_mock = MockHelper.create_response status_code: 400,
                                                raw_body: response_body_mock
@@ -81,6 +91,7 @@ class ResponseHandlerTest < Minitest::Test
                                                raw_body: response_body_mock
     assert_raises LocalTestException do
       @response_handler.local_error(400, "Local error message", LocalTestException)
+                       .local_error('default', "Local Default Exception", ApiException)
                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
     end
   end
