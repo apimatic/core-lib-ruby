@@ -297,7 +297,7 @@ module CoreLibrary
     # @param [String] instance_name The name of the object.
     # @return [Hash] A form encoded representation of the object in the form
     # of a hash.
-    def self.form_encode(obj, instance_name, formatting: 'indexed')
+    def self.form_encode(obj, instance_name, formatting: ArraySerializationFormat::INDEXED)
       retval = {}
 
       # If this is a structure, resolve it's field names.
@@ -307,13 +307,13 @@ module CoreLibrary
       if obj.nil?
         nil
       elsif obj.instance_of? Array
-        if formatting == 'indexed'
+        if formatting == ArraySerializationFormat::INDEXED
           obj.each_with_index do |value, index|
             retval.merge!(form_encode(value, "#{instance_name}[#{index}]"))
           end
         elsif serializable_types.map { |x| obj[0].is_a? x }.any?
           obj.each do |value|
-            abc = if formatting == 'unindexed'
+            abc = if formatting == ArraySerializationFormat::UN_INDEXED
                     form_encode(value, "#{instance_name}[]",
                                 formatting: formatting)
                   else

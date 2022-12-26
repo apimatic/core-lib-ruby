@@ -83,9 +83,9 @@ module CoreLibrary
 
       def datetime_to_s(value, datetime_format)
         case datetime_format
-        when 'unix'
+        when 'UnixDateTime'
           value.to_time.to_i
-        when 'rfc1123'
+        when 'HttpDateTime'
           value.httpdate
         else
           value
@@ -166,9 +166,9 @@ module CoreLibrary
 
       def convert(value, clazz, datetime_format)
         if clazz == DateTime
-          return DateTime.rfc3339(value) if datetime_format == 'rfc3339'
-          return DateTime.httpdate(value) if datetime_format == 'rfc1123'
-          return DateTime.strptime(value, '%s') if datetime_format == 'unix'
+          return DateTime.rfc3339(value) if datetime_format == 'RFC3339DateTime'
+          return DateTime.httpdate(value) if datetime_format == 'HttpDateTime'
+          return DateTime.strptime(value, '%s') if datetime_format == 'UnixDateTime'
         end
 
         return value.to_f if clazz == Float

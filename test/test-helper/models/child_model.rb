@@ -1,5 +1,5 @@
 module TestComponent
-  class ChildModel < CoreLibrary::BaseModel
+  class ChildModel < TestComponent::BaseModel
     attr_accessor(:name)
 
     # A mapping from model property names to API property names.
