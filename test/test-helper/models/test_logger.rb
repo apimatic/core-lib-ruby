@@ -1,25 +1,20 @@
 module TestComponent
   class TestLogger
+    attr_reader :logged_messages
+
     def initialize
       @logged_messages = []
     end
 
-    def get_logged_messages
-      @logged_messages
-    end
-
     def info(msg)
-      puts msg
       @logged_messages.push(msg)
     end
 
     def debug(msg)
-      puts msg
       @logged_messages.push(msg)
     end
 
     def error(msg)
-      puts msg
       @logged_messages.push(msg)
     end
   end

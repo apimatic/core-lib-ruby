@@ -8,7 +8,7 @@ module CoreLibrary
     # @param [String] _raw_body The raw body of the response.
     # @param [HttpRequest] _request The request that resulted in this response.
     def create(_status_code, _reason_phrase, _headers, _raw_body, _request)
-      return HttpResponse.new(_status_code, _reason_phrase, _headers, _raw_body, _request)
+      HttpResponse.new(_status_code, _reason_phrase, _headers, _raw_body, _request)
     end
   end
 end

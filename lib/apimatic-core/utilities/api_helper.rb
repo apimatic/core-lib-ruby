@@ -27,11 +27,10 @@ module CoreLibrary
     # @param type Type to be deserialized.
     # @param is_array Is the response provided an array or not
     def self.deserialize_primitive_types(response, type, is_array, should_symbolize)
-      if is_array
-        return json_deserialize(response, should_symbolize)
-      end
+      return json_deserialize(response, should_symbolize) if is_array
       raise ArgumentError, 'callable has not been not provided for deserializer.' if type.nil?
-      return type.call(response)
+
+      type.call(response)
     end
 
     # Deserializes datetime.
@@ -39,27 +38,21 @@ module CoreLibrary
     # @param datetime_format Current format of datetime.
     # @param is_array Is the response provided an array or not
     def self.deserialize_datetime(response, datetime_format, is_array, should_symbolize)
-      if is_array
-        decoded = json_deserialize(response, should_symbolize)
-      end
-      if datetime_format == DateTimeFormat::HTTP_DATE_TIME
-        unless is_array
-          return DateTimeHelper.from_rfc1123(response)
-        else
-          return decoded.map { |element| DateTimeHelper.from_rfc1123(element) }
-        end
-      elsif datetime_format == DateTimeFormat::RFC3339_DATE_TIME
-        unless is_array
-          return DateTimeHelper.from_rfc3339(response)
-        else
-          return decoded.map { |element| DateTimeHelper.from_rfc3339(element) }
-        end
-      elsif datetime_format == DateTimeFormat::UNIX_DATE_TIME
-        unless is_array
-          return DateTimeHelper.from_unix(response)
-        else
-          return decoded.map { |element| DateTimeHelper.from_unix(element) }
-        end
+      decoded = json_deserialize(response, should_symbolize) if is_array
+
+      case datetime_format
+      when DateTimeFormat::HTTP_DATE_TIME
+        return DateTimeHelper.from_rfc1123(response) unless is_array
+
+        decoded.map { |element| DateTimeHelper.from_rfc1123(element) }
+      when DateTimeFormat::RFC3339_DATE_TIME
+        return DateTimeHelper.from_rfc3339(response) unless is_array
+
+        decoded.map { |element| DateTimeHelper.from_rfc3339(element) }
+      when DateTimeFormat::UNIX_DATE_TIME
+        return DateTimeHelper.from_unix(response) unless is_array
+
+        decoded.map { |element| DateTimeHelper.from_unix(element) }
       end
     end
 
@@ -78,7 +71,7 @@ module CoreLibrary
     # @param response The response received.
     def self.dynamic_deserializer(response, should_symbolize)
       decoded = json_deserialize(response, should_symbolize) unless response.nil? ||
-        response.to_s.strip.empty?
+                                                                    response.to_s.strip.empty?
       decoded
     end
 
@@ -88,11 +81,9 @@ module CoreLibrary
     # @param is_array Is the response provided an array or not
     def self.custom_type_deserializer(response, deserialize_into, is_array, should_symbolize)
       decoded = json_deserialize(response, should_symbolize)
-      unless is_array
-        return deserialize_into.call(decoded)
-      else
-        return decoded.map { |element| deserialize_into.call(element) }
-      end
+      return deserialize_into.call(decoded) unless is_array
+
+      decoded.map { |element| deserialize_into.call(element) }
     end
 
     # Replaces template parameters in the given url.
@@ -166,7 +157,7 @@ module CoreLibrary
         end
 
         # Find the template parameter and replace it with its value.
-        user_agent = user_agent.gsub("#{key}", replace_value)
+        user_agent = user_agent.gsub(key.to_s, replace_value)
       end
       user_agent
     end
@@ -176,7 +167,7 @@ module CoreLibrary
     # @param [Hash] parameters The parameters to append.
     # @param [String] array_serialization The serialization format
     def self.append_url_with_query_parameters(query_builder, parameters,
-                                              array_serialization=ArraySerializationFormat::INDEXED)
+                                              array_serialization = ArraySerializationFormat::INDEXED)
       # Perform parameter validation.
       unless query_builder.instance_of? String
         raise ArgumentError, 'Given value for parameter \"query_builder\"
@@ -237,11 +228,13 @@ module CoreLibrary
 
     # Parses JSON string.
     # @param [String] json A JSON string.
+    # rubocop:disable Style/OptionalBooleanParameter
     def self.json_deserialize(json, should_symbolize = false)
       JSON.parse(json, symbolize_names: should_symbolize)
     rescue StandardError
       raise TypeError, 'Server responded with invalid JSON.'
     end
+    # rubocop:enable Style/OptionalBooleanParameter
 
     # Parses JSON string.
     # @param [object] obj The object to serialize.
@@ -386,7 +379,7 @@ module CoreLibrary
 
     # Deserialize the value against the template (group of types).
     # @param [String] value The value to be deserialized.
-    # @param [String] template The type-combination group against which the value will be mapped (oneOf(Integer, String)).
+    # @param [String] template The type-combination group for which the value will be mapped (oneOf(Integer, String)).
     def self.deserialize(template, value, sdk_module, should_symbolize)
       decoded = json_deserialize(value, should_symbolize)
       map_types(decoded, template, sdk_module: sdk_module)
@@ -433,7 +426,8 @@ module CoreLibrary
         end
         break if group_name == 'anyOf' && matches == 1
       end
-      raise ValidationException, "The value #{value} provided doesn't validate against the schema #{template}" unless matches == 1
+      raise ValidationException, "The value #{value} provided doesn't validate against the schema #{template}" unless
+        matches == 1
 
       value = result_value unless result_value.nil?
       value
@@ -488,7 +482,7 @@ module CoreLibrary
     # @param [Integer] matches The parameter indicates the number of matches of value against types.
     def self.map_type(value, type, _group_name, matches, sdk_module)
       if sdk_module.constants.select do |c|
-        sdk_module.const_get(c).to_s == "#{sdk_module.to_s}::#{type}"
+        sdk_module.const_get(c).to_s == "#{sdk_module}::#{type}"
       end.empty?
         value, matches = map_data_type(value, type, matches)
       else
@@ -520,7 +514,7 @@ module CoreLibrary
     def self.map_data_type(value, element, matches)
       element = element.split('|').map { |x| Object.const_get x }
       matches += 1 if element.all? { |x| data_types.include?(x) } &&
-        element.any? { |x| (value.instance_of? x) || (value.class.ancestors.include? x) }
+                      element.any? { |x| (value.instance_of? x) || (value.class.ancestors.include? x) }
       [value, matches]
     end
 

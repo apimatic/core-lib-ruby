@@ -30,13 +30,13 @@ class AuthHelperTest < Minitest::Test
   def test_is_token_expired_nil
     token_expiry = nil
     assert_raises ArgumentError do
-      AuthHelper.is_token_expired(token_expiry)
+      AuthHelper.token_expired?(token_expiry)
     end
   end
 
   def test_is_token_expired_true
     token_expiry = Time.now().utc.to_i - 3600
-    actual_value = AuthHelper.is_token_expired(token_expiry)
+    actual_value = AuthHelper.token_expired?(token_expiry)
     expected_value = true
 
     refute_nil actual_value
@@ -45,7 +45,7 @@ class AuthHelperTest < Minitest::Test
 
   def test_is_token_expired_false
     token_expiry = Time.now().utc.to_i + 3600
-    actual_value = AuthHelper.is_token_expired(token_expiry)
+    actual_value = AuthHelper.token_expired?(token_expiry)
     expected_value = false
 
     refute_nil actual_value
@@ -90,7 +90,7 @@ class AuthHelperTest < Minitest::Test
 
   def test_is_valid_auth_true
     auth_params = {'Authorization' => 'MyDuMmYtOkEn'}
-    actual_value = AuthHelper.is_valid_auth(auth_params)
+    actual_value = AuthHelper.valid_auth?(auth_params)
 
     refute_nil actual_value
 
@@ -99,7 +99,7 @@ class AuthHelperTest < Minitest::Test
 
   def test_is_valid_auth_empty_false
     auth_params = {}
-    actual_value = AuthHelper.is_valid_auth(auth_params)
+    actual_value = AuthHelper.valid_auth?(auth_params)
 
     refute_nil actual_value
 
@@ -108,7 +108,7 @@ class AuthHelperTest < Minitest::Test
 
   def test_is_valid_auth_nil_false
     auth_params = nil
-    actual_value = AuthHelper.is_valid_auth(auth_params)
+    actual_value = AuthHelper.valid_auth?(auth_params)
 
     refute_nil actual_value
 
@@ -117,7 +117,7 @@ class AuthHelperTest < Minitest::Test
 
   def test_is_valid_auth_key_nil_false
     auth_params = {nil => 'MyDuMmYtOkEn', 'Authorization' => 'MyDuMmYtOkEn'}
-    actual_value = AuthHelper.is_valid_auth(auth_params)
+    actual_value = AuthHelper.valid_auth?(auth_params)
 
     refute_nil actual_value
 
@@ -126,7 +126,7 @@ class AuthHelperTest < Minitest::Test
 
   def test_is_valid_auth_value_nil_false
     auth_params = {'Authorization1' => nil, 'Authorization2' => 'MyDuMmYtOkEn'}
-    actual_value = AuthHelper.is_valid_auth(auth_params)
+    actual_value = AuthHelper.valid_auth?(auth_params)
 
     refute_nil actual_value
 

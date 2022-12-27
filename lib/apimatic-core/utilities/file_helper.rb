@@ -3,7 +3,7 @@ require 'open-uri'
 module CoreLibrary
   # A utility for file specific operations.
   class FileHelper
-    @cache = Hash.new
+    @cache = {}
 
     # Class method which takes a URL, downloads the file (if not already downloaded.
     # for this test session) and returns the path of the file.
@@ -12,10 +12,10 @@ module CoreLibrary
       unless @cache.keys.include? url
         @cache[url] = Tempfile.new('APIMatic')
         @cache[url].binmode
-        @cache[url].write(URI.open(url, {ssl_ca_cert: Certifi.where}).read)
+        @cache[url].write(URI.parse(url).open({ ssl_ca_cert: Certifi.where }).read)
       end
       @cache[url].rewind
-      return @cache[url].path
+      @cache[url].path
     end
   end
 end

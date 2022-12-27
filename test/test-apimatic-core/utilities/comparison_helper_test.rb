@@ -27,8 +27,6 @@ class ComparisonHelperTest < Minitest::Test
 
       assert(match_headers_output == expected_output)
     end
-
-    puts "Passed!"
   end
 
   def test_match_body
@@ -2129,7 +2127,5 @@ class ComparisonHelperTest < Minitest::Test
 
       assert(match_body_output == expected_output)
     end
-
-    puts "Passed!"
   end
 end

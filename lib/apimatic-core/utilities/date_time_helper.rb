@@ -29,7 +29,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-          v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
+        v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
       end
     end
 
@@ -61,7 +61,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-          v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
+        v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
       end
     end
 
@@ -81,7 +81,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-            v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
+          v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
       end
       hash[key]
     end
@@ -93,7 +93,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-          v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
+        v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
       end
     end
 

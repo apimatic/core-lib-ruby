@@ -46,14 +46,12 @@ class XmlHelperTest < Minitest::Test
 "<number>23</number></AttributesAndElements>'
     xml_model = MockHelper.get_attributes_elements_model
     deserialized_xml = XmlHelper.deserialize_xml(xml, 'AttributesAndElements',
-                                                 TestComponent::AttributesAndElements),
-      puts(deserialized_xml)
-    assert_equal(deserialized_xml[0].string_attr, xml_model.string_attr )
-    assert_equal(deserialized_xml[0].number_attr, xml_model.number_attr )
-    assert_equal(deserialized_xml[0].string_element, xml_model.string_element )
-    assert_equal(deserialized_xml[0].number_element, xml_model.number_element )
+                                                 TestComponent::AttributesAndElements)
 
-
+    assert_equal(deserialized_xml.string_attr, xml_model.string_attr )
+    assert_equal(deserialized_xml.number_attr, xml_model.number_attr )
+    assert_equal(deserialized_xml.string_element, xml_model.string_element )
+    assert_equal(deserialized_xml.number_element, xml_model.number_element )
   end
 
   def test_deserialize_xml_to_array
@@ -61,16 +59,16 @@ class XmlHelperTest < Minitest::Test
 "</item><item number="2" string="string-attr"><number>23</number><string>string-element</string></item></arrayOfModels>'
     xml_model = MockHelper.get_attributes_elements_model
     deserialized_xml = XmlHelper.deserialize_xml_to_array(xml, 'arrayOfModels','item',
-                                                          TestComponent::AttributesAndElements),
-      puts(deserialized_xml)
-    assert_equal(deserialized_xml[0][0].string_attr, xml_model.string_attr )
-    assert_equal(deserialized_xml[0][0].number_attr, xml_model.number_attr )
-    assert_equal(deserialized_xml[0][0].string_element, xml_model.string_element )
-    assert_equal(deserialized_xml[0][0].number_element, xml_model.number_element )
-    assert_equal(deserialized_xml[0][1].string_attr, xml_model.string_attr )
-    assert_equal(deserialized_xml[0][1].number_attr, xml_model.number_attr )
-    assert_equal(deserialized_xml[0][1].string_element, xml_model.string_element )
-    assert_equal(deserialized_xml[0][1].number_element, xml_model.number_element )
+                                                          TestComponent::AttributesAndElements)
+
+    assert_equal(deserialized_xml[0].string_attr, xml_model.string_attr )
+    assert_equal(deserialized_xml[0].number_attr, xml_model.number_attr )
+    assert_equal(deserialized_xml[0].string_element, xml_model.string_element )
+    assert_equal(deserialized_xml[0].number_element, xml_model.number_element )
+    assert_equal(deserialized_xml[1].string_attr, xml_model.string_attr )
+    assert_equal(deserialized_xml[1].number_attr, xml_model.number_attr )
+    assert_equal(deserialized_xml[1].string_element, xml_model.string_element )
+    assert_equal(deserialized_xml[1].number_element, xml_model.number_element )
   end
 
   def test_deserialize_xml_to_hash
@@ -168,12 +166,12 @@ class XmlHelperTest < Minitest::Test
 "<number>23</number></AttributesAndElements>'
     doc = Nokogiri::XML::Document.parse xml
     xml_model = MockHelper.get_attributes_elements_model
-    deserialized_xml = XmlHelper.from_element(doc, 'AttributesAndElements', TestComponent::AttributesAndElements),
-      puts(deserialized_xml)
-    assert_equal(deserialized_xml[0].string_attr, xml_model.string_attr )
-    assert_equal(deserialized_xml[0].number_attr, xml_model.number_attr )
-    assert_equal(deserialized_xml[0].string_element, xml_model.string_element )
-    assert_equal(deserialized_xml[0].number_element, xml_model.number_element )
+    deserialized_xml = XmlHelper.from_element(doc, 'AttributesAndElements', TestComponent::AttributesAndElements)
+
+    assert_equal(deserialized_xml.string_attr, xml_model.string_attr)
+    assert_equal(deserialized_xml.number_attr, xml_model.number_attr )
+    assert_equal(deserialized_xml.string_element, xml_model.string_element )
+    assert_equal(deserialized_xml.number_element, xml_model.number_element )
     assert_nil(XmlHelper.from_element(doc, 'AttributesAndElements2', TestComponent::AttributesAndElements))
   end
   def test_from_element_to_array

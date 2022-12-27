@@ -1,11 +1,10 @@
 module CoreLibrary
   # The class to handle the OR combination of multiple authentications for a particular request.
   class Or < AuthGroup
-
     # Getter for the error message for auth.
     # @return [String] The error message while applying the auth.
     def error_message
-      return @error_messages.join(' or ')
+      @error_messages.join(' or ')
     end
 
     def initialize(*auth_group)
