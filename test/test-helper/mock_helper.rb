@@ -8,6 +8,18 @@ require_relative 'http/http_client_mock'
 require_relative 'models/test_logger'
 require_relative 'models/test_o_auth'
 require_relative 'models/test_o_auth_exception'
+require_relative 'models/person'
+require_relative 'models/base_model'
+require_relative 'models/employee'
+require_relative 'models/attributes_and_elements'
+require_relative 'models/atom'
+require_relative 'models/morning'
+require_relative 'models/evening'
+require_relative 'models/vehicle'
+require_relative 'models/orbit'
+require_relative 'models/non_scalar_model'
+require_relative 'models/car'
+require_relative 'models/noon'
 
 module TestComponent
   # An enum for SDK environments.
@@ -143,6 +155,20 @@ module TestComponent
       Parameter.new.
         key(key).
         value(value)
+    end
+    def self.get_person_model
+      person = Person.new("H # 531, S # 20", 23, '2016-03-13',
+                          DateTimeHelper.from_rfc3339('2016-03-13T12:52:32.123Z'), "Jone", "1234",)
+      return person
+    end
+
+    def self.get_attributes_elements_model
+      AttributesAndElements.new('string-attr', 2, 'string-element', 23)
+    end
+
+    def self.get_attributes_elements_model_with_datetime
+      AttributesAndElements.new('string-attr', 2, 'string-element',
+                                DateTimeHelper.from_unix(1484719381))
     end
   end
 end

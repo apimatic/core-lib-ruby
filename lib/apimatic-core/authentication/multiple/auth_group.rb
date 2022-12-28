@@ -7,7 +7,7 @@ module CoreLibrary
     def initialize(auth_group)
       @auth_participants = []
       auth_group.each do |auth_participant|
-        if !auth_participant.nil? and auth_participant.is_a? String
+        if !auth_participant.nil? && auth_participant.is_a?(String)
           @auth_participants.append(Single.new(auth_participant))
         elsif !auth_participant.nil?
           @auth_participants.append(auth_participant)
@@ -31,16 +31,14 @@ module CoreLibrary
     # Checks if the associated auth is valid.
     # @return [Boolean] True if the associated auth is valid, false otherwise.
     def valid
-      raise NotImplementedError, 'This method needs
-          to be implemented in a child class.'
+      raise NotImplementedError, 'This method needs to be implemented in a child class.'
     end
 
     # Applies the associated auth to the HTTP request.
     # @param [HttpRequest] http_request The HTTP request on which the auth is to be applied.
     def apply(http_request)
-      if !@is_valid_group
-        return
-      end
+      return unless @is_valid_group
+
       @mapped_group.each { |participant| participant.apply(http_request) }
     end
   end

@@ -19,8 +19,12 @@ Metrics/CyclomaticComplexity:
 Metrics/PerceivedComplexity:
   Enabled: false
 
+Metrics/BlockNesting:
+  Enabled: false
+
 Layout/EndOfLine:
   Enabled: false
+
 Lint/UnderscorePrefixedVariableName:
   Enabled: false
 
@@ -47,5 +51,6 @@ Style/RedundantAssignment:
 
 AllCops:
   Exclude:
+    - './lib/apimatic-core/utilities/comparison_helper.rb'
     - './test/**/*'
     - './*'

@@ -22,8 +22,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert_equal(HttpMethod::GET, actual.http_method)
-
-    puts "Passed!"
   end
 
   def test_path
@@ -31,8 +29,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert_includes(actual.query_url, MockHelper.default_path)
-
-    puts "Passed!"
   end
 
   def test_template_param
@@ -42,8 +38,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert_includes(actual.query_url, "value")
-
-    puts "Passed!"
   end
 
   def test_template_validation
@@ -52,8 +46,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     refute_nil(actual)
-
-    puts "Passed!"
   end
 
   def test_query_param
@@ -63,8 +55,6 @@ class RequestBuilderTest < Minitest::Test
 
     assert_includes(actual.query_url, "key")
     assert_includes(actual.query_url, "value")
-
-    puts "Passed!"
   end
 
   def test_additional_query_param
@@ -74,8 +64,6 @@ class RequestBuilderTest < Minitest::Test
 
     assert_includes(actual.query_url, "key")
     assert_includes(actual.query_url, "value")
-
-    puts "Passed!"
   end
 
   def test_body_param
@@ -90,8 +78,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert(actual.parameters == "value")
-
-    puts "Passed!"
   end
 
   def test_body_param_file
@@ -102,8 +88,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert(actual.parameters.class, File)
-
-    puts "Passed!"
   end
 
   def test_body_param_file_wrapper
@@ -114,8 +98,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert(actual.parameters.class, File)
-
-    puts "Passed!"
   end
 
   def test_header_param
@@ -124,8 +106,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert(actual.headers["key"] == "value")
-
-    puts "Passed!"
   end
 
   def test_form_param
@@ -134,8 +114,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert(actual.parameters["key"] == "value")
-
-    puts "Passed!"
   end
 
   def test_additional_form_param
@@ -144,8 +122,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert(actual.parameters[:key] == "value")
-
-    puts "Passed!"
   end
 
   def test_body_serializer
@@ -161,8 +137,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert(actual.parameters["objectKey"].class == String)
-
-    puts "Passed!"
   end
 
   def test_auth
@@ -171,8 +145,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert_includes(actual.headers["Authorization"], MockHelper.test_token)
-
-    puts "Passed!"
   end
 
   def test_auth_exception
@@ -184,8 +156,6 @@ class RequestBuilderTest < Minitest::Test
     rescue => exception
       assert_instance_of InvalidAuthCredential, exception
     end
-
-    puts "Passed!"
   end
 
   def test_array_serialization_format
@@ -198,8 +168,6 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert_includes(actual.query_url, "array[0]=1")
-
-    puts "Passed!"
   end
 
   def test_xml_attributes
@@ -219,8 +187,6 @@ class RequestBuilderTest < Minitest::Test
     deserializedXML = XmlHelper.deserialize_xml(xml, "AttributesAndElements", AttributesAndElements)
 
     assert(deserializedXML.class == TestComponent::AttributesAndElements)
-
-    puts "Passed!"
   end
 
   def test_xml_attributes_array
@@ -252,8 +218,6 @@ class RequestBuilderTest < Minitest::Test
     deserializedXML.each do |xmlObj|
       assert xmlObj.class == AttributesAndElements
     end
-
-    puts "Passed!"
   end
 
   def test_server
@@ -262,23 +226,18 @@ class RequestBuilderTest < Minitest::Test
                        .build({})
 
     assert_includes(actual.query_url, MockHelper.test_server)
-
-    puts "Passed!"
   end
 
   def test_logger
-    output = capture_io do
-      MockHelper.create_basic_request_builder
-                .endpoint_logger(MockHelper.create_logger(logger: TestLogger.new))
-                .endpoint_name_for_logging("TestLogger")
-                .build({})
-    end
+    test_logger = TestLogger.new
+    MockHelper.create_basic_request_builder
+              .endpoint_logger(MockHelper.create_logger(logger: test_logger))
+              .endpoint_name_for_logging("TestLogger")
+              .build({})
 
-    refute_nil(output)
+    refute_nil(test_logger.logged_messages)
 
-    assert_includes(output[0], "TestLogger.\n");
-
-    puts "Passed!"
+    assert_includes(test_logger.logged_messages[0], "Preparing query URL for TestLogger.")
   end
 
   def test_global_and_additional_headers
@@ -287,8 +246,6 @@ class RequestBuilderTest < Minitest::Test
 
     assert(actual.headers[:globalHeader] == "value")
     assert(actual.headers[:additionalHeader] == "value")
-
-    puts "Passed!"
   end
 
   def test_multipart_param
@@ -321,8 +278,5 @@ class RequestBuilderTest < Minitest::Test
 
     assert(actual.parameters["file"].class == Multipart::Post::UploadIO)
     assert(actual.parameters["file"].content_type == "application/octet-stream")
-
-
-    puts "Passed!"
   end
 end

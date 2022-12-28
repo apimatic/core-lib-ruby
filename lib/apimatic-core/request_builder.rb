@@ -54,7 +54,7 @@ module CoreLibrary
       template_param.validate
       conditional_add_to_template_validation_array(template_param)
       @template_params[template_param.get_key] = {  'value' => template_param.get_value,
-                                                    'encode' => template_param.need_to_encode  }
+                                                    'encode' => template_param.need_to_encode }
       self
     end
 
@@ -120,13 +120,11 @@ module CoreLibrary
     def body_param(body_param)
       body_param.validate
       conditional_add_to_template_validation_array(body_param)
-      if !body_param.get_key().nil?
-        if @body_param == nil
-          @body_param = {}
-        end
-        @body_param[body_param.get_key()] = body_param.get_value()
+      if !body_param.get_key.nil?
+        @body_param = {} if @body_param.nil?
+        @body_param[body_param.get_key] = body_param.get_value
       else
-        @body_param = body_param.get_value()
+        @body_param = body_param.get_value
       end
       self
     end
@@ -187,18 +185,18 @@ module CoreLibrary
 
     # Add param to the template validation array, in case a template is provided.
     def conditional_add_to_template_validation_array(parameter)
-      unless parameter.get_template.nil?
-        @template_validation_array.push(parameter)
-      end
+      return if parameter.get_template.nil?
+
+      @template_validation_array.push(parameter)
     end
 
     # Validates the template for the params provided with a template.
     def validate_templates
-      unless @template_validation_array.empty?
-        @template_validation_array.each do |parameter|
-          parameter.validate_template(@global_configuration.get_sdk_module,
-                                      @global_configuration.should_symbolize_hash)
-        end
+      return if @template_validation_array.nil? || @template_validation_array.empty?
+
+      @template_validation_array.each do |parameter|
+        parameter.validate_template(@global_configuration.get_sdk_module,
+                                    @global_configuration.should_symbolize_hash)
       end
     end
 
@@ -207,14 +205,16 @@ module CoreLibrary
     # @return [HttpRequest] An instance of HttpRequest.
     def build(endpoint_context)
       validate_templates
-      _url = process_url()
-      _request_body = process_body()
+      _url = process_url
+      _request_body = process_body
       _request_headers = process_headers(@global_configuration)
-      _http_request = HttpRequest.new(@http_method, _url, headers: _request_headers, parameters: _request_body,
+      _http_request = HttpRequest.new(@http_method, _url,
+                                      headers: _request_headers,
+                                      parameters: _request_body,
                                       context: endpoint_context)
-      apply_auth(@global_configuration.get_auth_managers(), _http_request)
+      apply_auth(@global_configuration.get_auth_managers, _http_request)
 
-      return _http_request
+      _http_request
     end
 
     # Processes and resolves the endpoint URL.
@@ -225,7 +225,7 @@ module CoreLibrary
       _updated_url_with_template_params = ApiHelper.append_url_with_template_parameters(@path, @template_params)
       _url = _base_url + _updated_url_with_template_params
       _url = get_updated_url_with_query_params(_url)
-      return ApiHelper.clean_url(_url)
+      ApiHelper.clean_url(_url)
     end
 
     # Returns the URL with resolved query parameters if any.
@@ -237,11 +237,13 @@ module CoreLibrary
       _query_params = @query_params
       _query_params.merge!(@additional_query_params) if _has_additional_query_params
 
-      if (!_query_params.nil? and _query_params.any?)
-        return ApiHelper.append_url_with_query_parameters(url, _query_params, @array_serialization_format)
-      else
-        return url
+      if !_query_params.nil? && _query_params.any?
+        return ApiHelper.append_url_with_query_parameters(url,
+                                                          _query_params,
+                                                          @array_serialization_format)
       end
+
+      url
     end
 
     # Processes all request headers (including local, global and additional).
@@ -249,24 +251,19 @@ module CoreLibrary
     # @return [Hash] The processed request headers to be sent in the request.
     def process_headers(global_configuration)
       _request_headers = {}
-      _global_headers = global_configuration.get_global_headers()
-      _additional_headers = global_configuration.get_additional_headers()
+      _global_headers = global_configuration.get_global_headers
+      _additional_headers = global_configuration.get_additional_headers
 
-      _has_global_headers = (!_global_headers.nil? and _global_headers.any?)
-      _has_additional_headers = (!_additional_headers.nil? and _additional_headers.any?)
+      _has_global_headers = (!_global_headers.nil? && _global_headers.any?)
+      _has_additional_headers = (!_additional_headers.nil? && _additional_headers.any?)
       _has_local_headers = (!@header_params.nil? and @header_params.any?)
 
-      if _has_global_headers or _has_additional_headers or _has_local_headers
+      if _has_global_headers || _has_additional_headers || _has_local_headers
         @endpoint_logger.info("Preparing headers for #{@endpoint_name_for_logging}.")
       end
 
-      if _has_global_headers
-        _request_headers.merge!(_global_headers)
-      end
-
-      if _has_additional_headers
-        _request_headers.merge!(_additional_headers)
-      end
+      _request_headers.merge!(_global_headers) if _has_global_headers
+      _request_headers.merge!(_additional_headers) if _has_additional_headers
 
       if _has_local_headers
         ApiHelper.clean_hash(@header_params)
@@ -279,14 +276,14 @@ module CoreLibrary
     # Processes the body parameter of the request (including form param, json body or xml body).
     # @return [Object] The body param to be sent in the request.
     def process_body
-      _has_form_params = (!@form_params.nil? and @form_params.any?)
-      _has_additional_form_params = (!@additional_form_params.nil? and @additional_form_params.any?)
-      _has_multipart_param = (!@multipart_params.nil? and @multipart_params.any?)
+      _has_form_params = (!@form_params.nil? && @form_params.any?)
+      _has_additional_form_params = (!@additional_form_params.nil? && @additional_form_params.any?)
+      _has_multipart_param = (!@multipart_params.nil? && @multipart_params.any?)
       _has_body_param = !@body_param.nil?
       _has_body_serializer = !@body_serializer.nil?
       _has_xml_attributes = !@xml_attributes.nil?
 
-      if _has_form_params or _has_additional_form_params
+      if _has_form_params || _has_additional_form_params
         @endpoint_logger.info("Preparing form parameters for #{@endpoint_name_for_logging}.")
       elsif _has_body_param
         @endpoint_logger.info("Preparing body parameters for #{@endpoint_name_for_logging}.")
@@ -294,20 +291,20 @@ module CoreLibrary
 
       if _has_xml_attributes
         return process_xml_parameters
-      elsif _has_form_params or _has_additional_form_params or _has_multipart_param
+      elsif _has_form_params || _has_additional_form_params || _has_multipart_param
         _form_params = @form_params
         _form_params.merge!(@form_params) if _has_form_params
         _form_params.merge!(@multipart_params) if _has_multipart_param
         _form_params.merge!(@additional_form_params) if _has_additional_form_params
         # TODO: add Array serialization format support while writing the POC
         return ApiHelper.form_encode_parameters(_form_params, @array_serialization_format)
-      elsif _has_body_param and _has_body_serializer
-        return @body_serializer.call(resolve_body_param())
-      elsif _has_body_param and not _has_body_serializer
-        return resolve_body_param()
+      elsif _has_body_param && _has_body_serializer
+        return @body_serializer.call(resolve_body_param)
+      elsif _has_body_param && !_has_body_serializer
+        return resolve_body_param
       end
 
-      return {}
+      {}
     end
 
     # Processes the part of a multipart request and assign appropriate part value and its content-type.
@@ -329,22 +326,24 @@ module CoreLibrary
 
     # @return [String] The serialized xml body.
     def process_xml_parameters
-      if @xml_attributes.get_array_item_name()
-        @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_array_item_name, @xml_attributes.get_value)
-      else
-        @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_value)
+      unless @xml_attributes.get_array_item_name.nil?
+        return @body_serializer.call(@xml_attributes.get_root_element_name,
+                                     @xml_attributes.get_array_item_name,
+                                     @xml_attributes.get_value)
       end
+
+      @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_value)
     end
 
     # Resolves the body parameter to appropriate type.
     # @return [Hash] The resolved body parameter as per the type.
     def resolve_body_param
-      if !@body_param.nil? and @body_param.is_a? FileWrapper
-        @header_params['content-type'] = @body_param.content_type if !@body_param.file.nil? and
-          !@body_param.content_type.nil?
+      if !@body_param.nil? && @body_param.is_a?(FileWrapper)
+        @header_params['content-type'] = @body_param.content_type if !@body_param.file.nil? &&
+                                                                     !@body_param.content_type.nil?
         @header_params['content-length'] = @body_param.file.size.to_s
         return @body_param.file
-      elsif !@body_param.nil? and @body_param.is_a? File
+      elsif !@body_param.nil? && @body_param.is_a?(File)
         @header_params['content-length'] = @body_param.size.to_s
       end
       @body_param
@@ -354,13 +353,9 @@ module CoreLibrary
     # @param [Hash] auth_managers The hash of auth managers.
     # @param [HttpRequest] http_request The HTTP request on which the auth is to be applied.
     def apply_auth(auth_managers, http_request)
-      if !@auth.nil?
-        if @auth.with_auth_managers(auth_managers).valid
-          @auth.apply(http_request)
-        else
-          raise InvalidAuthCredential.new(@auth.error_message)
-        end
-      end
+      is_valid_auth = @auth.with_auth_managers(auth_managers).valid unless @auth.nil?
+      @auth.apply(http_request) if is_valid_auth
+      raise InvalidAuthCredential, @auth.error_message if !@auth.nil? && !is_valid_auth
     end
   end
 end

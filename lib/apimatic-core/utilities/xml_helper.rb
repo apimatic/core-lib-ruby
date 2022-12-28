@@ -99,9 +99,9 @@ module CoreLibrary
       # @param datetime_format Datetime format for the converted string.
       def datetime_to_s(value, datetime_format)
         case datetime_format
-        when 'unix'
+        when 'UnixDateTime'
           value.to_time.to_i
-        when 'rfc1123'
+        when 'HttpDateTime'
           value.httpdate
         else
           value
@@ -112,7 +112,7 @@ module CoreLibrary
       # @param xml The XML value to deserialize.
       # @param root_element_name Root element name for the XML provided.
       # @param clazz The class to convert the XML into.
-      def deserialize_xml(xml, root_element_name, clazz, datetime_format= nil)
+      def deserialize_xml(xml, root_element_name, clazz, datetime_format = nil)
         doc = Nokogiri::XML::Document.parse xml
         from_element(doc, root_element_name, clazz,
                      datetime_format: datetime_format)
@@ -124,7 +124,7 @@ module CoreLibrary
       # @param item_name Item name for XML.
       # @param clazz The class to convert the XML into.
       def deserialize_xml_to_array(xml, root_element_name, item_name, clazz,
-                                   datetime_format= nil)
+                                   datetime_format = nil)
         doc = Nokogiri::XML::Document.parse xml
         from_element_to_array(doc, item_name, clazz,
                               wrapping_element_name: root_element_name,
@@ -135,7 +135,7 @@ module CoreLibrary
       # @param xml The XML value to deserialize.
       # @param root_element_name Root element name for the XML provided.
       def deserialize_xml_to_hash(xml, root_element_name, clazz,
-                                  datetime_format= nil)
+                                  datetime_format = nil)
         doc = Nokogiri::XML::Document.parse xml
         from_element_to_hash(doc, root_element_name, clazz,
                              datetime_format: datetime_format)
@@ -199,9 +199,9 @@ module CoreLibrary
       # Basic convert method.
       def convert(value, clazz, datetime_format)
         if clazz == DateTime
-          return DateTime.rfc3339(value) if datetime_format == 'rfc3339'
-          return DateTime.httpdate(value) if datetime_format == 'rfc1123'
-          return DateTime.strptime(value, '%s') if datetime_format == 'unix'
+          return DateTime.rfc3339(value) if datetime_format == 'RFC3339DateTime'
+          return DateTime.httpdate(value) if datetime_format == 'HttpDateTime'
+          return DateTime.strptime(value, '%s') if datetime_format == 'UnixDateTime'
         end
 
         return value.to_f if clazz == Float

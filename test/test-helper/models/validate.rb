@@ -1,5 +1,6 @@
+require_relative  'base_model'
 module TestComponent
-  class Validate < CoreLibrary::BaseModel
+  class Validate < TestComponent::BaseModel
     SKIP = Object.new
     private_constant :SKIP
 

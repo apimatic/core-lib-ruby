@@ -1,8 +1,10 @@
 # Http response received.
 module CoreLibrary
+  # The class to hold the complete HTTP response.
   class ApiResponse
-    attr_reader(:status_code, :reason_phrase, :headers, :raw_body, :request,
-                :data, :errors)
+    attr_reader :status_code, :reason_phrase, :headers, :raw_body, :request,
+                :data, :errors
+
     # The constructor
     # @param [HttpResponse] The original, raw response from the api.
     # @param [Object] The data field specified for the response.

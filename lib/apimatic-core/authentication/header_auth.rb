@@ -1,7 +1,6 @@
 module CoreLibrary
   # This class is responsible for adding authentication in request header parameter.
   class HeaderAuth < Authentication
-
     def initialize(auth_params)
       @auth_params = auth_params
       @error_message = nil
@@ -10,7 +9,7 @@ module CoreLibrary
     # Checks whether this authentication scheme is valid or not.
     # @return [Boolean] True if the auth instance is valid to be applied on the request.
     def valid
-      AuthHelper.is_valid_auth(@auth_params)
+      AuthHelper.valid_auth?(@auth_params)
     end
 
     # Applies the authentication scheme on the given HTTP request.

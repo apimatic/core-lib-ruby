@@ -1,7 +1,6 @@
 module CoreLibrary
   # A class to hold the global configurations for the core library. This class is initiated from the SDK.
   class GlobalConfiguration
-
     attr_reader :client_configuration
 
     def initialize(client_configuration: HttpClientConfiguration.new)
@@ -100,7 +99,7 @@ module CoreLibrary
     end
 
     # The setter for the user agent information to be attached with all requests.
-    # @param [String] user_agent The user agent template string, placeholder values must be provided in agent parameters.
+    # @param [String] user_agent The user agent template string.
     # @param [Hash, Optional] agent_parameters The agent configuration to be replaced in the actual user agent template.
     # @return [GlobalConfiguration] An updated instance of GlobalConfiguration.
     def user_agent(user_agent, agent_parameters: {})
@@ -138,11 +137,11 @@ module CoreLibrary
 
     # Updates the user agent template with the provided parameters and adds user agent in the global_headers.
     # @param [String] user_agent The user agent template string.
-    # @param [Hash, Optional] agent_parameters The agent configurations to be replaced in the actual user agent template.
+    # @param [Hash, Optional] agent_parameters The agent configurations to be replaced in the actual user agent value.
     def add_useragent_in_headers(user_agent, agent_parameters)
-      if !agent_parameters.nil? and agent_parameters.any?
-        user_agent = ApiHelper.update_user_agent_value_with_parameters(
-          user_agent, agent_parameters).gsub('  ', ' ')
+      if !agent_parameters.nil? && agent_parameters.any?
+        user_agent = ApiHelper.update_user_agent_value_with_parameters(user_agent,
+                                                                       agent_parameters).gsub('  ', ' ')
       end
       @global_headers['user-agent'] = user_agent unless user_agent.nil?
     end

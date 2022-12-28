@@ -41,15 +41,13 @@ class EndpointLoggerTest < Minitest::Test
                       .endpoint_context('retry', true)
 
     api_call.execute
-    logged_messages = logger.get_logged_messages
+    logged_messages = logger.logged_messages
 
     i = 0
     logged_messages.each do |msg|
       assert_includes(msg, expected_logs[i])
       i += 1
     end
-
-    puts "Passed!"
   end
 
   def test_end_to_end_with_exception
@@ -68,7 +66,7 @@ class EndpointLoggerTest < Minitest::Test
     begin
       api_call.execute
     rescue
-      logged_messages = logger.get_logged_messages
+      logged_messages = logger.logged_messages
 
       i = 0
       logged_messages.each do |msg|
@@ -79,7 +77,6 @@ class EndpointLoggerTest < Minitest::Test
         end
         i += 1
       end
-      puts "Passed!"
     end
   end
 end

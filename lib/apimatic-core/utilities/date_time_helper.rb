@@ -17,11 +17,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-          if v.is_a?(BaseModel)
-            v.to_hash
-          else
-            v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
-          end
+          v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
       end
       hash[key]
     end
@@ -33,11 +29,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-        if v.is_a?(BaseModel)
-          v.to_hash
-        else
-          v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
-        end
+        v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
       end
     end
 
@@ -57,11 +49,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-          if v.is_a?(BaseModel)
-            v.to_hash
-          else
-            v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
-          end
+          v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
       end
       hash[key]
     end
@@ -73,11 +61,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-        if v.is_a?(BaseModel)
-          v.to_hash
-        else
-          v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
-        end
+        v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
       end
     end
 
@@ -97,11 +81,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-          if v.is_a?(BaseModel)
-            v.to_hash
-          else
-            v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
-          end
+          v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
       end
       hash[key]
     end
@@ -113,11 +93,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-        if v.is_a?(BaseModel)
-          v.to_hash
-        else
-          v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
-        end
+        v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
       end
     end
 
