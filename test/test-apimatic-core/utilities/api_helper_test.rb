@@ -409,7 +409,6 @@ class ApiHelperTest < Minitest::Test
                  '0.987')
 
   end
-
-  end
+end
 
 

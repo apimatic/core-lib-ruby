@@ -10,8 +10,7 @@ class XmlHelperTest < Minitest::Test
   include CoreLibrary
   include TestComponent
   def setup
-    require 'simplecov'
-    SimpleCov.start
+
   end
 
   def test_serialize_to_xml
@@ -32,13 +31,21 @@ class XmlHelperTest < Minitest::Test
                  )
   end
 
-  def test_serialize_hash_to_xml
+  def test_serialize_hash_to_xml_case_1
     assert_equal(XmlHelper.serialize_hash_to_xml('AttributesAndElements',
                                             {"xmlhash" =>
                                                TestComponent::MockHelper.get_attributes_elements_model}),
                  "<?xml version=\"1.0\"?>\n<AttributesAndElements>\n  "\
 "<xmlhash string=\"string-attr\" number=\"2\">\n    <string>string-element</string>\n    "\
 "<number>23</number>\n  </xmlhash>\n</AttributesAndElements>\n")
+  end
+
+  def test_serialize_hash_to_xml_case_2
+    xml = "<?xml version=\"1.0\"?>\n<AttributesAndElements>\n  <string>string-element</string>\n  "\
+"<number>23</number>\n</AttributesAndElements>\n"
+    assert_equal(XmlHelper.serialize_hash_to_xml('AttributesAndElements',
+                                                 {"string"=>"string-element", "number"=>"23"},
+                                                 ),xml)
   end
 
   def test_deserialize_xml
@@ -79,13 +86,6 @@ class XmlHelperTest < Minitest::Test
                  {"string"=>"string-element", "number"=>"23"})
   end
 
-  def test_serialize_hash_to_xml
-    xml = "<?xml version=\"1.0\"?>\n<AttributesAndElements>\n  <string>string-element</string>\n  "\
-"<number>23</number>\n</AttributesAndElements>\n"
-    assert_equal(XmlHelper.serialize_hash_to_xml('AttributesAndElements',
-                                                 {"string"=>"string-element", "number"=>"23"},
-                                                 ),xml)
-    end
   def test_add_as_a_sub_element
     doc = Nokogiri::XML::Document.new
     assert_equal(XmlHelper.add_as_subelement(doc, doc, 'AttributesAndElements',
@@ -239,4 +239,4 @@ class XmlHelperTest < Minitest::Test
     assert_equal(XmlHelper.datetime_to_s('1994-02-13T14:01:54.9571247Z', nil),
                  '1994-02-13T14:01:54.9571247Z')
   end
-  end
+end
