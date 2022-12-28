@@ -3,7 +3,6 @@
 [![Gem Version](https://badge.fury.io/rb/apimatic_core.svg)](https://badge.fury.io/rb/apimatic_core)
 [![Tests][test-badge]][test-url]
 [![Linting][lint-badge]][lint-url]
-[![Maintainability][maintainability-url]][code-climate-url]
 [![Test Coverage][test-coverage-url]][code-climate-url]
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
 [![Licence][license-badge]][license-url]
