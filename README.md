@@ -1,14 +1,18 @@
-# core-lib-ruby
+# apimatic-core
+[//]: # ([![PyPI][rubygems-version]][rubygems-apimatic-faraday-client-adapter-url])
 [![Tests][test-badge]][test-url]
+[![Linting][lint-badge]][lint-url]
 [![Maintainability][maintainability-url]][code-climate-url]
 [![Test Coverage][test-coverage-url]][code-climate-url]
+[![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
+[![Licence][license-badge]][license-url]
 
 ## Introduction
 Core library ruby does the job of congregating common and core functionality from ruby SDKs. This includes functionalities like the ability to create HTTP requests, handle responses, apply authentication schemes, convert API responses back to object instances, and validate user and server data.
 
 
 ## Installation
-You will need Ruby version >= 2.6 to support this package.
+You will need `2.6 <= Ruby version < 3.1` to support this package.
 
 Installation is quite simple, just execute the following command:
 ```
@@ -84,11 +88,14 @@ gem 'apimatic_core'
 ## Links
 * [apimatic-core-interfaces](link here)
 
-
-[test-badge]: https://github.com/apimatic/core-lib-python/actions/workflows/building-and-testing.yml/badge.svg
-[test-url]: https://github.com/apimatic/core-lib-python/actions/workflows/building-and-testing.yml
-[code-climate-url]: https://codeclimate.com/github/apimatic/core-lib-python
-[maintainability-url]: https://api.codeclimate.com/v1/badges/32e7abfdd4d27613ae76/maintainability
-[test-coverage-url]: https://api.codeclimate.com/v1/badges/32e7abfdd4d27613ae76/test_coverage
+[rubygems-version]: https://img.shields.io/pypi/v/apimatic-requests-client-adapter
+[rubygems-apimatic-faraday-client-adapter-url]: https://pypi.org/project/apimatic-requests-client-adapter/
+[test-badge]: https://github.com/apimatic/core-lib-ruby/actions/workflows/test-runner.yml/badge.svg
+[test-url]: https://github.com/apimatic/core-lib-ruby/actions/workflows/test-runner.yml
+[lint-badge]: https://github.com/apimatic/core-lib-ruby/actions/workflows/lint-runner.yml/badge.svg
+[lint-url]: https://github.com/apimatic/core-lib-ruby/actions/workflows/lint-runner.yml
+[code-climate-url]: https://codeclimate.com/github/apimatic/core-lib-ruby
+[maintainability-url]: https://api.codeclimate.com/v1/badges/85d658cd4e879f057e7d/maintainability
+[test-coverage-url]: https://api.codeclimate.com/v1/badges/85d658cd4e879f057e7d/test_coverage
 [license-badge]: https://img.shields.io/badge/licence-APIMATIC-blue
 [license-url]: LICENSE
