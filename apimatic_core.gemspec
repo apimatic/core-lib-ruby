@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('minitest', '~> 5.14', '>= 5.14.1')
   s.add_development_dependency('minitest-proveit', '~> 1.0')
   s.add_development_dependency('simplecov', '~> 0.21.2')
+  s.add_development_dependency('simplecov-cobertura')
   s.required_ruby_version = ['>= 2.6']
   s.files = Dir['{lib, test}/**/*', 'README*', 'LICENSE*']
   s.require_paths = ['lib']
