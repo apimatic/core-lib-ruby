@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Publish Gem
+name: publish-package
 
 on:
   # Manually publish
