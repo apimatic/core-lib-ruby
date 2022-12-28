@@ -3,7 +3,6 @@
 [![Gem Version](https://badge.fury.io/rb/apimatic_core.svg)](https://badge.fury.io/rb/apimatic_core)
 [![Tests][test-badge]][test-url]
 [![Linting][lint-badge]][lint-url]
-[![Maintainability][maintainability-url]][code-climate-url]
 [![Test Coverage][test-coverage-url]][code-climate-url]
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
 [![Licence][license-badge]][license-url]
@@ -94,7 +93,6 @@ gem 'apimatic_core'
 [lint-badge]: https://github.com/apimatic/core-lib-ruby/actions/workflows/lint-runner.yml/badge.svg
 [lint-url]: https://github.com/apimatic/core-lib-ruby/actions/workflows/lint-runner.yml
 [code-climate-url]: https://codeclimate.com/github/apimatic/core-lib-ruby
-[maintainability-url]: https://api.codeclimate.com/v1/badges/85d658cd4e879f057e7d/maintainability
 [test-coverage-url]: https://api.codeclimate.com/v1/badges/85d658cd4e879f057e7d/test_coverage
 [license-badge]: https://img.shields.io/badge/licence-APIMATIC-blue
 [license-url]: LICENSE
