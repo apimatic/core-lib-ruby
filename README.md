@@ -82,11 +82,11 @@ gem 'apimatic_core'
 | [`ApiHelper`](lib/apimatic-core/utilities/api_helper.rb)               | A Helper Class with various functions associated with making an API Call             |
 | [`AuthHelper`](lib/apimatic-core/utilities/auth_helper.rb)             | A Helper Class with various functions associated with authentication in API Calls    |
 | [`ComparisonHelper`](lib/apimatic-core/utilities/comparison_helper.rb) | A Helper Class used for the comparison of expected and actual API response           |
-| [` FileHelper`](lib/apimatic-core/utilities/file_helper.rb)            | A Helper Class for files                                                             |
+| [`FileHelper`](lib/apimatic-core/utilities/file_helper.rb)             | A Helper Class for files                                                             |
 | [`XmlHelper`](lib/apimatic-core/utilities/xml_helper.rb )              | A Helper class that holds utility methods for xml serialization and deserialization. |
 
 ## Links
-* [apimatic-core-interfaces](link here)
+* [apimatic_core_interfaces](link here)
 
 [rubygems-version]: https://img.shields.io/pypi/v/apimatic-requests-client-adapter
 [rubygems-apimatic-faraday-client-adapter-url]: https://pypi.org/project/apimatic-requests-client-adapter/
