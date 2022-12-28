@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: "Lint Code Base"
+name: "linter"
 
 on:
   push:
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint-code-base:
+  linter:
     runs-on: ubuntu-latest
     if: "! contains(toJSON(github.event.head_commit.message), 'skip ci')"
     strategy:
