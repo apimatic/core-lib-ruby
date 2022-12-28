@@ -33,3 +33,11 @@ jobs:
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Run tests
       run: bundle exec rake
+    - name: Upload coverage report
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.ruby-version == '3.0' }}
+      uses: paambaati/codeclimate-action@v3.0.0
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_TEST_REPORTER_ID }}
+      with:
+        coverageLocations: |
+          ${{github.workspace}}/coverage/.resultset.json:simplecov
