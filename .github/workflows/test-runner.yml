@@ -40,4 +40,4 @@ jobs:
         CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_TEST_REPORTER_ID }}
       with:
         coverageLocations: |
-          ${{github.workspace}}/coverage/.resultset.json:simplecov
+          ${{github.workspace}}/coverage/coverage.html:simplecov
