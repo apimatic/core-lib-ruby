@@ -1,5 +1,6 @@
 # apimatic-core
-[//]: # ([![PyPI][rubygems-version]][rubygems-apimatic-faraday-client-adapter-url])
+
+[![Gem Version](https://badge.fury.io/rb/apimatic_core.svg)](https://badge.fury.io/rb/apimatic_core)
 [![Tests][test-badge]][test-url]
 [![Linting][lint-badge]][lint-url]
 [![Maintainability][maintainability-url]][code-climate-url]
@@ -86,10 +87,8 @@ gem 'apimatic_core'
 | [`XmlHelper`](lib/apimatic-core/utilities/xml_helper.rb )              | A Helper class that holds utility methods for xml serialization and deserialization. |
 
 ## Links
-* [apimatic_core_interfaces](link here)
+* [apimatic_core_interfaces](https://rubygems.org/gems/apimatic_core_interfaces)
 
-[rubygems-version]: https://img.shields.io/pypi/v/apimatic-requests-client-adapter
-[rubygems-apimatic-faraday-client-adapter-url]: https://pypi.org/project/apimatic-requests-client-adapter/
 [test-badge]: https://github.com/apimatic/core-lib-ruby/actions/workflows/test-runner.yml/badge.svg
 [test-url]: https://github.com/apimatic/core-lib-ruby/actions/workflows/test-runner.yml
 [lint-badge]: https://github.com/apimatic/core-lib-ruby/actions/workflows/lint-runner.yml/badge.svg
