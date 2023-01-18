@@ -1,6 +1,8 @@
 module CoreLibrary
   # This data class represents the expected errors to be handled after the API call.
   class ErrorCase
+
+    # Initializes a new instance of ErrorCase.
     def initialize
       @description = nil
       @exception_type = nil

@@ -4,6 +4,9 @@ module CoreLibrary
   class AuthGroup < Authentication
     attr_accessor :auth_participants, :mapped_group, :error_messages, :is_valid_group
 
+
+    # Initializes a new instance of AuthGroup.
+    # @param [String | AuthGroup] auth_group AuthGroup instance or string.
     def initialize(auth_group)
       @auth_participants = []
       auth_group.each do |auth_participant|

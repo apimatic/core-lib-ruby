@@ -7,6 +7,8 @@ module CoreLibrary
       @error_messages.join(' and ')
     end
 
+    # Initializes a new instance of And.
+    # @param [String | AuthGroup] auth_group AuthGroup instance or string.
     def initialize(*auth_group)
       super auth_group
       @is_valid_group = true

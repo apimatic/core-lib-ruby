@@ -3,6 +3,8 @@ module CoreLibrary
   class GlobalConfiguration
     attr_reader :client_configuration
 
+    # Initializes a new instance of GlobalConfiguration.
+    # @param [HttpClientConfiguration] client_configuration Current HttpClientConfiguration.
     def initialize(client_configuration: HttpClientConfiguration.new)
       @client_configuration = client_configuration
       @global_errors = {}

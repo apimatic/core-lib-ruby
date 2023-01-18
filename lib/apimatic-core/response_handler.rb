@@ -1,5 +1,5 @@
 module CoreLibrary
-  # This class is for handling of the http response for an API call.
+  # Creates an instance of ResponseHandler.
   class ResponseHandler
     def initialize
       @deserializer = nil
