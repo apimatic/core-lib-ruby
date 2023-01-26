@@ -230,6 +230,7 @@ class ApiHelperTest < Minitest::Test
   end
 
   def test_json_deserialize
+    assert_nil(ApiHelper.json_deserialize(nil, false))
     assert_equal(ApiHelper.json_deserialize(
       '{"name":"Jone","age":23,"address":"H # 531, S # 20","uid":"1234","birthday":"2016-03-13",'\
 '"birthtime":"2016-03-13T12:52:32.123Z"}',
@@ -408,6 +409,85 @@ class ApiHelperTest < Minitest::Test
                                           'anyOf(Float, String)', TestComponent, false),
                  '0.987')
 
+  end
+
+  def test_resolve_template_placeholders()
+    actual_message = ApiHelper.resolve_template_placeholders([], '400',
+                                                             'Test template -- {$statusCode}')
+    expected_message = 'Test template -- {$statusCode}'
+    assert_equal(expected_message, actual_message)
+
+    actual_message = ApiHelper.resolve_template_placeholders(['{$statusCode}'], '400',
+                                                             'Test template -- {$statusCode}')
+    expected_message = 'Test template -- 400'
+    assert_equal(expected_message, actual_message)
+
+    actual_message = ApiHelper.resolve_template_placeholders(['{$response.header.accept}'],
+                                                             {'retry-after': 60},
+                                                             'Test template -- {$response.header.accept}')
+    expected_message = 'Test template -- '
+    assert_equal(expected_message, actual_message)
+
+    actual_message = ApiHelper.resolve_template_placeholders(['{accept}'],
+                                                             {'accept': 'application/json'},
+                                                             'Test template -- {accept}')
+    expected_message = 'Test template -- application/json'
+    assert_equal(expected_message, actual_message)
+
+    actual_message = ApiHelper.resolve_template_placeholders(['{$response.header.accept}'],
+                                                             {'accept': 'application/json'},
+                                                             'Test template -- {$response.header.accept}')
+    expected_message = 'Test template -- application/json'
+    assert_equal(expected_message, actual_message)
+  end
+
+  def test_resolve_template_placeholders_using_json_pointer()
+    deserialized_body = {:scalar => 123.2,
+                         :object => {:keyA => {:keyC => true, :keyD => 34}, :keyB => "some string",
+                                     :arrayScalar => %w[value1 value2],
+                                     :arrayObjects => [{:key1 => 123, :key2 => false}, {:key3 => 1234, :key4 => nil}]}}
+
+    input_placeholders = []
+    input_template = 'Test template -- {$response.body#/scalar}, {$response.body#/object/arrayObjects/0/key2}'
+    actual_message = ApiHelper.resolve_template_placeholders_using_json_pointer(input_placeholders, deserialized_body,
+                                                                                input_template)
+    expected_message = 'Test template -- {$response.body#/scalar}, {$response.body#/object/arrayObjects/0/key2}'
+    assert_equal(expected_message, actual_message)
+
+    input_placeholders = %w[{$response.body#/scalar} {$response.body#/object/arrayObjects/0/key2}]
+    input_template = 'Test template -- {$response.body#/scalar}, {$response.body#/object/arrayObjects/0/key2}'
+    actual_message = ApiHelper.resolve_template_placeholders_using_json_pointer(input_placeholders, deserialized_body,
+                                                                                input_template)
+    expected_message = 'Test template -- 123.2, false'
+    assert_equal(expected_message, actual_message)
+
+    input_placeholders = %w[{$response.body#/unknown_scalar} {$response.body#/object/arrayObjects/0/key2}]
+    input_template = 'Test template -- {$response.body#/unknown_scalar}, {$response.body#/object/arrayObjects/0/key2}'
+    actual_message = ApiHelper.resolve_template_placeholders_using_json_pointer(input_placeholders, deserialized_body,
+                                                                                input_template)
+    expected_message = 'Test template -- , false'
+    assert_equal(expected_message, actual_message)
+
+    input_placeholders = %w[{$response.body}]
+    input_template = 'Test template -- {$response.body}'
+    actual_message = ApiHelper.resolve_template_placeholders_using_json_pointer(input_placeholders, deserialized_body,
+                                                                                input_template)
+    expected_message = "Test template -- #{ApiHelper.json_serialize(deserialized_body)}"
+    assert_equal(expected_message, actual_message)
+
+    input_placeholders = %w[{$response.body#/object}]
+    input_template = 'Test template -- {$response.body#/object}'
+    actual_message = ApiHelper.resolve_template_placeholders_using_json_pointer(input_placeholders, deserialized_body,
+                                                                                input_template)
+    expected_message = "Test template -- #{ApiHelper.json_serialize(deserialized_body[:object])}"
+    assert_equal(expected_message, actual_message)
+
+    input_placeholders = %w[{$response.body}]
+    input_template = 'Test template -- {$response.body}'
+    actual_message = ApiHelper.resolve_template_placeholders_using_json_pointer(input_placeholders, nil,
+                                                                                input_template)
+    expected_message = "Test template -- "
+    assert_equal(expected_message, actual_message)
   end
 end
 
