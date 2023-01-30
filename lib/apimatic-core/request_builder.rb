@@ -1,7 +1,6 @@
 module CoreLibrary
   # This class is the builder of the http request for an API call.
   class RequestBuilder
-
     # Creates an instance of RequestBuilder.
     def initialize
       @server = nil

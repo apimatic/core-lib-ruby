@@ -1,7 +1,6 @@
 module CoreLibrary
   # This class is responsible for adding authentication in request header parameter.
   class HeaderAuth < Authentication
-
     # Initializes a new instance of HeaderAuth.
     # @param [Hash] auth_params Auth params for header auth.
     def initialize(auth_params)

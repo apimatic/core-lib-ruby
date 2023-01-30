@@ -1,7 +1,6 @@
 module CoreLibrary
   # This data class represents the parameter to be sent in the request.
   class Parameter
-
     # Initializes a new instance of Parameter.
     def initialize
       @key = nil

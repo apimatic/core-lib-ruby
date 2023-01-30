@@ -1,7 +1,6 @@
 module CoreLibrary
   # The class to hold the configuration for XML parameter in request and response.
   class XmlAttributes
-
     # Initializes a new instance of XmlAttributes.
     def initialize
       @value = nil
