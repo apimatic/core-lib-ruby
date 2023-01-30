@@ -5,5 +5,3 @@ group :test do
 end
 
 gemspec
-
-gem "rubocop", "~> 1.44"
