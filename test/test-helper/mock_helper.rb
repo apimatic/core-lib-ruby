@@ -71,11 +71,24 @@ module TestComponent
 
     def self.get_global_errors
       {
-        'default' => ErrorCase.new.description('Invalid response.').exception_type(ApiException),
-        '412' => ErrorCase.new.description('Precondition Failed').exception_type(NestedModelException),
-        '450' => ErrorCase.new.description('caught global exception').exception_type(CustomErrorResponseException),
-        '452' => ErrorCase.new.description('global exception with string').exception_type(ExceptionWithStringException),
+        'default' => ErrorCase.new.error_message('Invalid response.').exception_type(ApiException),
+        '412' => ErrorCase.new.error_message('Precondition Failed').exception_type(NestedModelException),
+        '450' => ErrorCase.new.error_message('caught global exception').exception_type(CustomErrorResponseException),
+        '452' => ErrorCase.new.error_message('global exception with string').exception_type(ExceptionWithStringException),
+        '5XX' => ErrorCase.new.error_message('5XX global').exception_type(ApiException)
       }
+    end
+
+    def self.get_global_errors_with_template_message
+      { "400" => ErrorCase.new
+                        .error_message_template('error_code => {$statusCode}, header => {$response.header.accept}, body'\
+                                                ' => {$response.body#/ServerCode} - {$response.body#/ServerMessage}')
+                        .exception_type(GlobalTestException),
+        "412" => ErrorCase.new
+                          .error_message_template('global error message -> error_code => {$statusCode}, header => '\
+                                                  '{$response.header.accept}, body => {$response.body#/ServerCode} - '\
+                                                  '{$response.body#/ServerMessage} - {$response.body#/model/name}')
+                          .exception_type(NestedModelException)}
     end
 
     def self.create_logger(logger: nil)
