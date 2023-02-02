@@ -45,13 +45,27 @@ module CoreLibrary
       self
     end
 
-    # Sets local_errors hash key value.
+    # Registers an entry with error message in the local errors hash.
     # @param [String] error_code The error code to check against.
-    # @param [String] description The reason for the exception.
+    # @param [String] error_message The reason for the exception.
     # @param [ApiException] exception_type The type of the exception to raise.
     # @return [ResponseHandler] An updated instance of ResponseHandler.
-    def local_error(error_code, description, exception_type)
-      @local_errors[error_code.to_s] = ErrorCase.new.description(description).exception_type(exception_type)
+    def local_error(error_code, error_message, exception_type)
+      @local_errors[error_code.to_s] = ErrorCase.new
+                                                .error_message(error_message)
+                                                .exception_type(exception_type)
+      self
+    end
+
+    # Registers an entry with error template in the local errors hash.
+    # @param [String] error_code The error code to check against.
+    # @param [String] error_message_template The reason template for the exception.
+    # @param [ApiException] exception_type The type of the exception to raise.
+    # @return [ResponseHandler] An updated instance of ResponseHandler.
+    def local_error_template(error_code, error_message_template, exception_type)
+      @local_errors[error_code.to_s] = ErrorCase.new
+                                                .error_message_template(error_message_template)
+                                                .exception_type(exception_type)
       self
     end
 
@@ -187,34 +201,16 @@ module CoreLibrary
     end
     # rubocop:enable Style/OptionalBooleanParameter
 
-    # Validates the response provided and throws an error from global_errors if it fails.
-    # @param response The received response.
-    # @param global_errors Global errors hash.
+    # Validates the response provided and throws an error against the configured status code.
+    # @param [HttpResponse] response The received response.
+    # @param [Hash] global_errors Global errors hash.
+    # @raise [ApiException] Throws the exception when the response contains errors.
     def validate(response, global_errors)
-      return unless response.status_code < 200 || response.status_code > 208
+      return unless response.status_code < 200 || response.status_code > 299
 
-      actual_status_code = response.status_code.to_s
+      validate_against_error_cases(response, @local_errors)
 
-      contains_local_errors = (!@local_errors.nil? and !@local_errors[actual_status_code].nil?)
-      if contains_local_errors
-        error_case = @local_errors[actual_status_code]
-        raise error_case.get_exception_type.new error_case.get_description, response
-      end
-
-      contains_local_default_error = (!@local_errors.nil? and !@local_errors['default'].nil?)
-      if contains_local_default_error
-        error_case = @local_errors['default']
-        raise error_case.get_exception_type.new error_case.get_description, response
-      end
-
-      contains_global_errors = (!global_errors.nil? and !global_errors[actual_status_code].nil?)
-      if contains_global_errors
-        error_case = global_errors[actual_status_code]
-        raise error_case.get_exception_type.new error_case.get_description, response
-      end
-
-      error_case = global_errors['default']
-      raise error_case.get_exception_type.new error_case.get_description, response unless error_case.nil?
+      validate_against_error_cases(response, global_errors)
     end
 
     # Applies xml deserializer to the response.
@@ -265,6 +261,32 @@ module CoreLibrary
       return @convertor.call(deserialized_value) unless @convertor.nil?
 
       deserialized_value
+    end
+
+    # Validates the response against the provided error cases hash, if matches, it raises the exception.
+    # @param [HttpResponse] response The received response.
+    # @param [Hash] error_cases The error cases hash.
+    # @raise [ApiException] Raises the APIException when configured error code matches.
+    def validate_against_error_cases(response, error_cases)
+      actual_status_code = response.status_code.to_s
+
+      # Handling error case when configured as explicit error code
+      error_case = error_cases[actual_status_code]
+      error_case&.raise_exception(response)
+
+      # Handling error case when configured as explicit error codes range
+      default_range_entry = error_cases&.filter do |error_code, _|
+        error_code.match?("^#{actual_status_code[0]}XX$")
+      end
+
+      default_range_error_case = default_range_entry&.map { |_, error_case_instance| error_case_instance }
+
+      default_range_error_case[0].raise_exception(response) unless
+        default_range_error_case.nil? || default_range_error_case.empty?
+
+      # Handling default error case if configured
+      default_error_case = error_cases['default']
+      default_error_case&.raise_exception(response)
     end
   end
 end

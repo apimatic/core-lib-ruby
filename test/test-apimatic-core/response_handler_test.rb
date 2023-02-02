@@ -151,6 +151,92 @@ class ResponseHandlerTest < Minitest::Test
     assert_equal 'int', exception.type
   end
 
+  def test_local_error_template_message
+    response_body_mock = '{"ServerCode": 5001, "ServerMessage": "Test message from server", '\
+                          '"SecretMessageForEndpoint": "This is test error message"}'
+    response_mock = MockHelper.create_response status_code: 415, headers: {'accept': 'application/json'},
+                                               raw_body: response_body_mock
+    begin
+      @response_handler.local_error_template(415,
+                                             'error_code => {$statusCode}, header => '\
+                                              '{$response.header.accept}, body => {$response.body#/ServerCode} - '\
+                                              '{$response.body#/ServerMessage} - '\
+                                              '{$response.body#/SecretMessageForEndpoint}', LocalTestException)
+                       .handle(response_mock, MockHelper.get_global_errors_with_template_message, TestComponent)
+    rescue => exception
+      assert_instance_of LocalTestException, exception
+    end
+    refute_nil(exception)
+    expected_reason = 'error_code => 415, header => application/json, '\
+                      'body => 5001 - Test message from server - This is test error message'
+    assert_equal expected_reason, exception.to_s
+  end
+
+  def test_error_template_message_without_payload
+    response_mock = MockHelper.create_response status_code: 415, headers: {'accept': 'application/json'}
+    begin
+      @response_handler.local_error_template(415,
+                                             'error_code => {$statusCode}, header => '\
+                                              '{$response.header.accept}, body => {$response.body#/ServerCode} - '\
+                                              '{$response.body#/ServerMessage} - '\
+                                              '{$response.body#/SecretMessageForEndpoint}', ApiException)
+                       .handle(response_mock, MockHelper.get_global_errors_with_template_message, TestComponent)
+    rescue => exception
+      assert_instance_of ApiException, exception
+    end
+    refute_nil(exception)
+    expected_reason = 'error_code => 415, header => application/json, '\
+                      'body =>  -  - '
+    assert_equal expected_reason, exception.to_s
+  end
+
+  def test_global_error_template_message
+    response_body_mock = '{"ServerCode": 5001, "ServerMessage": "Test message from server", "model": '\
+                         '{ "field": "Test field", "name": "Test name", "address": "Test address"}}'
+    response_mock = MockHelper.create_response status_code: 412,
+                                               raw_body: response_body_mock
+    begin
+      @response_handler.local_error(415,
+                                             'Not Found', LocalTestException)
+                       .handle(response_mock, MockHelper.get_global_errors_with_template_message, TestComponent)
+    rescue => exception
+      assert_instance_of NestedModelException, exception
+    end
+    refute_nil(exception)
+    expected_reason = 'global error message -> error_code => 412, header => , body => 5001 - Test message from server '\
+                      '- Test name'
+    assert_equal expected_reason, exception.to_s
+  end
+
+  def test_local_error_range_4XX
+    response_mock = MockHelper.create_response status_code: 429
+    begin
+      @response_handler.local_error(522, '522 local', LocalTestException)
+                       .local_error('4XX', '4XX local', ApiException)
+                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+    rescue => exception
+      assert_instance_of ApiException, exception
+    end
+    refute_nil(exception)
+    expected_reason = '4XX local'
+    assert_equal expected_reason, exception.to_s
+  end
+
+  def test_global_error_range_5XX
+    response_body_mock = '{"ServerCode": 5001, "ServerMessage": "Test message from server", "model": '\
+                         '{ "field": "Test field", "name": "Test name", "address": "Test address"}}'
+    response_mock = MockHelper.create_response status_code: 501, raw_body: response_body_mock
+    begin
+      @response_handler.local_error_template(522, '522 local', LocalTestException)
+                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+    rescue => exception
+      assert_instance_of ApiException, exception
+    end
+    refute_nil(exception)
+    expected_reason = '5XX global'
+    assert_equal expected_reason, exception.to_s
+  end
+
   def test_void_response
     response_mock = MockHelper.create_response status_code: 200
     actual_response = @response_handler.is_response_void(true)
