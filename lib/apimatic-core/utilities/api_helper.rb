@@ -1,4 +1,6 @@
 require 'erb'
+require 'json-pointer'
+
 module CoreLibrary
   # API utility class involved in executing an API
   class ApiHelper
@@ -230,9 +232,13 @@ module CoreLibrary
     # @param [String] json A JSON string.
     # rubocop:disable Style/OptionalBooleanParameter
     def self.json_deserialize(json, should_symbolize = false)
-      JSON.parse(json, symbolize_names: should_symbolize)
-    rescue StandardError
-      raise TypeError, 'Server responded with invalid JSON.'
+      return if json.nil?
+
+      begin
+        JSON.parse(json, symbolize_names: should_symbolize)
+      rescue StandardError
+        raise TypeError, 'Server responded with invalid JSON.'
+      end
     end
     # rubocop:enable Style/OptionalBooleanParameter
 
@@ -546,6 +552,55 @@ module CoreLibrary
       [String, Float, Integer,
        TrueClass, FalseClass, Date,
        DateTime, Array, Hash, Object]
+    end
+
+    # Updates all placeholders in the given message template with provided value.
+    # @param [String] placeholders The placeholders that need to be searched and replaced in the given template value.
+    # @param [String] value The dictionary containing the actual values to replace with.
+    # @param [String] template The template string containing placeholders.
+    # @@return [String] The resolved template value.
+    def self.resolve_template_placeholders_using_json_pointer(placeholders, value, template)
+      placeholders.each do |placeholder|
+        extracted_value = ''
+        if placeholder.include? '#'
+          # pick the 2nd chunk then remove the last character (i.e. `}`) of the string value
+          node_pointer = placeholder.split('#')[1].delete_suffix('}')
+          value_pointer = JsonPointer.new(value, node_pointer, symbolize_keys: true)
+          extracted_value = json_serialize(value_pointer.value) if value_pointer.exists?
+        elsif !value.nil?
+          extracted_value = json_serialize(value)
+        end
+        template.gsub!(placeholder, extracted_value)
+      end
+
+      template
+    end
+
+    # Updates all placeholders in the given message template with provided value.
+    # @param [List] placeholders The placeholders that need to be searched and replaced in the given template value.
+    # @param [Hash|String] values The value which refers to the actual values to replace with.
+    # @param [String] template The template string containing placeholders.
+    # @@return [String] The resolved template value.
+    def self.resolve_template_placeholders(placeholders, values, template)
+      values = values.map { |key, value| [key.to_s, value.to_s] }.to_h if values.is_a? Hash
+
+      placeholders.each do |placeholder|
+        extracted_value = ''
+        if values.is_a? Hash
+          # pick the last chunk then strip the last character (i.e. `}`) of the string value
+          key = if placeholder.include? '.'
+                  placeholder.split('.')[-1].delete_suffix('}')
+                else
+                  placeholder.delete_prefix('{').delete_suffix('}')
+                end
+          extracted_value = values[key] unless values[key].nil?
+        else
+          extracted_value = values unless values.nil?
+        end
+        template.gsub!(placeholder, extracted_value.to_s)
+      end
+
+      template
     end
   end
 end
