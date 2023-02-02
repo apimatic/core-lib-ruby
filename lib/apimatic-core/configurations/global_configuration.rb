@@ -31,11 +31,14 @@ module CoreLibrary
     end
 
     # Sets the current SDK module core library is being used for.
+    # @return [GlobalConfiguration] Current Instance.
     def sdk_module(sdk_module)
       @sdk_module = sdk_module
       self
     end
 
+    # Getter for the current SDK module the core library is being used for.
+    # @return [Module] Current SDK module.
     def get_sdk_module
       @sdk_module
     end

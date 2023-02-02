@@ -1,6 +1,7 @@
 module CoreLibrary
   # Creates an instance of ResponseHandler.
   class ResponseHandler
+    # Creates an instance of ResponseHandler.
     def initialize
       @deserializer = nil
       @convertor = nil
