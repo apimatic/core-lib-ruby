@@ -4,7 +4,7 @@ module CoreLibrary
   # A utility class for handling xml parsing.
   class XmlHelper
     class << self
-      # Serialized the provided value to XML.
+      # Serializes the provided value to XML.
       # @param [String] root_element_name Root element for the XML provided.
       # @param [String] value Value to convert to XML.
       # @param [CoreLibrary::DateTimeFormat] datetime_format The format to convert the date time into.
@@ -15,7 +15,7 @@ module CoreLibrary
         doc.to_xml
       end
 
-      # Serialized the provided array value to XML.
+      # Serializes the provided array value to XML.
       # @param [String] root_element_name Root element for the xml provided.
       # @param [String] item_name Item name for XML.
       # @param value Value to convert to XML.
@@ -29,7 +29,7 @@ module CoreLibrary
         doc.to_xml
       end
 
-      # Serialized the provided hash to XML.
+      # Serializes the provided hash to XML.
       # @param [string] root_element_name Root element for the XML provided.
       # @param [Hash] entries Entries to convert to XML.
       # @param [CoreLibrary::DateTimeFormat] datetime_format The format to convert the date time into.
