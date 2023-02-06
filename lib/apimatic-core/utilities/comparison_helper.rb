@@ -2,7 +2,7 @@ module CoreLibrary
   # A utility that perform the comparison of the Response body and headers.
   class ComparisonHelper
 
-    # Class method to compare the received headers with the expected headers.
+    # Compares the received headers with the expected headers.
     # @param [Hash] expected_headers A hash of expected headers (keys in lower case).
     # @param [Hash] actual_headers A hash of actual headers.
     # @param [Boolean, optional] allow_extra A flag which determines if we allow extra headers.
@@ -24,7 +24,7 @@ module CoreLibrary
       return true
     end
 
-    # Class method to compare the received body with the expected body.
+    # Compares the received body with the expected body.
     # @param [Dynamic] expected_body The expected body.
     # @param [Dynamic] actual_body The actual body.
     # @param [Boolean, optional] check_values A flag which determines if we check values in dictionaries.

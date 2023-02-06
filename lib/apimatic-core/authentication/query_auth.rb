@@ -1,6 +1,8 @@
 module CoreLibrary
   # This class is responsible for adding authentication in request query parameter.
   class QueryAuth < Authentication
+    # Initializes a new instance of QueryAuth.
+    # @param [Hash] auth_params Auth params for query auth.
     def initialize(auth_params)
       @auth_params = auth_params
       @error_message = nil

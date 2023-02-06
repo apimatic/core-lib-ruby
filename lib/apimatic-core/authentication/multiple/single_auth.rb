@@ -7,6 +7,8 @@ module CoreLibrary
       "[#{@error_message}]"
     end
 
+    # Initializes a new instance of Single.
+    # @param [String] auth_participant Auth participant name.
     def initialize(auth_participant)
       @auth_participant = auth_participant
       @mapped_auth = nil

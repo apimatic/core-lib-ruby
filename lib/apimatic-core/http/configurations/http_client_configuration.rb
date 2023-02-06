@@ -3,6 +3,19 @@ module CoreLibrary
   class HttpClientConfiguration < ClientConfiguration
     attr_reader :http_client, :http_callback
 
+    # Initializes a new instance of HttpClientConfiguration.
+    # @param connection Connection information
+    # @param adapter Adapter configuration
+    # @param [Integer] timeout Timeout value
+    # @param [Integer] max_retries Max retries values
+    # @param [Integer] retry_interval Retry interval value, in seconds
+    # @param [Integer] backoff_factor Backoff factor
+    # @param [Array] retry_statuses An integer array of http status codes
+    # @param [Hash] retry_methods A string array of methods
+    # @param [Boolean] cache Should cache be enabled
+    # @param [Boolean] verify Should verification be enabled.
+    # @param http_callback A method to be used as http callback
+    # @param [HttpClient] http_client An instance of HttpClient
     def initialize(
       connection: nil, adapter: :net_http_persistent, timeout: 60,
       max_retries: 0, retry_interval: 1, backoff_factor: 2,

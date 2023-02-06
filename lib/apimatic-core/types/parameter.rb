@@ -1,6 +1,7 @@
 module CoreLibrary
   # This data class represents the parameter to be sent in the request.
   class Parameter
+    # Initializes a new instance of Parameter.
     def initialize
       @key = nil
       @value = nil
@@ -87,12 +88,16 @@ module CoreLibrary
       @default_content_type
     end
 
-    # Template in case of oneOf or anyOf
+    # Template setter in case of oneOf or anyOf.
+    # @param [String] template Template for the parameter.
+    # @return [Parameter] An updated instance of Parameter.
     def template(template)
       @template = template
       self
     end
 
+    # Template getter in case a template is set.
+    # @return [Parameter] Returns template for the parameter.
     def get_template
       @template
     end

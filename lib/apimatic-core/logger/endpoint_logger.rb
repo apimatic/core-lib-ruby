@@ -3,6 +3,8 @@ module CoreLibrary
   class EndpointLogger
     attr_reader :logger
 
+    # Initializes a new instance of EndpointLogger.
+    # @param logger A logger with methods info, debug and error.
     def initialize(logger)
       @logger = logger
     end

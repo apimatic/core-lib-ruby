@@ -3,6 +3,8 @@ module CoreLibrary
   class GlobalConfiguration
     attr_reader :client_configuration
 
+    # Initializes a new instance of GlobalConfiguration.
+    # @param [HttpClientConfiguration] client_configuration Current HttpClientConfiguration.
     def initialize(client_configuration: HttpClientConfiguration.new)
       @client_configuration = client_configuration
       @global_errors = {}
@@ -29,11 +31,14 @@ module CoreLibrary
     end
 
     # Sets the current SDK module core library is being used for.
+    # @return [GlobalConfiguration] Current Instance.
     def sdk_module(sdk_module)
       @sdk_module = sdk_module
       self
     end
 
+    # Getter for the current SDK module the core library is being used for.
+    # @return [Module] Current SDK module.
     def get_sdk_module
       @sdk_module
     end

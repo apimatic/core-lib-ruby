@@ -7,6 +7,9 @@ module CoreLibrary
       ApiCall.new(@global_configuration, logger: @endpoint_logger.logger)
     end
 
+    # Initializes a new instance of ApiCall.
+    # @param [GlobalConfiguration] global_configuration An instance of GlobalConfiguration.
+    # @param logger An optional logger to log execution of program.
     def initialize(global_configuration, logger: nil)
       @global_configuration = global_configuration
       @request_builder = RequestBuilder.new
