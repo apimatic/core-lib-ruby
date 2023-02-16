@@ -95,5 +95,5 @@ gem 'apimatic_core'
 [code-climate-url]: https://codeclimate.com/github/apimatic/core-lib-ruby
 [maintainability-url]: https://api.codeclimate.com/v1/badges/85d658cd4e879f057e7d/maintainability
 [test-coverage-url]: https://api.codeclimate.com/v1/badges/85d658cd4e879f057e7d/test_coverage
-[license-badge]: https://img.shields.io/badge/licence-APIMATIC-blue
+[license-badge]: https://img.shields.io/badge/licence-MIT-blue
 [license-url]: LICENSE
