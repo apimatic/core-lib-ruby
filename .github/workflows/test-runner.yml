@@ -23,7 +23,7 @@ jobs:
     if: "! contains(toJSON(github.event.head_commit.message), 'skip ci')"
     strategy:
       matrix:
-        ruby-version: ['2.6', '2.7', '3.0']
+        ruby-version: ['2.6', '2.7', '3.0', '3.1']
 
     steps:
     - uses: actions/checkout@v3
