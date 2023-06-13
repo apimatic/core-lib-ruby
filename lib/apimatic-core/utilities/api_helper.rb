@@ -228,6 +228,25 @@ module CoreLibrary
       protocol + query + parameters
     end
 
+
+      # Deserialize the response based on the provided union_type.
+      # @param [UnionType] union_type The union type to validate and deserialize the response.
+      # @param [Object] response The response object to be deserialized.
+      # @param [Boolean] should_deserialize Flag indicating whether the response should be deserialized.
+      #                                    Default is true.
+      # @return [Object] The deserialized response based on the union_type.
+      # rubocop:disable Style/OptionalBooleanParameter
+      def self.deserialize_union_type(union_type, response, should_deserialize=true)
+        if should_deserialize
+          response = ApiHelper.json_deserialize(response, as_dict: true)
+        end
+
+        union_type_result = union_type.validate(response)
+
+        return union_type_result.deserialize(response)
+      end
+
+
     # Parses JSON string.
     # @param [String] json A JSON string.
     # rubocop:disable Style/OptionalBooleanParameter

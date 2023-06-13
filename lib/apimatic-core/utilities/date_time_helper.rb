@@ -122,5 +122,62 @@ module CoreLibrary
         DateTime.rfc3339("#{date_time}Z")
       end
     end
+
+    def validate_datetime(datetime_value, datetime_format)
+      case datetime_format
+      when DateTimeFormat::RFC3339_DATE_TIME
+        is_rfc_3339(datetime_value)
+      when DateTimeFormat::UNIX_DATE_TIME
+        is_unix_timestamp(datetime_value)
+      when DateTimeFormat::HTTP_DATE_TIME
+        is_rfc_1123(datetime_value)
+      else
+        false
+      end
+    end
+
+    def validate_date(date_value)
+      begin
+        if date_value.is_a?(Date)
+          DateTime.strptime(date_value.iso8601, "%Y-%m-%d")
+          true
+        elsif date_value.is_a?(String)
+          DateTime.strptime(date_value, "%Y-%m-%d")
+          true
+        else
+          false
+        end
+      rescue ArgumentError
+        false
+      end
+    end
+
+    def is_rfc_1123(datetime_value)
+      begin
+        DateTime.strptime(datetime_value, "%a, %d %b %Y %H:%M:%S %Z")
+        true
+      rescue ArgumentError, TypeError
+        false
+      end
+    end
+
+    def is_rfc_3339(datetime_value)
+      begin
+        datetime_value = datetime_value.split('.')[0] if datetime_value.include?('.')
+        DateTime.strptime(datetime_value, "%Y-%m-%dT%H:%M:%S")
+        true
+      rescue ArgumentError, TypeError
+        false
+      end
+    end
+
+    def is_unix_timestamp(timestamp)
+      begin
+        Time.at(Float(timestamp))
+        true
+      rescue ArgumentError, TypeError
+        false
+      end
+    end
   end
 end

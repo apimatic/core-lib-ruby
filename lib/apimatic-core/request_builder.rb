@@ -14,7 +14,6 @@ module CoreLibrary
       @additional_query_params = {}
       @multipart_params = {}
       @body_param = nil
-      @should_wrap_body_param = nil
       @body_serializer = nil
       @auth = nil
       @array_serialization_format = ArraySerializationFormat::INDEXED
