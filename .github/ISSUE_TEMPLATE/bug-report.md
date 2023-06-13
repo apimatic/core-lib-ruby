@@ -27,7 +27,7 @@ For example:  0.1.1
 **Environmental details**
 For example:
 OS: Linux
-Runtime version: Ruby 3
+Runtime version: Ruby 2.7
 
 **Additional context**
 Add any other context about the problem here.
