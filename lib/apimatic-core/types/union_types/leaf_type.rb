@@ -1,18 +1,22 @@
-# frozen_string_literal: true
-
-require_relative 'union_type_helper'
-require_relative 'date_time_helper'
-require_relative 'api_helper'
-
 module CoreLibrary
+  # Represents a leaf type in a UnionType
   class LeafType < UnionType
+
+    attr_reader :type_to_match
+
+    # Initializes a new instance of LeafType
+    # @param type_to_match [Class] The type to match against
+    # @param union_type_context [UnionTypeContext] The UnionTypeContext associated with the leaf type (default: UnionTypeContext)
     def initialize(type_to_match, union_type_context = UnionTypeContext.new)
       super(nil, union_type_context)
       @type_to_match = type_to_match
     end
 
+    # Validates a value against the leaf type
+    # @param value [Object] The value to validate
+    # @return [LeafType] The current LeafType object
     def validate(value)
-      context = self.get_context
+      context = @union_type_context
 
       if value.nil?
         @is_valid = context.is_nullable_or_optional
@@ -23,21 +27,26 @@ module CoreLibrary
       self
     end
 
+    # Deserializes a value based on the leaf type
+    # @param value [Object] The value to deserialize
+    # @return [Object, nil] The deserialized value or nil if the input value is nil
     def deserialize(value)
       return nil if value.nil?
 
-      context = self.get_context
+      context = @union_type_context
       deserialized_value = deserialize_value_against_case(value, context)
 
       deserialized_value
     end
 
-    def __deep_copy__(memo = {})
-      copy_object = LeafType.new(@type_to_match, @union_type_context)
-      copy_object.union_types = @union_types
-      copy_object.is_valid = @is_valid
+    # Initializes a copy of the current LeafType object
+    # @param original [LeafType] The original LeafType object to copy
+    # @return [void]
+    def initialize_copy(original)
+      super
 
-      copy_object
+      @union_types = original.instance_variable_get(:@union_types).dup
+      @is_valid = original.instance_variable_get(:@is_valid)
     end
 
     private
@@ -124,8 +133,8 @@ module CoreLibrary
     end
 
     def validate_value_with_discriminator(value, context)
-      discriminator = context.get_discriminator
-      discriminator_value = context.get_discriminator_value
+      discriminator = context.discriminator
+      discriminator_value = context.discriminator_value
 
       if discriminator && discriminator_value
         validate_with_discriminator(discriminator, discriminator_value, value)
@@ -148,13 +157,13 @@ module CoreLibrary
 
     def deserialize_value_against_case(value, context)
       case
-      when context.array? && context.dict? && context.array_of_dict?
+      when context.is_array && context.is_dict && context.is_array_of_dict
         deserialize_array_of_dict_case(value)
-      when context.array? && context.dict?
+      when context.is_array && context.is_dict
         deserialize_dict_of_array_case(value)
-      when context.array?
+      when context.is_array
         deserialize_array_case(value)
-      when context.dict?
+      when context.is_dict
         deserialize_dict_case(value)
       else
         deserialize_simple_case(value)
@@ -206,12 +215,12 @@ module CoreLibrary
     end
 
     def deserialize_simple_case(value)
-      if @type_to_match.respond_to?(:from_dictionary)
-        @type_to_match.from_dictionary(value)
+      if @type_to_match.respond_to?(:from_hash)
+        @type_to_match.from_hash(value)
       elsif @type_to_match == Date
-        ApiHelper.date_deserialize(value)
+        ApiHelper.date_deserializer(value, value.is_a?(Array), false)
       elsif @type_to_match == DateTime
-        ApiHelper.datetime_deserialize(value, union_type_context.get_date_time_format)
+        ApiHelper.deserialize_datetime(value, @union_type_context.date_time_format, value.is_a?(Array), false)
       else
         value
       end

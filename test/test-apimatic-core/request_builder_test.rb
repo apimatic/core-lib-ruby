@@ -40,14 +40,6 @@ class RequestBuilderTest < Minitest::Test
     assert_includes(actual.query_url, "value")
   end
 
-  def test_template_validation
-    actual = MockHelper.create_basic_request_builder
-                       .query_param(MockHelper.new_parameter(0.987, key: 'queryScalar').template('anyOf(Float, String)'))
-                       .build({})
-
-    refute_nil(actual)
-  end
-
   def test_query_param
     actual = MockHelper.create_basic_request_builder
                        .query_param(MockHelper.new_parameter("value", key: "key"))

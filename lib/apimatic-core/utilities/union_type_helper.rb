@@ -115,13 +115,13 @@ module CoreLibrary
 
     def self.handle_discriminator_cases(value, union_types)
       has_discriminator_cases = union_types.all? do |union_type|
-        union_type.get_context.discriminator && union_type.get_context.discriminator_value
+        union_type.union_type_context.discriminator && union_type.union_type_context.discriminator_value
       end
 
       if has_discriminator_cases
         union_types.each do |union_type|
-          union_type.get_context.discriminator(nil)
-          union_type.get_context.discriminator_value(nil)
+          union_type.union_type_context.discriminator(nil)
+          union_type.union_type_context.discriminator_value(nil)
         end
 
         get_valid_cases_count(value, union_types)
@@ -132,23 +132,23 @@ module CoreLibrary
 
     def self.validate_date_time(value, context)
       if value.is_a?(ApiHelper::RFC3339DateTime)
-        return context.get_date_time_format == DateTimeFormat::RFC3339_DATE_TIME
+        return context.date_time_format == DateTimeFormat::RFC3339_DATE_TIME
       end
 
       if value.is_a?(ApiHelper::HttpDateTime)
-        return context.get_date_time_format == DateTimeFormat::HTTP_DATE_TIME
+        return context.date_time_format == DateTimeFormat::HTTP_DATE_TIME
       end
 
       if value.is_a?(ApiHelper::UnixDateTime)
-        return context.get_date_time_format == DateTimeFormat::UNIX_DATE_TIME
+        return context.date_time_format == DateTimeFormat::UNIX_DATE_TIME
       end
 
-      if value.is_a?(DateTime) && context.get_date_time_converter
-        serialized_dt = ApiHelper.when_defined(context.get_date_time_converter, value).to_s
-        return DateTimeHelper.validate_datetime(serialized_dt, context.get_date_time_format)
+      if value.is_a?(DateTime) && context.date_time_converter
+        serialized_dt = ApiHelper.when_defined(context.date_time_converter, value).to_s
+        return DateTimeHelper.validate_datetime(serialized_dt, context.date_time_format)
       end
 
-      DateTimeHelper.validate_datetime(value, context.get_date_time_format)
+      DateTimeHelper.validate_datetime(value, context.date_time_format)
     end
 
     def self.is_optional_or_nullable_case(current_context, inner_contexts)
@@ -157,7 +157,7 @@ module CoreLibrary
 
     def self.update_nested_flag_for_union_types(nested_union_types)
       nested_union_types.each do |union_type|
-        union_type.get_context.is_nested = true
+        union_type.union_type_context.is_nested = true
       end
     end
 
@@ -170,19 +170,19 @@ module CoreLibrary
     end
 
     def self.deserialize_value(value, context, collection_cases, union_types)
-      if context.is_array? && context.is_dict? && context.is_array_of_dict?
+      if context.is_array && context.is_dict && context.is_array_of_dict
         return deserialize_array_of_dict_case(value, collection_cases)
       end
 
-      if context.is_array? && context.is_dict?
+      if context.is_array && context.is_dict
         return deserialize_dict_of_array_case(value, collection_cases)
       end
 
-      if context.is_array?
+      if context.is_array
         return deserialize_array_case(value, collection_cases)
       end
 
-      if context.is_dict?
+      if context.is_dict
         return deserialize_dict_case(value, collection_cases)
       end
 

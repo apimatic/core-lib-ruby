@@ -10,7 +10,6 @@ module CoreLibrary
       @default_content_type = nil
       @value_convertor = nil
       @validator = nil
-      @template = nil
     end
 
     # The setter for the parameter key.
@@ -87,20 +86,6 @@ module CoreLibrary
     # @return [String] The default content type to be used applicable for multipart request parameters.
     def get_default_content_type
       @default_content_type
-    end
-
-    # Template setter in case of oneOf or anyOf.
-    # @param [String] template Template for the parameter.
-    # @return [Parameter] An updated instance of Parameter.
-    def template(template)
-      @template = template
-      self
-    end
-
-    # Template getter in case a template is set.
-    # @return [Parameter] Returns template for the parameter.
-    def get_template
-      @template
     end
 
     # Setter for the validator.

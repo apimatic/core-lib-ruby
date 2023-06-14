@@ -236,14 +236,14 @@ module CoreLibrary
       #                                    Default is true.
       # @return [Object] The deserialized response based on the union_type.
       # rubocop:disable Style/OptionalBooleanParameter
-      def self.deserialize_union_type(union_type, response, should_deserialize=true)
+      def self.deserialize_union_type(union_type, response, should_symbolize = false, should_deserialize=true)
         if should_deserialize
-          response = ApiHelper.json_deserialize(response, as_dict: true)
+          response = ApiHelper.json_deserialize(response)
         end
 
         union_type_result = union_type.validate(response)
 
-        return union_type_result.deserialize(response)
+        return union_type_result.deserialize(response, should_symbolize)
       end
 
 
