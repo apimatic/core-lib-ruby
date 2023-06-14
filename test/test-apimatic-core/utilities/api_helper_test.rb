@@ -339,27 +339,6 @@ class ApiHelperTest < Minitest::Test
                   "query_param[name]"=>"Jone", "query_param[uid]"=>"1234", "query_param[personType]"=>"Per"})
 
   end
-  def test_deserialze
-    obj = ApiHelper.deserialize('anyOf(Integer, Atom)',
-                                                                '{ "NumberOfElectrons": 4,"NumberOfProtons": 3}',
-                                                                TestComponent, false)
-    assert obj.instance_of?(TestComponent::Atom)
-    assert_equal(ApiHelper.deserialize('anyOf(Float, String)','0.987', TestComponent, false),
-                 0.987)
-    assert_equal(ApiHelper.deserialize('anyOf(Float, String)',
-                          '"some string"', TestComponent, false),"some string")
-    obj = ApiHelper.deserialize('anyOf(Integer, Atom)',
-                          '{"NumberOfElectrons":4,"NumberOfProtons":3}', TestComponent, false
-    )
-    assert obj.instance_of?(TestComponent::Atom)
-    obj = ApiHelper.deserialize('oneOf(Morning, Atom, Car)',
-                          '{"startsAt":"6:00","endsAt":"11:00","offerTeaBreak":true,"sessionType":'\
-      '"Morning"}', TestComponent, false
-    )
-    assert obj.instance_of?(TestComponent::Morning)
-
-  end
-
   def test_json_serialize
     assert_equal(ApiHelper.json_serialize(TestComponent::MockHelper.get_person_model),
                  "{\"address\":\"H # 531, S # 20\",\"age\":23,\"birthday\":\"2016-03-13\","\
@@ -369,19 +348,6 @@ class ApiHelperTest < Minitest::Test
 
   end
 
-  def test_map_types
-
-    assert_equal(ApiHelper.map_types(0.987,'anyOf(Float, String)', sdk_module:TestComponent) ,0.987)
-    obj = ApiHelper.map_types({ "NumberOfElectrons"=> 4,"NumberOfProtons"=> 3},
-                                                              'anyOf(Atom, Integer)',
-                                                              sdk_module: TestComponent)
-
-    assert obj.instance_of?(TestComponent::Atom)
-    assert_nil(ApiHelper.map_types(nil,'anyOf(Float, String)',sdk_module:TestComponent ))
-
-
-
-  end
   def test_update_user_agent_value_with_parameters
     exception = assert_raises ArgumentError do
       ApiHelper.update_user_agent_value_with_parameters(1, nil)
@@ -404,12 +370,7 @@ class ApiHelperTest < Minitest::Test
                  "Ruby|31.8.0|{Basic%20Engine}|{2.7/3.1/4#5}|{Windo%23ws/Lin%28u%29x}|{rando$m}|{}" )
   end
 
-  def test_validate_types
-    assert_equal(ApiHelper.validate_types('0.987',
-                                          'anyOf(Float, String)', TestComponent, false),
-                 '0.987')
 
-  end
 
   def test_resolve_template_placeholders()
     actual_message = ApiHelper.resolve_template_placeholders([], '400',

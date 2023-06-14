@@ -324,73 +324,6 @@ class ResponseHandlerTest < Minitest::Test
     end
   end
 
-  def test_one_of_type_group_response_body
-    response_body_mock = '543.54'
-    response_mock = MockHelper.create_response status_code: 200,
-                                               raw_body: response_body_mock
-    actual_response = @response_handler
-                        .deserializer(ApiHelper.method(:deserialize))
-                        .type_group("oneOf(Float, Atom)")
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
-    expected_response = 543.54
-
-    refute_nil(actual_response)
-
-    assert_equal expected_response, actual_response
-  end
-
-  def test_any_of_type_group_response_body
-    response_body_mock = '{"NumberOfElectrons": 23, "NumberOfProtons": 43}'
-    response_mock = MockHelper.create_response status_code: 200,
-                                               raw_body: response_body_mock
-    actual_response = @response_handler
-                        .deserializer(ApiHelper.method(:deserialize))
-                        .type_group("anyOf(Float, Atom)")
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
-    expected_response = Atom.new(23, 43)
-
-    refute_nil(actual_response)
-
-    assert_equal expected_response.number_of_electrons, actual_response.number_of_electrons
-    assert_equal expected_response.number_of_protons, actual_response.number_of_protons
-  end
-
-  def test_dynamic_response
-    response_body_mock = '{"numberOfElectrons": 23, "numberOfProtons": 43}'
-    response_mock = MockHelper.create_response status_code: 200,
-                                               raw_body: response_body_mock
-    actual_response = @response_handler
-                        .deserializer(ApiHelper.method(:dynamic_deserializer))
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
-    expected_response = {"numberOfElectrons" => 23, "numberOfProtons" => 43}
-
-    refute_nil(actual_response)
-
-    assert_equal expected_response, actual_response
-  end
-
-  def test_api_response
-    response_body_mock = '{"numberOfElectrons": 23, "numberOfProtons": 43}'
-    response_mock = MockHelper.create_response status_code: 200,
-                                               raw_body: response_body_mock
-    actual_response = @response_handler
-                        .deserializer(ApiHelper.method(:json_deserialize))
-                        .is_api_response(true)
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
-    expected_response = ApiResponse.new(response_mock,
-                                        data: {"numberOfElectrons" => 23, "numberOfProtons" => 43},
-                                        errors: nil)
-
-    refute_nil(actual_response)
-    assert_instance_of ApiResponse, actual_response
-    assert_nil actual_response.errors
-    assert !actual_response.error?
-    assert actual_response.success?
-    assert_equal expected_response.status_code, actual_response.status_code
-    assert_equal expected_response.raw_body, actual_response.raw_body
-    assert_equal expected_response.data, actual_response.data
-  end
-
   def test_converted_sdk_api_response_with_custom_fields
     response_body_mock = '{"numberOfElectrons": 23, "numberOfProtons": 43, '\
                           '"body": "This is simple body.", "cursor": "This is simple cursor."}'
@@ -400,7 +333,7 @@ class ResponseHandlerTest < Minitest::Test
                         .deserializer(ApiHelper.method(:json_deserialize))
                         .is_api_response(true)
                         .convertor(SdkApiResponseWithCustomFields.method(:create))
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent, true)
+                        .handle(response_mock, MockHelper.get_global_errors, true)
     expected_response = SdkApiResponseWithCustomFields.new(response_mock,
                                                            data: {:numberOfElectrons => 23,
                                                                   :numberOfProtons => 43,
@@ -429,7 +362,7 @@ class ResponseHandlerTest < Minitest::Test
                         .deserializer(ApiHelper.method(:json_deserialize))
                         .is_api_response(true)
                         .convertor(SdkApiResponse.method(:create))
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = SdkApiResponse.new(response_mock,
                                            data: {"numberOfElectrons" => 23, "numberOfProtons" => 43},
                                            errors: nil)
@@ -453,7 +386,7 @@ class ResponseHandlerTest < Minitest::Test
                         .deserializer(ApiHelper.method(:json_deserialize))
                         .is_api_response(true)
                         .convertor(SdkApiResponse.method(:create))
-                        .handle(response_mock, {}, TestComponent, true)
+                        .handle(response_mock, {}, true)
     expected_response = SdkApiResponse.new(response_mock,
                                            data: nil,
                                            errors: %w[error1 error2])
