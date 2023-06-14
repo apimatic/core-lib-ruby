@@ -227,7 +227,7 @@ module CoreLibrary
       error_messages << UnionTypeHelper.get_combined_error_messages(union_types).join(", ")
 
       unless is_nested
-        UnionTypeHelper.raise_validation_exception(value, union_types, error_messages.join(", "), is_for_one_of)
+        UnionTypeHelper.raise_validation_exception(value, union_types, error_messages.to_a.join(", "), is_for_one_of)
       end
 
       error_messages

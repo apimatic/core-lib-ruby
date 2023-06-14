@@ -14,6 +14,8 @@ require_relative 'apimatic-core/factories/http_response_factory'
 require_relative 'apimatic-core/configurations/global_configuration'
 
 require_relative 'apimatic-core/exceptions/invalid_auth_credential'
+require_relative 'apimatic-core/exceptions/any_of_validation_exception'
+require_relative 'apimatic-core/exceptions/one_of_validation_exception'
 
 require_relative 'apimatic-core/logger/endpoint_logger'
 
@@ -30,12 +32,19 @@ require_relative 'apimatic-core/types/sdk/validation_exception'
 require_relative 'apimatic-core/types/sdk/api_exception'
 require_relative 'apimatic-core/types/xml_attributes'
 
+require_relative 'apimatic-core/types/union_types/leaf_type'
+require_relative 'apimatic-core/types/union_types/any_of'
+require_relative 'apimatic-core/types/union_types/one_of'
+require_relative 'apimatic-core/types/union_types/union_type_context'
+
+
 require_relative 'apimatic-core/utilities/api_helper'
 require_relative 'apimatic-core/utilities/date_time_helper'
 require_relative 'apimatic-core/utilities/comparison_helper'
 require_relative 'apimatic-core/utilities/file_helper'
 require_relative 'apimatic-core/utilities/xml_helper'
 require_relative 'apimatic-core/utilities/auth_helper'
+require_relative 'apimatic-core/utilities/union_type_helper'
 
 require_relative 'apimatic-core/authentication/header_auth'
 require_relative 'apimatic-core/authentication/query_auth'

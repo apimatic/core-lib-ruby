@@ -16,7 +16,7 @@ module CoreLibrary
       context = @union_type_context
       UnionTypeHelper.update_nested_flag_for_union_types(@union_types)
       is_optional_or_nullable = UnionTypeHelper.is_optional_or_nullable_case(context,
-                                                                             @union_types.map { |nested_type| nested_type.get_context })
+                                                                             @union_types.map { |nested_type| nested_type.union_type_context })
 
       if value.nil? && is_optional_or_nullable
         @is_valid = true
@@ -26,7 +26,7 @@ module CoreLibrary
       if value.nil?
         @is_valid = false
         @error_messages = UnionTypeHelper.process_errors(value, @union_types, @error_messages,
-                                                         get_context.is_nested, false)
+                                                         union_type_context.is_nested, false)
         return self
       end
 
@@ -34,7 +34,7 @@ module CoreLibrary
 
       unless @is_valid
         @error_messages = UnionTypeHelper.process_errors(value, @union_types, @error_messages,
-                                                         get_context.is_nested, false)
+                                                         union_type_context.is_nested, false)
       end
 
       self

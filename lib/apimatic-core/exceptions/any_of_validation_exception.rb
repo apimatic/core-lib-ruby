@@ -1,4 +1,4 @@
-module CoreLibray
+module CoreLibrary
   # Custom exception class for AnyOfValidation
   class AnyOfValidationException < StandardError
     attr_reader :message
