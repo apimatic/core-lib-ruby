@@ -12,8 +12,8 @@ module CoreLibrary
     # @param date_time_format [String] The format for date-time values
     # @param date_time_converter [Object] The converter for date-time values
     # @return [UnionTypeContext] The created UnionTypeContext object
-    def self.create(is_array = false, is_dict = false, is_array_of_dict = false, is_optional = false, is_nullable = false,
-                    discriminator = nil, discriminator_value = nil, date_time_format = nil, date_time_converter = nil)
+    def self.create(is_array: false, is_dict: false, is_array_of_dict: false, is_optional: false, is_nullable: false,
+                    discriminator: nil, discriminator_value: nil, date_time_format: nil, date_time_converter: nil)
       new.array(is_array).dict(is_dict).array_of_dict(is_array_of_dict).optional(is_optional).nullable(is_nullable)
          .discriminator(discriminator).discriminator_value(discriminator_value).date_time_format(date_time_format)
          .date_time_converter(date_time_converter)
