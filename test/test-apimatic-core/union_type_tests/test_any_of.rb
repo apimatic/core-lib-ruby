@@ -12,7 +12,6 @@ class TestAnyOf < Minitest::Test
 
   # === Simple cases ===
 
-
   def test_valid_string_in_any_of
     _any_of = AnyOf.new([LeafType.new(String), LeafType.new(Integer)])
     _any_of.validate('string')
@@ -37,6 +36,13 @@ class TestAnyOf < Minitest::Test
     assert _any_of.is_valid
   end
 
+  def test_valid_mutiple_types_in_any_of
+    _any_of = AnyOf.new([LeafType.new(Integer), LeafType.new(Float), LeafType.new(String)])
+    _any_of.validate(4)
+    assert _any_of.is_valid
+  end
+
+
   def test_valid_both_string_any_of
     _any_of = AnyOf.new([LeafType.new(String), LeafType.new(String)])
     _any_of.validate('string')
@@ -50,4 +56,11 @@ class TestAnyOf < Minitest::Test
     end
   end
 
+  # === Collection Cases ===
+
+  def test_valid_string_array_in_any_of
+    _any_of = AnyOf.new([LeafType.new(String, UnionTypeContext.new(is_array: true)), LeafType.new(Integer)])
+    _any_of.validate(%w[string1 string2])
+    assert _any_of.is_valid
+  end
 end

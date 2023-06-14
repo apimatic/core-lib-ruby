@@ -14,7 +14,7 @@ module CoreLibrary
     # @return [AnyOf] The validated AnyOf object
     def validate(value)
       context = @union_type_context
-      UnionTypeHelper.update_nested_flag_for_union_types(@union_types)
+      UnionTypeHelper.update_nested_flag_for_union_types(union_types)
       is_optional_or_nullable = UnionTypeHelper.is_optional_or_nullable_case(context,
                                                                              @union_types.map { |nested_type| nested_type.union_type_context })
 
