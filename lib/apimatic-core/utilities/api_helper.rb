@@ -246,6 +246,20 @@ module CoreLibrary
         return union_type_result.deserialize(response, should_symbolize)
       end
 
+    # Checks if a value or all values in a nested structure satisfy a given type condition.
+    # value        - The value or nested structure to be checked.
+    # type_callable - A callable object that defines the type condition.
+    # Returns true if the value or all values in the structure satisfy the type condition, false otherwise.
+    def self.is_valid_type(value, type_callable)
+      if value.is_a?(Array)
+        value.all? { |item| is_valid_type(item, type_callable) }
+      elsif value.is_a?(Hash)
+        value.values.all? { |item| is_valid_type(item, type_callable) }
+      else
+        !value.nil? && type_callable.call(value)
+      end
+    end
+
 
     # Parses JSON string.
     # @param [String] json A JSON string.

@@ -17,7 +17,7 @@ module CoreLibrary
         collection_cases << inner_dictionary
         valid_cases << case_validity
       end
-      is_valid = valid_cases.sum == array_value.size
+      is_valid = valid_cases.count(true) == array_value.size
       [is_valid, collection_cases]
     end
 
@@ -31,7 +31,7 @@ module CoreLibrary
         collection_cases[key] = inner_array
         valid_cases << case_validity
       end
-      is_valid = valid_cases.sum == dict_value.size
+      is_valid = valid_cases.count(true) == dict_value.size
       [is_valid, collection_cases]
     end
 

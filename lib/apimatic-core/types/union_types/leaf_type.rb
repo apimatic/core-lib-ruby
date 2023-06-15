@@ -53,7 +53,7 @@ module CoreLibrary
 
     def validate_value_against_case(value, context)
       case
-      when context.is_array && context.is_dict && context.array_of_dict
+      when context.is_array && context.is_dict && context.is_array_of_dict
         validate_array_of_dict_case(value)
       when context.is_array && context.is_dict
         validate_dict_of_array_case(value)
