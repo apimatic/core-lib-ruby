@@ -652,7 +652,7 @@ class TestAnyOf < Minitest::Test
         {
           "key1": 'string',
           "key2": {
-            "key1": [ 1 ]
+            "key1": [1]
           }
         }
       ]
@@ -682,7 +682,7 @@ class TestAnyOf < Minitest::Test
           {
             "key1": ['string'],
             "key2": {
-              "key1": [ 1 ]
+              "key1": [1]
             }
           }
         ]
@@ -718,7 +718,7 @@ class TestAnyOf < Minitest::Test
             "key1": ['string']
           },
           "key2": {
-            "key1": [ 1 ]
+            "key1": [1]
           }
         }
       ]
@@ -753,7 +753,7 @@ class TestAnyOf < Minitest::Test
           {
             "key1": 1,
             "key2": {
-              "key1": [ 1 ]
+              "key1": [1]
             }
           }
         ]

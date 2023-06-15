@@ -1,7 +1,7 @@
 require 'minitest/autorun'
 require 'apimatic_core'
 
-class TestOneOf< Minitest::Test
+class TestOneOf < Minitest::Test
   include CoreLibrary
 
   def setup
@@ -653,7 +653,7 @@ class TestOneOf< Minitest::Test
         {
           "key1": 'string',
           "key2": {
-            "key1": [ 1 ]
+            "key1": [1]
           }
         }
       ]
@@ -683,7 +683,7 @@ class TestOneOf< Minitest::Test
           {
             "key1": ['string'],
             "key2": {
-              "key1": [ 1 ]
+              "key1": [1]
             }
           }
         ]
@@ -719,7 +719,7 @@ class TestOneOf< Minitest::Test
             "key1": ['string']
           },
           "key2": {
-            "key1": [ 1 ]
+            "key1": [1]
           }
         }
       ]
@@ -754,7 +754,7 @@ class TestOneOf< Minitest::Test
           {
             "key1": 1,
             "key2": {
-              "key1": [ 1 ]
+              "key1": [1]
             }
           }
         ]
