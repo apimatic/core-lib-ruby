@@ -239,7 +239,7 @@ module CoreLibrary
         if union_type.is_a?(LeafType)
           combined_error_messages << union_type.type_to_match.name
         elsif union_type.error_messages
-          combined_error_messages << union_type.error_messages.join(", ")
+          combined_error_messages << union_type.error_messages.to_a.join(", ")
         end
       end
       combined_error_messages
