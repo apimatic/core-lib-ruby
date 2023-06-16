@@ -1,8 +1,13 @@
 require 'minitest/autorun'
 require 'apimatic_core'
 
+require_relative '../../test-helper/models/morning'
+require_relative '../../test-helper/models/evening'
+require_relative '../../test-helper/models/month_number_enum'
+require_relative '../../test-helper/models/month_name_enum'
+
 class TestAnyOf < Minitest::Test
-  include CoreLibrary
+  include CoreLibrary, TestComponent
 
   def setup
   end
@@ -58,6 +63,50 @@ class TestAnyOf < Minitest::Test
     _any_of = AnyOf.new([LeafType.new(String), LeafType.new(String)])
     assert_raises AnyOfValidationException do
       _any_of.validate(4)
+    end
+  end
+
+  def test_valid_evening_type_any_of
+    _any_of = AnyOf.new([LeafType.new(Morning), LeafType.new(Evening)])
+    _evening = Evening.new('8:00', '10:00', true, 'Evening')
+    _any_of.validate(_evening)
+    assert _any_of.is_valid
+  end
+
+  def test_valid_morning_type_any_of
+    _any_of = AnyOf.new([LeafType.new(Morning), LeafType.new(Evening)])
+    _morning = Morning.new('8:00', '10:00', true, 'Morning')
+    _any_of.validate(_morning)
+    assert _any_of.is_valid
+  end
+
+  def test_invalid_custom_type_any_of
+    _any_of = AnyOf.new([LeafType.new(Morning), LeafType.new(Evening)])
+    _evening = 'evening'
+    assert_raises AnyOfValidationException do
+      _any_of.validate(_evening)
+    end
+  end
+
+  def test_valid_same_enum_type_any_of
+    _any_of = AnyOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNameEnum)])
+    _enum = TestComponent::MonthNameEnum.new
+    _any_of.validate(_enum)
+    assert _any_of.is_valid
+  end
+
+  def test_valid_enum_type_any_of
+    _any_of = AnyOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNumberEnum)])
+    _enum = TestComponent::MonthNumberEnum.new
+    _any_of.validate(_enum)
+    assert _any_of.is_valid
+  end
+
+  def test_invalid_enum_type_any_of
+    _any_of = AnyOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNumberEnum)])
+    _enum = 'enum'
+    assert_raises AnyOfValidationException do
+      _any_of.validate(_enum)
     end
   end
 
@@ -794,6 +843,22 @@ class TestAnyOf < Minitest::Test
         }
       ]
     )
+    assert _any_of.is_valid
+  end
+
+  # === Custom Type Collection ===
+
+  def test_valid_morning_array_type_any_of
+    _any_of = AnyOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _morning_array = [
+      Morning.new('8:00', '10:00', true, 'Morning'),
+      Morning.new('8:00', '12:00', true, 'Morning')
+    ]
+    _any_of.validate(_morning_array)
     assert _any_of.is_valid
   end
 end
