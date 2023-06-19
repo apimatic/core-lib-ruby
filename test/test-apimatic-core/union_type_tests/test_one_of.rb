@@ -1465,4 +1465,190 @@ class TestOneOf < Minitest::Test
       _one_of.validate(_outer_dict_of_array_evening)
     end
   end
+
+
+  def test_deserialize_array_of_dict_type_one_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(Morning),
+        LeafType.new(Evening)
+      ],
+      UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)
+    )
+    _morning_array_of_dict = expected_morning_array_of_dict = [
+      {
+        'key1' => Morning.new('8:00', '10:00', true, 'Morning'),
+        'key2' => Evening.new('9:00', '10:00', true, 'Evening'),
+      }
+    ]
+    json = ApiHelper.json_serialize(_morning_array_of_dict)
+    deserialized_morning = ApiHelper.json_deserialize(json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning_array_of_dict = _one_of.deserialize(deserialized_morning)
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning_array_of_dict, actual_morning_array_of_dict, 'Actual did not match the expected')
+  end
+
+  def test_deserialize_array_type_one_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(Morning),
+        LeafType.new(Evening)
+      ],
+      UnionTypeContext.new(is_array: true)
+    )
+    _morning_array = expected_morning_array =
+      [
+        Morning.new('8:00', '10:00', true, 'Morning'),
+        Evening.new('9:00', '10:00', true, 'Evening'),
+      ]
+
+    json = ApiHelper.json_serialize(_morning_array)
+    deserialized_morning = ApiHelper.json_deserialize(json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning_dict_of_array = _one_of.deserialize(deserialized_morning)
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning_array, actual_morning_dict_of_array, 'Actual did not match the expected')
+  end
+
+  def test_deserialize_dict_type_one_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(Morning),
+        LeafType.new(Evening)
+      ],
+      UnionTypeContext.new(is_dict: true)
+    )
+    _morning_dict = expected_morning_dict =
+      {
+        'key1' => Morning.new('8:00', '10:00', true, 'Morning'),
+        'key2' => Evening.new('9:00', '10:00', true, 'Evening'),
+      }
+
+    json = ApiHelper.json_serialize(_morning_dict)
+    deserialized_morning = ApiHelper.json_deserialize(json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning_dict_of_array = _one_of.deserialize(deserialized_morning)
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning_dict, actual_morning_dict_of_array, 'Actual did not match the expected')
+  end
+
+  def test_deserialize_morning_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _morning_array = expected_morning_array = [
+      Morning.new('8:00', '10:00', true, 'Morning'),
+      Morning.new('8:00', '12:00', true, 'Morning')
+    ]
+    json = ApiHelper.json_serialize(_morning_array)
+    deserialized_morning = ApiHelper.json_deserialize(json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning_array = _one_of.deserialize(deserialized_morning)
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning_array, actual_morning_array, 'Actual did not match the expected.')
+  end
+
+  def test_deserialize_morning_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_dict: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _morning_dict = expected_morning_dict = {
+      'key1' => Morning.new('8:00', '10:00', true, 'Morning'),
+      'key2' => Morning.new('8:00', '12:00', true, 'Morning')
+    }
+    json = ApiHelper.json_serialize(_morning_dict)
+    deserialized_morning = ApiHelper.json_deserialize(json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning_dict = _one_of.deserialize(deserialized_morning)
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning_dict, actual_morning_dict, 'Actual did not match the expected')
+  end
+
+  def test_deserialize_morning_dict_of_array_type_one_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true)),
+        LeafType.new(Evening)
+      ]
+    )
+    _morning_dict_of_array = expected_morning_dict_of_array = {
+      'key1' => [
+        Morning.new('8:00', '10:00', true, 'Morning'),
+        Morning.new('8:00', '12:00', true, 'Morning')
+      ],
+      'key2' => [Morning.new('8:00', '12:00', true, 'Morning')]
+    }
+    json = ApiHelper.json_serialize(_morning_dict_of_array)
+    deserialized_morning = ApiHelper.json_deserialize(json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning_dict_of_array = _one_of.deserialize(deserialized_morning)
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning_dict_of_array, actual_morning_dict_of_array, 'Actual did not match the expected')
+  end
+
+  def test_deserialize_morning_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _morning_array_of_dict = expected_morning_array_of_dict = [
+      {
+        'key1' => Morning.new('8:00', '10:00', true, 'Morning'),
+        'key2' => Morning.new('9:00', '10:00', true, 'Morning'),
+      }
+    ]
+    json = ApiHelper.json_serialize(_morning_array_of_dict)
+    deserialized_morning = ApiHelper.json_deserialize(json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning_array_of_dict = _one_of.deserialize(deserialized_morning)
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning_array_of_dict, actual_morning_array_of_dict, 'Actual did not match the expected')
+  end
+
+  def test_deserialize_morning_type_one_of
+    _one_of = OneOf.new([LeafType.new(Morning), LeafType.new(Evening)])
+    _morning_json = '{ "startsAt": "9:00", "endsAt": "10:00", "offerTeaBreak": true, "sessionType": "Morning"}'
+    deserialized_morning = ApiHelper.json_deserialize(_morning_json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning = _one_of.deserialize(deserialized_morning)
+    expected_morning = Morning.new('9:00', '10:00', true, 'Morning')
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning, actual_morning, 'Actual did not match the expected.')
+  end
+  def test_deserialize_dict_type_one_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(Morning),
+        LeafType.new(Evening)
+      ],
+      UnionTypeContext.new(is_array: true, is_dict: true)
+    )
+    _morning_dict_of_array = expected_morning_dict_of_array =
+      {
+        'key1' => [Morning.new('8:00', '10:00', true, 'Morning')],
+        'key2' => [Evening.new('9:00', '10:00', true, 'Evening')],
+      }
+
+    json = ApiHelper.json_serialize(_morning_dict_of_array)
+    deserialized_morning = ApiHelper.json_deserialize(json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning_dict_of_array = _one_of.deserialize(deserialized_morning)
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning_dict_of_array, actual_morning_dict_of_array, 'Actual did not match the expected')
+  end
 end

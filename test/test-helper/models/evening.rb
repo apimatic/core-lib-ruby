@@ -1,6 +1,8 @@
+require_relative '../models/base_model'
+
 module TestComponent
   # Course evening session
-  class Evening < CoreLibrary::BaseModel
+  class Evening < BaseModel
     SKIP = Object.new
     private_constant :SKIP
 
@@ -108,6 +110,21 @@ module TestComponent
         CoreLibrary::ApiHelper.is_valid_type(
           value=dictionary['sessionType'],
           type_callable=proc do |value| value.instance_of? String end))
+    end
+    # Override the equals method
+    def ==(other)
+      return false unless other.is_a?(Evening)
+
+      # Compare the relevant properties for equality
+      @starts_at == other.starts_at &&
+        @ends_at == other.ends_at &&
+        @offer_dinner == other.offer_dinner &&
+        @session_type == other.session_type
+    end
+
+    # Override the hash method
+    def hash
+      [@starts_at, @ends_at, @offer_tea_break, @session_type].hash
     end
   end
 end
