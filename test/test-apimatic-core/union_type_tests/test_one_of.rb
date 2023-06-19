@@ -1,8 +1,13 @@
 require 'minitest/autorun'
 require 'apimatic_core'
 
+require_relative '../../test-helper/models/morning'
+require_relative '../../test-helper/models/evening'
+require_relative '../../test-helper/models/month_number_enum'
+require_relative '../../test-helper/models/month_name_enum'
+
 class TestOneOf < Minitest::Test
-  include CoreLibrary
+  include CoreLibrary, TestComponent
 
   def setup
   end
@@ -59,6 +64,51 @@ class TestOneOf < Minitest::Test
     _one_of = OneOf.new([LeafType.new(String), LeafType.new(String)])
     assert_raises OneOfValidationException do
       _one_of.validate(4)
+    end
+  end
+
+  def test_valid_evening_type_one_of
+    _one_of = OneOf.new([LeafType.new(Morning), LeafType.new(Evening)])
+    _evening = Evening.new('8:00', '10:00', true, 'Evening')
+    _one_of.validate(_evening)
+    assert _one_of.is_valid
+  end
+
+  def test_valid_morning_type_one_of
+    _one_of = OneOf.new([LeafType.new(Morning), LeafType.new(Evening)])
+    _morning = Morning.new('8:00', '10:00', true, 'Morning')
+    _one_of.validate(_morning)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_custom_type_one_of
+    _one_of = OneOf.new([LeafType.new(Morning), LeafType.new(Evening)])
+    _evening = 'evening'
+    assert_raises OneOfValidationException do
+      _one_of.validate(_evening)
+    end
+  end
+
+  def test_valid_same_enum_type_one_of
+    _one_of = OneOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNameEnum)])
+    _enum = TestComponent::MonthNameEnum.new
+    assert_raises OneOfValidationException do
+      _one_of.validate(_enum)
+    end
+  end
+
+  def test_valid_enum_type_one_of
+    _one_of = OneOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNumberEnum)])
+    _enum = TestComponent::MonthNumberEnum.new
+    _one_of.validate(_enum)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_enum_type_one_of
+    _one_of = OneOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNumberEnum)])
+    _enum = 'enum'
+    assert_raises OneOfValidationException do
+      _one_of.validate(_enum)
     end
   end
 
@@ -799,4 +849,620 @@ class TestOneOf < Minitest::Test
     end
   end
 
+  # === Custom Type Collection ===
+
+  def test_valid_morning_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _morning_array = [
+      Morning.new('8:00', '10:00', true, 'Morning'),
+      Morning.new('8:00', '12:00', true, 'Morning')
+    ]
+    _one_of.validate(_morning_array)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _invalid_array = [
+      Evening.new('8:00', '10:00', true, 'Evening'),
+      Morning.new('8:00', '12:00', true, 'Morning')
+    ]
+    assert_raises OneOfValidationException do
+      _one_of.validate(_invalid_array)
+    end
+  end
+
+  def test_valid_morning_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_dict: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _morning_dict = {
+      'key1': Morning.new('8:00', '10:00', true, 'Morning'),
+      'key2': Morning.new('8:00', '12:00', true, 'Morning')
+    }
+    _one_of.validate(_morning_dict)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_dict: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _mix_dict = {
+      'key1': Evening.new('8:00', '10:00', true, 'Evening'),
+      'key2': Morning.new('8:00', '12:00', true, 'Morning')
+    }
+    assert_raises OneOfValidationException do
+      _one_of.validate(_mix_dict)
+    end
+  end
+
+  def test_valid_morning_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _morning_dict = {
+      'key1': [
+        Morning.new('8:00', '10:00', true, 'Morning'),
+        Morning.new('8:00', '12:00', true, 'Morning')
+      ]
+    }
+    _one_of.validate(_morning_dict)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _mix_dict = {
+      'key1': [
+        Evening.new('8:00', '10:00', true, 'Morning'),
+        Morning.new('8:00', '12:00', true, 'Morning')
+      ]
+    }
+    assert_raises OneOfValidationException do
+      _one_of.validate(_mix_dict)
+    end
+  end
+
+  def test_valid_morning_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _morning_array_of_dict = [
+      {
+        'key1': Morning.new('8:00', '10:00', true, 'Morning'),
+        'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+      }
+    ]
+    _one_of.validate(_morning_array_of_dict)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ]
+    )
+    _mix_array_of_dict = [
+      {
+        'key1': Evening.new('8:00', '10:00', true, 'Morning'),
+        'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+      }
+    ]
+
+    assert_raises OneOfValidationException do
+      _one_of.validate(_mix_array_of_dict)
+    end
+  end
+
+  def test_valid_morning_array_of_dict__outer_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true)
+    )
+    _morning_array_of_dict = [
+      [
+        {
+          'key1': Morning.new('8:00', '10:00', true, 'Morning'),
+          'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+        }
+      ]
+    ]
+    _one_of.validate(_morning_array_of_dict)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_array_of_dict_outer_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true)
+    )
+    _morning_array_of_dict = [
+      [
+        {
+          'key1': Evening.new('8:00', '10:00', true, 'Morning'),
+          'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+        }
+      ]
+    ]
+    assert_raises OneOfValidationException do
+      _one_of.validate(_morning_array_of_dict)
+    end
+  end
+
+  def test_valid_morning_array_of_dict_outer_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_dict: true)
+    )
+    _outer_dict_morning_array_of_dict = {
+      'key1': [
+        {
+          'key1': Morning.new('8:00', '10:00', true, 'Morning'),
+          'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+        }
+      ]
+    }
+    _one_of.validate(_outer_dict_morning_array_of_dict)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_array_of_dict_outer_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_dict: true)
+    )
+    _outer_dict_mix_array_of_dict = {
+      'key1': [
+        {
+          'key1': Evening.new('8:00', '10:00', true, 'Morning'),
+          'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+        }
+      ]
+    }
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_dict_mix_array_of_dict)
+    end
+  end
+
+  def test_valid_morning_array_of_dict_outer_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true)
+    )
+    _outer_dict_of_array_morning_array_of_dict = {
+      'key1': [
+        [
+          {
+            'key1': Morning.new('8:00', '10:00', true, 'Morning'),
+            'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+          }
+        ]
+      ]
+    }
+    _one_of.validate(_outer_dict_of_array_morning_array_of_dict)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_array_of_dict_outer_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true)
+    )
+    _outer_dict_of_array_mix_array_of_dict = {
+      'key1': [
+        [
+          {
+            'key1': Evening.new('8:00', '10:00', true, 'Evening'),
+            'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+          }
+        ]
+      ]
+    }
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_dict_of_array_mix_array_of_dict)
+    end
+  end
+
+  def test_valid_morning_array_of_dict_outer_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)
+    )
+    _outer_array_of_dict_morning_array_of_dict = [
+      {
+        'key1':
+          [
+            {
+              'key1': Morning.new('8:00', '10:00', true, 'Morning'),
+              'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+            }
+          ]
+      }
+    ]
+    _one_of.validate(_outer_array_of_dict_morning_array_of_dict)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_array_of_dict_outer_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)
+    )
+    _outer_array_of_dict_mix_array_of_dict = [
+      {
+        'key1':
+          [
+            {
+              'key1': Evening.new('8:00', '10:00', true, 'Morning'),
+              'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+            }
+          ]
+      }
+    ]
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_array_of_dict_mix_array_of_dict)
+    end
+  end
+
+  def test_valid_morning_dict_of_array_outer_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)
+    )
+    _outer_array_of_dict_morning_dict_of_array = [
+      {
+        'key1':
+          {
+            'key1': [
+              Morning.new('8:00', '10:00', true, 'Morning'),
+              Morning.new('9:00', '10:00', true, 'Morning'),
+            ]
+          }
+      }
+    ]
+    _one_of.validate(_outer_array_of_dict_morning_dict_of_array)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_dict_of_array_outer_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true, is_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)
+    )
+    _outer_array_of_dict_morning_dict_of_array = [
+      {
+        'key1':
+          {
+            'key1': [
+              Evening.new('8:00', '10:00', true, 'Evening'),
+              Morning.new('9:00', '10:00', true, 'Morning'),
+            ]
+          }
+      }
+    ]
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_array_of_dict_morning_dict_of_array)
+    end
+  end
+
+  def test_valid_morning_array_outer_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)
+    )
+    _outer_array_of_dict_morning_array = [
+      {
+        'key1':
+          [
+            Morning.new('8:00', '10:00', true, 'Morning'),
+            Morning.new('9:00', '10:00', true, 'Morning'),
+          ]
+      }
+    ]
+    _one_of.validate(_outer_array_of_dict_morning_array)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_array_outer_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)
+    )
+    _outer_array_of_dict_mix_array = [
+      {
+        'key1':
+          [
+            Evening.new('8:00', '10:00', true, 'Evening'),
+            Morning.new('9:00', '10:00', true, 'Morning'),
+          ]
+      }
+    ]
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_array_of_dict_mix_array)
+    end
+  end
+
+  def test_valid_morning_dict_outer_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)
+    )
+    _outer_array_of_dict_morning_dict = [
+      {
+        'key1':
+          {
+            'key1': Morning.new('8:00', '10:00', true, 'Morning'),
+            'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+          }
+      }
+    ]
+    _one_of.validate(_outer_array_of_dict_morning_dict)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_dict_outer_array_of_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true)
+    )
+    _outer_array_of_dict_morning_dict = [
+      {
+        'key1':
+          {
+            'key1': Evening.new('8:00', '10:00', true, 'Evening'),
+            'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+          }
+      }
+    ]
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_array_of_dict_morning_dict)
+    end
+  end
+
+  def test_valid_morning_dict_outer_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true)
+    )
+    _outer_dict_of_array_morning_dict = {
+      'key1': [
+        {
+          'key1': Morning.new('8:00', '10:00', true, 'Morning'),
+          'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+        }
+      ]
+    }
+    _one_of.validate(_outer_dict_of_array_morning_dict)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_dict_outer_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_dict: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true)
+    )
+    _outer_dict_of_array_morning_dict = {
+      'key1': [
+        {
+          'key1': Evening.new('8:00', '10:00', true, 'Evening'),
+          'key2': Morning.new('9:00', '10:00', true, 'Morning'),
+        }
+      ]
+    }
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_dict_of_array_morning_dict)
+    end
+  end
+
+  def test_valid_morning_array_outer_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true)
+    )
+    _outer_dict_of_array_morning_array = {
+      'key1': [
+        [
+          Morning.new('8:00', '10:00', true, 'Morning'),
+          Morning.new('9:00', '10:00', true, 'Morning'),
+        ]
+      ]
+    }
+    _one_of.validate(_outer_dict_of_array_morning_array)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_array_outer_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true)
+    )
+    _outer_dict_of_array_morning_array = {
+      'key1': [
+        [
+          Evening.new('8:00', '10:00', true, 'Evening'),
+          Morning.new('9:00', '10:00', true, 'Morning'),
+        ]
+      ]
+    }
+
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_dict_of_array_morning_array)
+    end
+  end
+
+  def test_valid_morning_array_outer_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true)
+    )
+    _outer_dict_of_array_morning_array = [
+      [
+        Morning.new('8:00', '10:00', true, 'Morning'),
+        Morning.new('9:00', '10:00', true, 'Morning'),
+      ]
+    ]
+    _one_of.validate(_outer_dict_of_array_morning_array)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_morning_array_outer_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true)
+    )
+    _outer_dict_of_array_morning_array = [
+      [
+        Evening.new('8:00', '10:00', true, 'Evening'),
+        Morning.new('9:00', '10:00', true, 'Morning'),
+      ]
+    ]
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_dict_of_array_morning_array)
+    end
+  end
+
+  def test_valid_evening_outer_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true)
+    )
+    _outer_array_evening = [
+      Evening.new('8:00', '10:00', true, 'Evening'),
+      Evening.new('8:00', '10:00', true, 'Evening'),
+      Evening.new('8:00', '10:00', true, 'Evening'),
+    ]
+    _one_of.validate(_outer_array_evening)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_evening_outer_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true)
+    )
+    _outer_array_evening = [
+      Morning.new('8:00', '10:00', true, 'Evening'),
+      Evening.new('8:00', '10:00', true, 'Evening'),
+      Evening.new('8:00', '10:00', true, 'Evening'),
+    ]
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_array_evening)
+    end
+  end
+
+  def test_valid_evening_outer_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_dict: true)
+    )
+    _outer_dict_evening = {
+      'key1': Evening.new('8:00', '10:00', true, 'Evening'),
+      'key2': Evening.new('8:00', '10:00', true, 'Evening'),
+      'key3': Evening.new('8:00', '10:00', true, 'Evening'),
+    }
+    _one_of.validate(_outer_dict_evening)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_evening_outer_dict_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_dict: true)
+    )
+    _outer_dict_evening = {
+      'key1': Morning.new('8:00', '10:00', true, 'Morning'),
+      'key2': Evening.new('8:00', '10:00', true, 'Evening'),
+      'key3': Evening.new('8:00', '10:00', true, 'Evening'),
+    }
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_dict_evening)
+    end
+  end
+
+  def test_valid_evening_outer_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true)
+    )
+    _outer_dict_of_array_evening = {
+      'key1': [
+        Evening.new('8:00', '10:00', true, 'Evening'),
+        Evening.new('8:00', '10:00', true, 'Evening')
+      ],
+      'key2': [
+        Evening.new('8:00', '10:00', true, 'Evening'),
+        Evening.new('8:00', '10:00', true, 'Evening')
+      ]
+    }
+    _one_of.validate(_outer_dict_of_array_evening)
+    assert _one_of.is_valid
+  end
+
+  def test_invalid_evening_outer_dict_of_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true, is_dict: true)
+    )
+    _outer_dict_of_array_evening = {
+      'key1': [
+        Morning.new('8:00', '10:00', true, 'Morning'),
+        Evening.new('8:00', '10:00', true, 'Evening')
+      ],
+      'key2': [
+        Evening.new('8:00', '10:00', true, 'Evening'),
+        Evening.new('8:00', '10:00', true, 'Evening')
+      ]
+    }
+    assert_raises OneOfValidationException do
+      _one_of.validate(_outer_dict_of_array_evening)
+    end
+  end
 end

@@ -1,8 +1,13 @@
 require 'minitest/autorun'
 require 'apimatic_core'
 
+require_relative '../../test-helper/models/morning'
+require_relative '../../test-helper/models/evening'
+require_relative '../../test-helper/models/month_number_enum'
+require_relative '../../test-helper/models/month_name_enum'
+
 class TestOneOfAnyOf < Minitest::Test
-  include CoreLibrary
+  include CoreLibrary, TestComponent
 
   def setup
   end
@@ -166,7 +171,7 @@ class TestOneOfAnyOf < Minitest::Test
       ]
     )
     assert_raises OneOfValidationException do
-      _nested_any_of_one_of.validate([1,2])
+      _nested_any_of_one_of.validate([1, 2])
     end
   end
 
@@ -259,6 +264,54 @@ class TestOneOfAnyOf < Minitest::Test
       [
         {
           'key1': 'string'
+        }
+      ]
+    )
+    assert _nested_any_of_one_of.is_valid
+  end
+
+  def test_mix_inner_array_of_dict_one_of_any_of
+    _nested_any_of_one_of = AnyOf.new(
+      [
+        OneOf.new(
+          [
+            LeafType.new(Morning,
+                         UnionTypeContext.new(is_array: true)
+            ),
+            LeafType.new(String, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true))
+          ]
+        ),
+        LeafType.new(String),
+        LeafType.new(FalseClass)
+      ]
+    )
+    _nested_any_of_one_of.validate(
+      [
+        Morning.new('8:00', '10:00', true, 'Morning')
+      ]
+    )
+    assert _nested_any_of_one_of.is_valid
+  end
+
+  def test_evening_inner_array_of_dict_one_of_any_of
+    _nested_any_of_one_of = AnyOf.new(
+      [
+        OneOf.new(
+          [
+            LeafType.new(Morning,
+                         UnionTypeContext.new(is_array: true)
+            ),
+            LeafType.new(Evening, UnionTypeContext.new(is_array: true, is_dict: true, is_array_of_dict: true))
+          ]
+        ),
+        LeafType.new(String),
+        LeafType.new(FalseClass)
+      ]
+    )
+    _nested_any_of_one_of.validate(
+      [
+        {
+          'key1': Evening.new('8:00', '10:00', true, 'Evening')
         }
       ]
     )
