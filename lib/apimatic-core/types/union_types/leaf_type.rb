@@ -39,16 +39,6 @@ module CoreLibrary
       deserialized_value
     end
 
-    # Initializes a copy of the current LeafType object
-    # @param original [LeafType] The original LeafType object to copy
-    # @return [void]
-    def initialize_copy(original)
-      super
-
-      @union_types = original.instance_variable_get(:@union_types).dup
-      @is_valid = original.instance_variable_get(:@is_valid)
-    end
-
     private
 
     def validate_value_against_case(value, context)

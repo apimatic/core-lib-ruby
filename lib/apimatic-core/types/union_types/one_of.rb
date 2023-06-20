@@ -50,17 +50,6 @@ module CoreLibrary
                                         @union_types)
     end
 
-    # Overrides the initialize_copy method to perform a deep copy
-    # @param original [OneOf] The original object to copy
-    def initialize_copy(original)
-      super
-
-      @union_types = original.instance_variable_get(:@union_types).dup
-      @union_type_context = original.instance_variable_get(:@union_type_context).dup
-      @is_valid = original.instance_variable_get(:@is_valid)
-      @collection_cases = original.instance_variable_get(:@collection_cases).dup
-      @error_messages = original.instance_variable_get(:@error_messages).dup
-    end
     private
 
     # Validates a value against the appropriate case of the OneOf union type

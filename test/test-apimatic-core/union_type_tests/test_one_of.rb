@@ -67,6 +67,77 @@ class TestOneOf < Minitest::Test
     end
   end
 
+  def test_validate_nil_one_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ]
+    )
+    assert_raises OneOfValidationException do
+      _one_of.validate(nil)
+    end
+  end
+  def test_valid_nullable_any_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(is_nullable: true)
+    )
+    _one_of.validate(nil)
+    assert _one_of.is_valid
+  end
+
+  def test_valid_optional_any_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(is_optional: true)
+    )
+    _one_of.validate(nil)
+    assert _one_of.is_valid
+  end
+
+  def test_valid_optional_inner_any_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String,
+                     UnionTypeContext.new(is_optional: true))
+      ]
+    )
+    _one_of.validate(nil)
+    assert _one_of.is_valid
+  end
+
+  def test_valid_optional_and_nullable_any_of
+    _one_of = OneOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(is_nullable: true,is_optional: true)
+    )
+    _one_of.validate(nil)
+    assert _one_of.is_valid
+  end
+
+  def test_deserialize_nil_morning_type_one_of
+    _one_of = OneOf.new([LeafType.new(Morning), LeafType.new(Evening)])
+    _morning_json = '{ "startsAt": "9:00", "endsAt": "10:00", "offerTeaBreak": true, "sessionType": "Morning"}'
+    deserialized_morning = ApiHelper.json_deserialize(_morning_json)
+    _one_of = _one_of.validate(deserialized_morning)
+    actual_morning = _one_of.deserialize(nil)
+    expected_morning = nil
+
+    assert _one_of.is_valid
+    assert_equal(expected_morning, actual_morning, 'Actual did not match the expected.')
+  end
+
   def test_valid_evening_type_one_of
     _one_of = OneOf.new([LeafType.new(Morning), LeafType.new(Evening)])
     _evening = Evening.new('8:00', '10:00', true, 'Evening')

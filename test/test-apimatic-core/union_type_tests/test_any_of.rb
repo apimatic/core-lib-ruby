@@ -30,7 +30,12 @@ class TestAnyOf < Minitest::Test
   end
 
   def test_valid_float_in_any_of
-    _any_of = AnyOf.new([LeafType.new(String), LeafType.new(Float)])
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(Float)
+      ]
+    )
     _any_of.validate(4.0)
     assert _any_of.is_valid
   end
@@ -47,23 +52,115 @@ class TestAnyOf < Minitest::Test
     assert _any_of.is_valid
   end
 
-  def test_valid_mutiple_types_in_any_of
-    _any_of = AnyOf.new([LeafType.new(Integer), LeafType.new(Float), LeafType.new(String)])
+  def test_valid_multiple_types_in_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(Integer),
+        LeafType.new(Float),
+        LeafType.new(String)
+      ]
+    )
     _any_of.validate(4)
     assert _any_of.is_valid
   end
 
   def test_valid_both_string_any_of
-    _any_of = AnyOf.new([LeafType.new(String), LeafType.new(String)])
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ]
+    )
     _any_of.validate('string')
     assert _any_of.is_valid
   end
 
   def test_invalid_any_of
-    _any_of = AnyOf.new([LeafType.new(String), LeafType.new(String)])
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ]
+    )
     assert_raises AnyOfValidationException do
       _any_of.validate(4)
     end
+  end
+
+  def test_validate_nil_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ]
+    )
+    assert_raises AnyOfValidationException do
+      _any_of.validate(nil)
+    end
+  end
+
+  def test_valid_nullable_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(is_nullable: true)
+    )
+    _any_of.validate(nil)
+    assert _any_of.is_valid
+  end
+
+  def test_valid_optional_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(is_optional: true)
+    )
+    _any_of.validate(nil)
+    assert _any_of.is_valid
+  end
+
+  def test_valid_optional_inner_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String,
+                     UnionTypeContext.new(is_optional: true))
+      ]
+    )
+    _any_of.validate(nil)
+    assert _any_of.is_valid
+  end
+
+  def test_valid_optional_and_nullable_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(is_nullable: true, is_optional: true)
+    )
+    _any_of.validate(nil)
+    assert _any_of.is_valid
+  end
+
+  def test_valid_evening_with_disc_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(Morning,
+                     UnionTypeContext.new(discriminator: 'session_type',
+                                          discriminator_value: 'Morning')),
+        LeafType.new(Evening,
+                     UnionTypeContext.new(discriminator: 'session_type',
+                                          discriminator_value: 'Evening'))
+      ]
+    )
+    _evening = Evening.new('8:00', '10:00', true, 'Evening')
+    _any_of.validate(_evening)
+    assert _any_of.is_valid
   end
 
   def test_valid_evening_type_any_of
@@ -80,6 +177,18 @@ class TestAnyOf < Minitest::Test
     _any_of = _any_of.validate(deserialized_morning)
     actual_morning = _any_of.deserialize(deserialized_morning)
     expected_morning = Morning.new('9:00', '10:00', true, 'Morning')
+
+    assert _any_of.is_valid
+    assert_equal(expected_morning, actual_morning, 'Actual did not match the expected.')
+  end
+
+  def test_deserialize_nil_morning_type_any_of
+    _any_of = AnyOf.new([LeafType.new(Morning), LeafType.new(Evening)])
+    _morning_json = '{ "startsAt": "9:00", "endsAt": "10:00", "offerTeaBreak": true, "sessionType": "Morning"}'
+    deserialized_morning = ApiHelper.json_deserialize(_morning_json)
+    _any_of = _any_of.validate(deserialized_morning)
+    actual_morning = _any_of.deserialize(nil)
+    expected_morning = nil
 
     assert _any_of.is_valid
     assert_equal(expected_morning, actual_morning, 'Actual did not match the expected.')
@@ -154,6 +263,31 @@ class TestAnyOf < Minitest::Test
                         ])
     assert_raises AnyOfValidationException do
       _any_of.validate([1, 2, 'abc'])
+    end
+  end
+
+  def test_validate_nil_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String, UnionTypeContext.new(is_nullable: true))
+      ],
+      UnionTypeContext.new(is_array: true)
+    )
+
+    _any_of.validate([nil])
+  end
+
+  def test_invalid_validate_nil_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(String),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(is_array: true)
+    )
+    assert_raises AnyOfValidationException do
+      _any_of.validate([nil])
     end
   end
 
@@ -1637,6 +1771,29 @@ class TestAnyOf < Minitest::Test
 
     assert _any_of.is_valid
     assert_equal(expected_morning_dict, actual_morning_dict_of_array, 'Actual did not match the expected')
+  end
+
+  def test_deserialize_nil_dict_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(Morning),
+        LeafType.new(Evening)
+      ],
+      UnionTypeContext.new(is_dict: true)
+    )
+    _morning_dict  =
+      {
+        'key1' => Morning.new('8:00', '10:00', true, 'Morning'),
+        'key2' => Evening.new('9:00', '10:00', true, 'Evening'),
+      }
+
+    json = ApiHelper.json_serialize(_morning_dict)
+    deserialized_morning = ApiHelper.json_deserialize(json)
+    _any_of = _any_of.validate(deserialized_morning)
+    actual_morning_dict_of_array = _any_of.deserialize(nil)
+
+    assert _any_of.is_valid
+    assert_equal(nil, actual_morning_dict_of_array, 'Actual did not match the expected')
   end
 
   def test_deserialize_dict_of_array_type_any_of

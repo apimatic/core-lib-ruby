@@ -120,8 +120,8 @@ module CoreLibrary
 
       if has_discriminator_cases
         union_types.each do |union_type|
-          union_type.union_type_context.discriminator(nil)
-          union_type.union_type_context.discriminator_value(nil)
+          union_type.union_type_context.discriminator = nil
+          union_type.union_type_context.discriminator_value = nil
         end
 
         get_valid_cases_count(value, union_types)
