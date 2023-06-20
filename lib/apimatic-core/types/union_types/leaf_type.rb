@@ -57,7 +57,7 @@ module CoreLibrary
     end
 
     def validate_dict_case(dict_value)
-      return false unless dict_value.is_a?(Hash)
+      return false unless dict_value.instance_of?(Hash)
 
       dict_value.each do |_key, value|
         is_valid = validate_simple_case(value)
@@ -68,7 +68,7 @@ module CoreLibrary
     end
 
     def validate_dict_of_array_case(dict_value)
-      return false unless dict_value.is_a?(Hash)
+      return false unless dict_value.instance_of?(Hash)
 
       dict_value.each do |_key, value|
         is_valid = validate_array_case(value)
@@ -79,7 +79,7 @@ module CoreLibrary
     end
 
     def validate_array_case(array_value)
-      return false unless array_value.is_a?(Array)
+      return false unless array_value.instance_of?(Array)
 
       array_value.each do |item|
         is_valid = validate_simple_case(item)
@@ -90,7 +90,7 @@ module CoreLibrary
     end
 
     def validate_array_of_dict_case(array_value)
-      return false unless array_value.is_a?(Array)
+      return false unless array_value.instance_of?(Array)
 
       array_value.each do |item|
         is_valid = validate_dict_case(item)
@@ -105,7 +105,7 @@ module CoreLibrary
 
       if value.nil? || context.is_nullable_or_optional
         true
-      elsif value.nil? || value.is_a?(Array)
+      elsif value.nil? || value.instance_of?(Array)
         false
       else
         validate_value(value, context)
@@ -114,13 +114,19 @@ module CoreLibrary
 
     def validate_value(value, context)
       if @type_to_match == DateTime
-        UnionTypeHelper.validate_date_time(value, context)
+        if value.instance_of?(DateTime)
+          dt_string = context.date_time_converter.call(value)
+        else
+          dt_string = value
+        end
+        DateTimeHelper.validate_datetime(context.date_time_format, dt_string)
       elsif @type_to_match == Date
         DateTimeHelper.validate_date(value)
       else
         validate_value_with_discriminator(value, context)
       end
     end
+
 
     def validate_value_with_discriminator(value, context)
       discriminator = context.discriminator
@@ -131,17 +137,17 @@ module CoreLibrary
       elsif @type_to_match.respond_to?(:validate)
         @type_to_match.validate(value)
       else
-        value.is_a?(@type_to_match)
+        value.instance_of?(@type_to_match)
       end
     end
 
     def validate_with_discriminator(discriminator, discriminator_value, value)
-      return false unless value.is_a?(Hash) && value[discriminator] == discriminator_value
+      return false unless value.instance_of?(Hash) && value[discriminator] == discriminator_value
 
       if @type_to_match.respond_to?(:validate)
         @type_to_match.validate(value)
       else
-        value.is_a?(@type_to_match)
+        value.instance_of?(@type_to_match)
       end
     end
 
@@ -208,9 +214,9 @@ module CoreLibrary
       if @type_to_match.respond_to?(:from_hash)
         @type_to_match.from_hash(value)
       elsif @type_to_match == Date
-        ApiHelper.date_deserializer(value, value.is_a?(Array), false)
+        ApiHelper.date_deserializer(value, false, false)
       elsif @type_to_match == DateTime
-        ApiHelper.deserialize_datetime(value, @union_type_context.date_time_format, value.is_a?(Array), false)
+        ApiHelper.deserialize_datetime(value, @union_type_context.date_time_format, false, false)
       else
         value
       end

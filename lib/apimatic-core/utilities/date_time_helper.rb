@@ -17,7 +17,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-          v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
+          v.instance_of?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
       end
       hash[key]
     end
@@ -29,7 +29,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-        v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
+        v.instance_of?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
       end
     end
 
@@ -49,7 +49,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-          v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
+          v.instance_of?(DateTime) ? DateTimeHelper.to_unix(v) : v
       end
       hash[key]
     end
@@ -61,7 +61,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-        v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
+        v.instance_of?(DateTime) ? DateTimeHelper.to_unix(v) : v
       end
     end
 
@@ -81,7 +81,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-          v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
+          v.instance_of?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
       end
       hash[key]
     end
@@ -93,7 +93,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-        v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
+        v.instance_of?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
       end
     end
 
@@ -136,12 +136,30 @@ module CoreLibrary
       end
     end
 
-    def validate_date(date_value)
+    def self.validate_datetime(dt_format, dt)
       begin
-        if date_value.is_a?(Date)
+        case dt_format
+        when DateTimeFormat::HTTP_DATE_TIME
+          DateTime.strptime(dt, "%a, %d %b %Y %H:%M:%S %Z")
+        when DateTimeFormat::RFC3339_DATE_TIME
+          DateTime.iso8601(dt)
+        when DateTimeFormat::UNIX_DATE_TIME
+          DateTime.strptime(dt, "%s")
+        else
+          return false
+        end
+        return true
+      rescue ArgumentError
+        return false
+      end
+    end
+
+    def self.validate_date(date_value)
+      begin
+        if date_value.instance_of?(Date)
           DateTime.strptime(date_value.iso8601, "%Y-%m-%d")
           true
-        elsif date_value.is_a?(String)
+        elsif date_value.instance_of?(String)
           DateTime.strptime(date_value, "%Y-%m-%d")
           true
         else

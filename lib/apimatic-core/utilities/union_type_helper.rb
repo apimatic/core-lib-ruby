@@ -130,27 +130,6 @@ module CoreLibrary
       end
     end
 
-    def self.validate_date_time(value, context)
-      if value.is_a?(ApiHelper::RFC3339DateTime)
-        return context.date_time_format == DateTimeFormat::RFC3339_DATE_TIME
-      end
-
-      if value.is_a?(ApiHelper::HttpDateTime)
-        return context.date_time_format == DateTimeFormat::HTTP_DATE_TIME
-      end
-
-      if value.is_a?(ApiHelper::UnixDateTime)
-        return context.date_time_format == DateTimeFormat::UNIX_DATE_TIME
-      end
-
-      if value.is_a?(DateTime) && context.date_time_converter
-        serialized_dt = ApiHelper.when_defined(context.date_time_converter, value).to_s
-        return DateTimeHelper.validate_datetime(serialized_dt, context.date_time_format)
-      end
-
-      DateTimeHelper.validate_datetime(value, context.date_time_format)
-    end
-
     def self.is_optional_or_nullable_case(current_context, inner_contexts)
       current_context.is_nullable_or_optional || inner_contexts.any?(&:is_nullable_or_optional)
     end
@@ -162,11 +141,11 @@ module CoreLibrary
     end
 
     def self.is_invalid_array_value(value)
-      value.nil? || !value.is_a?(Array)
+      value.nil? || !value.instance_of?(Array)
     end
 
     def self.is_invalid_dict_value(value)
-      value.nil? || !value.is_a?(Hash)
+      value.nil? || !value.instance_of?(Hash)
     end
 
     def self.deserialize_value(value, context, collection_cases, union_types)
@@ -236,7 +215,7 @@ module CoreLibrary
     def self.get_combined_error_messages(union_types)
       combined_error_messages = []
       union_types.each do |union_type|
-        if union_type.is_a?(LeafType)
+        if union_type.instance_of?(LeafType)
           combined_error_messages << union_type.type_to_match.name
         elsif union_type.error_messages
           combined_error_messages << union_type.error_messages.to_a.join(", ")
