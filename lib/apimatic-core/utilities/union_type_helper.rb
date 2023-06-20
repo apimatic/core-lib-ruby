@@ -91,10 +91,11 @@ module CoreLibrary
     def self.make_deep_copies(union_types)
       nested_cases = []
       union_types.each do |union_type|
-        nested_cases << Marshal.load(Marshal.dump(union_type))
+        nested_cases << union_type.dup
       end
       nested_cases
     end
+
 
     def self.get_matched_count(value, union_types, is_for_one_of)
       matched_count = get_valid_cases_count(value, union_types)

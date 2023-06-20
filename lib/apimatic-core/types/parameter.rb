@@ -93,6 +93,7 @@ module CoreLibrary
     # @return [Parameter] An updated instance of the Parameter class.
     def validator(validator)
       @validator = validator
+      self
     end
 
 

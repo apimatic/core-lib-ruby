@@ -182,6 +182,26 @@ class TestAnyOf < Minitest::Test
     assert_equal(expected_morning, actual_morning, 'Actual did not match the expected.')
   end
 
+  def test_deserialize_datetime_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    dt = expected =  DateTime.now
+    json = DateTimeHelper.to_rfc1123(dt)
+    deserialized_dateTime = ApiHelper.deserialize_datetime(json, CoreLibrary::DateTimeFormat::HTTP_DATE_TIME, false, false)
+    _any_of = _any_of.validate(deserialized_dateTime)
+    actual = _any_of.deserialize(deserialized_dateTime)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
   def test_deserialize_nil_morning_type_any_of
     _any_of = AnyOf.new([LeafType.new(Morning), LeafType.new(Evening)])
     _morning_json = '{ "startsAt": "9:00", "endsAt": "10:00", "offerTeaBreak": true, "sessionType": "Morning"}'
@@ -1781,7 +1801,7 @@ class TestAnyOf < Minitest::Test
       ],
       UnionTypeContext.new(is_dict: true)
     )
-    _morning_dict  =
+    _morning_dict =
       {
         'key1' => Morning.new('8:00', '10:00', true, 'Morning'),
         'key2' => Evening.new('9:00', '10:00', true, 'Evening'),
@@ -1817,5 +1837,265 @@ class TestAnyOf < Minitest::Test
 
     assert _any_of.is_valid
     assert_equal(expected_morning_dict_of_array, actual_morning_dict_of_array, 'Actual did not match the expected')
+  end
+
+  def test_date_time_rfc_1123_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    dt = DateTime.now
+    _any_of.validate(dt)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_rfc_3339_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::RFC3339_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc3339(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    dt = DateTime.now
+    _any_of.validate(dt)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_unix_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::UNIX_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_unix_string(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    dt = DateTime.now
+    _any_of.validate(dt)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_array_rfc_1123_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       is_array: true,
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    dt_array = [
+      DateTime.now,
+      DateTime.now
+    ]
+    _any_of.validate(dt_array)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_map_rfc_1123_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       is_dict: true,
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    dt_map = {
+      'key1' => DateTime.now,
+      'key2' => DateTime.now
+    }
+    _any_of.validate(dt_map)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_map_of_array_rfc_1123_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       is_array: true,
+                       is_dict: true,
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    dt_map_of_array = {
+      'key1' => [
+        DateTime.now,
+        DateTime.now
+      ],
+      'key2' => [
+        DateTime.now,
+        DateTime.now
+      ]
+    }
+    _any_of.validate(dt_map_of_array)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_array_of_map_rfc_1123_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       is_array: true,
+                       is_dict: true,
+                       is_array_of_dict: true,
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)
+      ]
+    )
+    dt_array_of_map = [
+      {
+        'key1' =>
+          DateTime.now,
+        'key2' =>
+          DateTime.now
+      }
+    ]
+    _any_of.validate(dt_array_of_map)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_array_rfc_3339_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::RFC3339_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc3339(value) }
+                     )
+        ),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(
+        is_array: true
+      ))
+    dt_array = [DateTime.now]
+    _any_of.validate(dt_array)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_map_rfc_3339_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::RFC3339_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc3339(value) }
+                     )
+        ),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(
+        is_dict: true
+      ))
+    dt_map = {
+      'key1' => DateTime.now
+    }
+    _any_of.validate(dt_map)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_map_of_array_rfc_3339_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::RFC3339_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc3339(value) }
+                     )
+        ),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(
+        is_array: true,
+        is_dict: true
+      ))
+    dt_map_of_array = {
+      'key1' => [DateTime.now]
+    }
+    _any_of.validate(dt_map_of_array)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_time_array_of_map_rfc_3339_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::RFC3339_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc3339(value) }
+                     )
+        ),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(
+        is_array: true,
+        is_dict: true,
+        is_array_of_dict: true,
+      ))
+    dt_array_of_map = [
+      {
+        'key1' => DateTime.now
+      }
+    ]
+    _any_of.validate(dt_array_of_map)
+
+    assert _any_of.is_valid
+  end
+
+  def test_date_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(Date),
+        LeafType.new(String)
+      ]
+    )
+    dt = Date.new(2012, 2, 2)
+    _any_of.validate(dt)
+
+    assert _any_of.is_valid
+  end
+
+  def test_invalid_date_tine_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime),
+        LeafType.new(String)
+      ]
+    )
+    dt = Date.new(2012, 2, 2)
+    assert_raises AnyOfValidationException do
+      _any_of.validate(dt)
+    end
   end
 end

@@ -29,8 +29,9 @@ module CoreLibrary
 
     # Deserializes a value based on the leaf type
     # @param value [Object] The value to deserialize
+    # @param should_symbolize [Boolean] Indicates whether the deserialized value should be symbolized.
     # @return [Object, nil] The deserialized value or nil if the input value is nil
-    def deserialize(value)
+    def deserialize(value, should_symbolize = false)
       return nil if value.nil?
 
       context = @union_type_context
@@ -114,7 +115,7 @@ module CoreLibrary
 
     def validate_value(value, context)
       if @type_to_match == DateTime
-        if value.instance_of?(DateTime)
+        if value.instance_of?(DateTime) and context.date_time_converter
           dt_string = context.date_time_converter.call(value)
         else
           dt_string = value

@@ -40,6 +40,13 @@ module CoreLibrary
       date_time.to_time.utc.to_i unless date_time.nil?
     end
 
+    # Safely converts a DateTime object into a unix format string.
+    # @param [DateTime] date_time The DateTime object.
+    # @return [String] The unix formatted datetime string.
+    def self.to_unix_string(date_time)
+      date_time.to_time.utc.to_s unless date_time.nil?
+    end
+
     # Safely converts a map of DateTime objects into a map of unix format string.
     # @param [hash] date_time A map of DateTime objects.
     # @return [hash] A map of unix formatted datetime string.

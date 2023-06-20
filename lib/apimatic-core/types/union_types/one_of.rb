@@ -27,7 +27,6 @@ module CoreLibrary
         @is_valid = false
         @error_messages = UnionTypeHelper.process_errors(value, @union_types, @error_messages,
                                                          union_type_context.is_nested, true)
-        return self
       end
 
       _validate_value_against_case(value, context)
@@ -42,8 +41,9 @@ module CoreLibrary
 
     # Deserializes a value based on the OneOf union type
     # @param value [Object] The value to deserialize
+    # @param should_symbolize [Boolean] Indicates whether the deserialized value should be symbolized.
     # @return [Object, nil] The deserialized value, or nil if the input value is nil
-    def deserialize(value)
+    def deserialize(value, should_symbolize = false)
       return nil if value.nil?
 
       UnionTypeHelper.deserialize_value(value, @union_type_context, @collection_cases,
