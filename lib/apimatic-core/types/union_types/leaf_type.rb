@@ -31,7 +31,7 @@ module CoreLibrary
     # @param value [Object] The value to deserialize
     # @param should_symbolize [Boolean] Indicates whether the deserialized value should be symbolized.
     # @return [Object, nil] The deserialized value or nil if the input value is nil
-    def deserialize(value, should_symbolize = false)
+    def deserialize(value, should_symbolize: false)
       return nil if value.nil?
 
       context = @union_type_context
