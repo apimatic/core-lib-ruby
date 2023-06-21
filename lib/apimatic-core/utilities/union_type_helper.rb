@@ -3,8 +3,8 @@ module CoreLibrary
     NONE_MATCHED_ERROR_MESSAGE = 'We could not match any acceptable types against the given JSON.'
     MORE_THAN_1_MATCHED_ERROR_MESSAGE = 'There are more than one acceptable type matched against the given JSON.'
 
-    def self.get_deserialized_value(union_types, value)
-      union_types.find(&:is_valid).deserialize(value)
+    def self.get_deserialized_value(union_types, value, should_symbolize= false)
+      union_types.find(&:is_valid).deserialize(value, should_symbolize: should_symbolize)
     end
 
     def self.validate_array_of_dict_case(union_types, array_value, is_for_one_of)
@@ -149,56 +149,56 @@ module CoreLibrary
       value.nil? || !value.instance_of?(Hash)
     end
 
-    def self.deserialize_value(value, context, collection_cases, union_types)
+    def self.deserialize_value(value, context, collection_cases, union_types, should_symbolize: false)
       if context.is_array && context.is_dict && context.is_array_of_dict
-        return deserialize_array_of_dict_case(value, collection_cases)
+        return deserialize_array_of_dict_case(value, collection_cases, should_symbolize: should_symbolize)
       end
 
       if context.is_array && context.is_dict
-        return deserialize_dict_of_array_case(value, collection_cases)
+        return deserialize_dict_of_array_case(value, collection_cases, should_symbolize: should_symbolize)
       end
 
       if context.is_array
-        return deserialize_array_case(value, collection_cases)
+        return deserialize_array_case(value, collection_cases, should_symbolize: should_symbolize)
       end
 
       if context.is_dict
-        return deserialize_dict_case(value, collection_cases)
+        return deserialize_dict_case(value, collection_cases, should_symbolize: should_symbolize)
       end
 
-      get_deserialized_value(union_types, value)
+      get_deserialized_value(union_types, value, should_symbolize: should_symbolize)
     end
 
-    def self.deserialize_array_of_dict_case(array_value, collection_cases)
+    def self.deserialize_array_of_dict_case(array_value, collection_cases, should_symbolize: false)
       deserialized_value = []
       array_value.each_with_index do |item, index|
-        deserialized_value << deserialize_dict_case(item, collection_cases[index])
+        deserialized_value << deserialize_dict_case(item, collection_cases[index], should_symbolize: should_symbolize)
       end
       deserialized_value
     end
 
-    def self.deserialize_dict_of_array_case(dict_value, collection_cases)
+    def self.deserialize_dict_of_array_case(dict_value, collection_cases, should_symbolize: false)
       deserialized_value = {}
       dict_value.each do |key, value|
-        deserialized_value[key] = deserialize_array_case(value, collection_cases[key])
+        deserialized_value[key] = deserialize_array_case(value, collection_cases[key], should_symbolize: should_symbolize)
       end
       deserialized_value
     end
 
-    def self.deserialize_dict_case(dict_value, collection_cases)
+    def self.deserialize_dict_case(dict_value, collection_cases, should_symbolize: false)
       deserialized_value = {}
       dict_value.each do |key, value|
         valid_case = collection_cases[key].find(&:is_valid)
-        deserialized_value[key] = valid_case.deserialize(value)
+        deserialized_value[key] = valid_case.deserialize(value, should_symbolize: should_symbolize)
       end
       deserialized_value
     end
 
-    def self.deserialize_array_case(array_value, collection_cases)
+    def self.deserialize_array_case(array_value, collection_cases, should_symbolize: false)
       deserialized_value = []
       array_value.each_with_index do |item, index|
         valid_case = collection_cases[index].find(&:is_valid)
-        deserialized_value << valid_case.deserialize(item)
+        deserialized_value << valid_case.deserialize(item, should_symbolize: should_symbolize)
       end
       deserialized_value
     end

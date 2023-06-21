@@ -128,7 +128,6 @@ module CoreLibrary
       end
     end
 
-
     def validate_value_with_discriminator(value, context)
       discriminator = context.discriminator
       discriminator_value = context.discriminator_value
@@ -152,72 +151,72 @@ module CoreLibrary
       end
     end
 
-    def deserialize_value_against_case(value, context)
+    def deserialize_value_against_case(value, context, should_symbolize: false)
       case
       when context.is_array && context.is_dict && context.is_array_of_dict
-        deserialize_array_of_dict_case(value)
+        deserialize_array_of_dict_case(value, should_symbolize: should_symbolize)
       when context.is_array && context.is_dict
-        deserialize_dict_of_array_case(value)
+        deserialize_dict_of_array_case(value, should_symbolize: should_symbolize)
       when context.is_array
-        deserialize_array_case(value)
+        deserialize_array_case(value, should_symbolize: should_symbolize)
       when context.is_dict
-        deserialize_dict_case(value)
+        deserialize_dict_case(value, should_symbolize: should_symbolize)
       else
-        deserialize_simple_case(value)
+        deserialize_simple_case(value, should_symbolize: should_symbolize)
       end
     end
 
-    def deserialize_dict_case(dict_value)
+    def deserialize_dict_case(dict_value, should_symbolize: false)
       deserialized_value = {}
 
       dict_value.each do |key, value|
-        result_value = deserialize_simple_case(value)
+        result_value = deserialize_simple_case(value, should_symbolize: should_symbolize)
         deserialized_value[key] = result_value
       end
 
       deserialized_value
     end
 
-    def deserialize_dict_of_array_case(dict_value)
+    def deserialize_dict_of_array_case(dict_value, should_symbolize: false)
       deserialized_value = {}
 
       dict_value.each do |key, value|
-        result_value = deserialize_array_case(value)
+        result_value = deserialize_array_case(value, should_symbolize: should_symbolize)
         deserialized_value[key] = result_value
       end
 
       deserialized_value
     end
 
-    def deserialize_array_case(array_value)
+    def deserialize_array_case(array_value, should_symbolize: false)
       deserialized_value = []
 
       array_value.each do |item|
-        result_value = deserialize_simple_case(item)
+        result_value = deserialize_simple_case(item, should_symbolize: should_symbolize)
         deserialized_value << result_value
       end
 
       deserialized_value
     end
 
-    def deserialize_array_of_dict_case(array_value)
+    def deserialize_array_of_dict_case(array_value, should_symbolize: false)
       deserialized_value = []
 
       array_value.each do |item|
-        result_value = deserialize_dict_case(item)
+        result_value = deserialize_dict_case(item, should_symbolize: should_symbolize)
         deserialized_value << result_value
       end
 
       deserialized_value
     end
 
-    def deserialize_simple_case(value)
+    def deserialize_simple_case(value, should_symbolize: false)
       if @type_to_match.respond_to?(:from_hash)
         @type_to_match.from_hash(value)
       elsif @type_to_match == Date
-        ApiHelper.date_deserializer(value, false, false)
+        ApiHelper.date_deserializer(value, false, should_symbolize: should_symbolize)
       elsif @type_to_match == DateTime
-        ApiHelper.deserialize_datetime(value, @union_type_context.date_time_format, false, false)
+        ApiHelper.deserialize_datetime(value, @union_type_context.date_time_format, false, should_symbolize: should_symbolize)
       else
         value
       end

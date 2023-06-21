@@ -47,7 +47,7 @@ module CoreLibrary
       return nil if value.nil?
 
       UnionTypeHelper.deserialize_value(value, @union_type_context, @collection_cases,
-                                        @union_types)
+                                        @union_types, should_symbolize: should_symbolize)
     end
 
     private

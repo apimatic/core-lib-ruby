@@ -1877,7 +1877,7 @@ class TestAnyOf < Minitest::Test
         LeafType.new(DateTime,
                      UnionTypeContext.new(
                        date_time_format: CoreLibrary::DateTimeFormat::UNIX_DATE_TIME,
-                       date_time_converter: ->(value) { DateTimeHelper.to_unix_string(value) }
+                       date_time_converter: ->(value) { DateTimeHelper.to_unix(value) }
                      )
         ),
         LeafType.new(String)])
