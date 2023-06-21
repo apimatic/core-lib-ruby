@@ -1722,4 +1722,24 @@ class TestOneOf < Minitest::Test
     assert _one_of.is_valid
     assert_equal(expected_morning_dict_of_array, actual_morning_dict_of_array, 'Actual did not match the expected')
   end
+
+  def test_date_datetime_validate
+    _one_of = OneOf.new(
+      [
+        LeafType.new(Date),
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_converter: proc do |dt_string| DateTimeHelper.to_unix(dt_string) end,
+                       date_time_format: DateTimeFormat::UNIX_DATE_TIME)),
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(date_time_format: DateTimeFormat::RFC3339_DATE_TIME)
+        )
+      ]
+    )
+
+    dt = Date.new(2012,12,1)
+    _one_of.validate(dt)
+
+    assert _one_of.is_valid
+  end
 end

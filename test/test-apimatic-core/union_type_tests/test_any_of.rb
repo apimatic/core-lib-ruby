@@ -2139,7 +2139,7 @@ class TestAnyOf < Minitest::Test
     assert _any_of.is_valid
   end
 
-  def test_invalid_date_tine_validate_any_of
+  def test_invalid_date_time_validate_any_of
     _any_of = AnyOf.new(
       [
         LeafType.new(DateTime),
@@ -2150,5 +2150,30 @@ class TestAnyOf < Minitest::Test
     assert_raises AnyOfValidationException do
       _any_of.validate(dt)
     end
+  end
+
+  def test_same_datetime_validate_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       is_array: true,
+                       date_time_converter: proc do |dt_string| DateTimeHelper.to_rfc1123(dt_string) end,
+                       date_time_format: DateTimeFormat::HTTP_DATE_TIME)
+        ),
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_converter: proc do |dt_string| DateTimeHelper.to_rfc1123(dt_string) end,
+                       date_time_format: DateTimeFormat::HTTP_DATE_TIME)
+        )
+      ]
+    )
+
+    now = DateTime.now
+    dt = expected = DateTimeHelper.from_rfc1123(DateTimeHelper.to_rfc1123(now))
+
+    _any_of.validate(dt)
+
+    assert _any_of.is_valid
   end
 end

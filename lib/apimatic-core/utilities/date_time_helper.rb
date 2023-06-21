@@ -124,29 +124,23 @@ module CoreLibrary
     end
 
     def self.validate_datetime(dt_format, dt)
-      begin
         case dt_format
         when DateTimeFormat::HTTP_DATE_TIME
-          DateTime.strptime(dt, "%a, %d %b %Y %H:%M:%S %Z")
+          return DateTimeHelper.is_rfc_1123(dt)
         when DateTimeFormat::RFC3339_DATE_TIME
-          DateTime.iso8601(dt)
+          return DateTimeHelper.is_rfc_3339(dt)
         when DateTimeFormat::UNIX_DATE_TIME
-          DateTime.strptime(dt.to_s, "%s")
-        else
-          return false
+          return DateTimeHelper.is_unix_timestamp(dt)
         end
-        return true
-      rescue ArgumentError
-        return false
-      end
+
+        false
     end
 
     def self.validate_date(date_value)
       begin
         if date_value.instance_of?(Date)
-          DateTime.strptime(date_value.iso8601, "%Y-%m-%d")
           true
-        elsif date_value.instance_of?(String)
+        elsif date_value.instance_of?(String) and date_value.match?(/^\d{4}-\d{2}-\d{2}$/)
           DateTime.strptime(date_value, "%Y-%m-%d")
           true
         else
@@ -157,7 +151,7 @@ module CoreLibrary
       end
     end
 
-    def is_rfc_1123(datetime_value)
+    def self.is_rfc_1123(datetime_value)
       begin
         DateTime.strptime(datetime_value, "%a, %d %b %Y %H:%M:%S %Z")
         true
@@ -166,9 +160,8 @@ module CoreLibrary
       end
     end
 
-    def is_rfc_3339(datetime_value)
+    def self.is_rfc_3339(datetime_value)
       begin
-        datetime_value = datetime_value.split('.')[0] if datetime_value.include?('.')
         DateTime.strptime(datetime_value, "%Y-%m-%dT%H:%M:%S")
         true
       rescue ArgumentError, TypeError
@@ -176,7 +169,7 @@ module CoreLibrary
       end
     end
 
-    def is_unix_timestamp(timestamp)
+    def self.is_unix_timestamp(timestamp)
       begin
         Time.at(Float(timestamp))
         true
