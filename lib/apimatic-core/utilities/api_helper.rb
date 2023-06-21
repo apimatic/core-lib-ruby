@@ -73,7 +73,7 @@ module CoreLibrary
     # @param response The response received.
     def self.dynamic_deserializer(response, should_symbolize)
       decoded = json_deserialize(response, should_symbolize) unless response.nil? ||
-                                                                    response.to_s.strip.empty?
+        response.to_s.strip.empty?
       decoded
     end
 
@@ -228,23 +228,37 @@ module CoreLibrary
       protocol + query + parameters
     end
 
-
-      # Deserialize the response based on the provided union_type.
-      # @param [UnionType] union_type The union type to validate and deserialize the response.
-      # @param [Object] response The response object to be deserialized.
-      # @param [Boolean] should_deserialize Flag indicating whether the response should be deserialized.
-      #                                    Default is true.
-      # @return [Object] The deserialized response based on the union_type.
-      # rubocop:disable Style/OptionalBooleanParameter
-      def self.deserialize_union_type(union_type, response, should_symbolize = false, should_deserialize=false)
-        if should_deserialize
-          response = ApiHelper.json_deserialize(response)
-        end
-
-        union_type_result = union_type.validate(response)
-
-        return union_type_result.deserialize(response, should_symbolize)
+    # Deserialize the response based on the provided union_type.
+    # @param [UnionType] union_type The union type to validate and deserialize the response.
+    # @param [Object] response The response object to be deserialized.
+    # @param [Boolean] should_deserialize Flag indicating whether the response should be deserialized.
+    #                                    Default is true.
+    # @return [Object] The deserialized response based on the union_type.
+    # rubocop:disable Style/OptionalBooleanParameter
+    def self.deserialize_union_type(union_type, response, should_symbolize = false, should_deserialize = false)
+      if should_deserialize
+        response = ApiHelper.json_deserialize(response, false, true)
       end
+
+      union_type_result = union_type.validate(response)
+
+      return union_type_result.deserialize(response, should_symbolize: should_symbolize)
+    end
+
+    def self.apply_primitive_converter(value)
+      # Attempt to deserialize as Integer
+      return value.to_i if value.match?(/^\d+$/)
+
+      # Attempt to deserialize as Float
+      return value.to_f if value.match?(/^\d+(\.\d+)?$/)
+
+      # Attempt to deserialize as Boolean
+      return true if value.downcase == 'true'
+      return false if value.downcase == 'false'
+
+      # Default: return the original string
+      return value
+    end
 
     # Checks if a value or all values in a nested structure satisfy a given type condition.
     # value        - The value or nested structure to be checked.
@@ -260,19 +274,23 @@ module CoreLibrary
       end
     end
 
-
     # Parses JSON string.
     # @param [String] json A JSON string.
     # rubocop:disable Style/OptionalBooleanParameter
-    def self.json_deserialize(json, should_symbolize = false)
+    def self.json_deserialize(json, should_symbolize = false, apply_primitive_converter = false)
       return if json.nil?
 
       begin
         JSON.parse(json, symbolize_names: should_symbolize)
       rescue StandardError
-        raise TypeError, 'Server responded with invalid JSON.'
+        if apply_primitive_converter
+          ApiHelper.apply_primitive_converter(json)
+        else
+          raise TypeError, "Server responded with invalid JSON."
+        end
       end
     end
+
     # rubocop:enable Style/OptionalBooleanParameter
 
     # Parses JSON string.

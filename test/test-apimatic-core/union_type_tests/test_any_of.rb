@@ -192,11 +192,64 @@ class TestAnyOf < Minitest::Test
                      )
         ),
         LeafType.new(String)])
-    dt = expected =  DateTime.now
+    now = DateTime.now
+    dt = expected = DateTimeHelper.from_rfc1123(DateTimeHelper.to_rfc1123(now))
     json = DateTimeHelper.to_rfc1123(dt)
-    deserialized_dateTime = ApiHelper.deserialize_datetime(json, CoreLibrary::DateTimeFormat::HTTP_DATE_TIME, false, false)
+    deserialized_dateTime = ApiHelper.json_deserialize(json, false, true)
     _any_of = _any_of.validate(deserialized_dateTime)
     actual = _any_of.deserialize(deserialized_dateTime)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_deserialize_date_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(Date),
+        LeafType.new(String)
+      ]
+    )
+    date = expected = Date.new(2001,3,2)
+    json = date.to_s
+    deserialized_date = ApiHelper.json_deserialize(json, false, true)
+    _any_of = _any_of.validate(deserialized_date)
+    actual = _any_of.deserialize(deserialized_date)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_deserialize_date_string_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(Date),
+        LeafType.new(String)
+      ]
+    )
+    expected = Date.new(2001,3,2)
+    json = "2001-03-02"
+    deserialized_date = ApiHelper.json_deserialize(json, false, true)
+    _any_of = _any_of.validate(json)
+    actual = _any_of.deserialize(deserialized_date)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+
+  def test_deserialize_integer_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(Integer),
+        LeafType.new(String)
+      ]
+    )
+    integer = expected = 112
+    json = integer.to_s
+    deserialized_integer = ApiHelper.json_deserialize(json, false, true)
+    _any_of = _any_of.validate(deserialized_integer)
+    actual = _any_of.deserialize(deserialized_integer)
 
     assert _any_of.is_valid
     assert_equal(expected, actual, 'Actual did not match the expected')

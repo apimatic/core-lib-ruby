@@ -123,19 +123,6 @@ module CoreLibrary
       end
     end
 
-    def validate_datetime(datetime_value, datetime_format)
-      case datetime_format
-      when DateTimeFormat::RFC3339_DATE_TIME
-        is_rfc_3339(datetime_value)
-      when DateTimeFormat::UNIX_DATE_TIME
-        is_unix_timestamp(datetime_value)
-      when DateTimeFormat::HTTP_DATE_TIME
-        is_rfc_1123(datetime_value)
-      else
-        false
-      end
-    end
-
     def self.validate_datetime(dt_format, dt)
       begin
         case dt_format
