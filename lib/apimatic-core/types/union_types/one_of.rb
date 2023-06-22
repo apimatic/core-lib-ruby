@@ -39,6 +39,21 @@ module CoreLibrary
       self
     end
 
+
+    # Serializes a given value.
+    # @param value [Object] The value to be serialized.
+    # @return [Object, nil] The serialized representation of the value, or nil if the value is nil.
+    def serialize(value)
+      return nil if value.nil?
+
+      UnionTypeHelper.serialize_value(
+        value,
+        @union_type_context,
+        @collection_cases,
+        @union_types
+      )
+    end
+
     # Deserializes a value based on the OneOf union type
     # @param value [Object] The value to deserialize
     # @param should_symbolize [Boolean] Indicates whether the deserialized value should be symbolized.

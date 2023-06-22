@@ -7,6 +7,10 @@ module CoreLibrary
       union_types.find(&:is_valid).deserialize(value, should_symbolize: should_symbolize)
     end
 
+    def self.get_serialized_value(union_types, value)
+      union_types.find(&:is_valid).serialize(value)
+    end
+
     def self.validate_array_of_dict_case(union_types, array_value, is_for_one_of)
       return [false, []] if is_invalid_array_value(array_value)
 
@@ -147,6 +151,60 @@ module CoreLibrary
 
     def self.is_invalid_dict_value(value)
       value.nil? || !value.instance_of?(Hash)
+    end
+
+    def self.serialize_value(value, context, collection_cases, union_types)
+      if context.is_array && context.is_dict && context.is_array_of_dict
+        return serialize_array_of_dict_case(value, collection_cases)
+      end
+
+      if context.is_array && context.is_dict
+        return serialize_dict_of_array_case(value, collection_cases)
+      end
+
+      if context.is_array
+        return serialize_array_case(value, collection_cases)
+      end
+
+      if context.is_dict
+        return serialize_dict_case(value, collection_cases)
+      end
+
+      get_serialized_value(union_types, value)
+    end
+
+    def self.serialize_array_of_dict_case(array_value, collection_cases)
+      serialized_value = []
+      array_value.each_with_index do |item, index|
+        serialized_value << serialize_dict_case(item, collection_cases[index])
+      end
+      serialized_value
+    end
+
+    def self.serialize_dict_of_array_case(dict_value, collection_cases)
+      serialized_value = {}
+      dict_value.each do |key, value|
+        serialized_value[key] = serialize_array_case(value, collection_cases[key])
+      end
+      serialized_value
+    end
+
+    def self.serialize_dict_case(dict_value, collection_cases)
+      serialized_value = {}
+      dict_value.each do |key, value|
+        valid_case = collection_cases[key].find(&:is_valid)
+        serialized_value[key] = valid_case.serialize(value)
+      end
+      serialized_value
+    end
+
+    def self.serialize_array_case(array_value, collection_cases)
+      serialized_value = []
+      array_value.each_with_index do |item, index|
+        valid_case = collection_cases[index].find(&:is_valid)
+        serialized_value << valid_case.serialize(item)
+      end
+      serialized_value
     end
 
     def self.deserialize_value(value, context, collection_cases, union_types, should_symbolize: false)

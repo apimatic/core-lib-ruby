@@ -2176,4 +2176,23 @@ class TestAnyOf < Minitest::Test
 
     assert _any_of.is_valid
   end
+
+  def test_serialize_datetime_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    now = DateTime.now
+    expected = DateTimeHelper.to_rfc1123(now)
+    _any_of = _any_of.validate(now)
+    actual = _any_of.serialize(now)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
 end

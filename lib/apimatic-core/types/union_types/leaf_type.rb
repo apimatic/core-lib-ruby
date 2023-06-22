@@ -27,6 +27,12 @@ module CoreLibrary
       self
     end
 
+    def serialize(value)
+      return nil if value.nil?
+
+      serialize_value_against_case(value, @union_type_context)
+    end
+
     # Deserializes a value based on the leaf type
     # @param value [Object] The value to deserialize
     # @param should_symbolize [Boolean] Indicates whether the deserialized value should be symbolized.
@@ -34,10 +40,7 @@ module CoreLibrary
     def deserialize(value, should_symbolize: false)
       return nil if value.nil?
 
-      context = @union_type_context
-      deserialized_value = deserialize_value_against_case(value, context)
-
-      deserialized_value
+      deserialize_value_against_case(value, @union_type_context)
     end
 
     private
@@ -149,6 +152,78 @@ module CoreLibrary
       else
         value.instance_of?(@type_to_match)
       end
+    end
+
+    def serialize_value_against_case(value, context)
+      case
+      when context.is_array && context.is_dict && context.is_array_of_dict
+        serialize_array_of_dict_case(value)
+      when context.is_array && context.is_dict
+        serialize_dict_of_array_case(value)
+      when context.is_array
+        serialize_array_case(value)
+      when context.is_dict
+        serialize_dict_case(value)
+      else
+        serialize_simple_case(value)
+      end
+    end
+
+    def serialize_dict_case(dict_value)
+      serialized_value = {}
+
+      dict_value.each do |key, value|
+        result_value = serialize_simple_case(value)
+        serialized_value[key] = result_value
+      end
+
+      serialized_value
+    end
+
+    def serialize_dict_of_array_case(dict_value)
+      serialized_value = {}
+
+      dict_value.each do |key, value|
+        result_value = serialize_array_case(value)
+        serialized_value[key] = result_value
+      end
+
+      serialized_value
+    end
+
+    def serialize_array_case(array_value)
+      serialized_value = []
+
+      array_value.each do |item|
+        result_value = serialize_simple_case(item)
+        serialized_value << result_value
+      end
+
+      serialized_value
+    end
+
+    def serialize_array_of_dict_case(array_value)
+      serialized_value = []
+
+      array_value.each do |item|
+        result_value = serialize_dict_case(item)
+        serialized_value << result_value
+      end
+
+      serialized_value
+    end
+
+    def serialize_simple_case(value)
+      case @union_type_context.date_time_format
+      when DateTimeFormat::HTTP_DATE_TIME
+        return DateTimeHelper.to_rfc1123(value)
+      when DateTimeFormat::RFC3339_DATE_TIME
+        return DateTimeHelper.to_rfc3339(value)
+      when DateTimeFormat::UNIX_DATE_TIME
+        return DateTimeHelper.to_unix(value)
+      end
+
+      value
     end
 
     def deserialize_value_against_case(value, context, should_symbolize: false)
