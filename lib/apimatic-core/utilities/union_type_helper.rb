@@ -1,9 +1,10 @@
 module CoreLibrary
+  # Helper methods for handling union types.
   class UnionTypeHelper
-    NONE_MATCHED_ERROR_MESSAGE = 'We could not match any acceptable types against the given JSON.'
-    MORE_THAN_1_MATCHED_ERROR_MESSAGE = 'There are more than one acceptable type matched against the given JSON.'
+    NONE_MATCHED_ERROR_MESSAGE = 'We could not match any acceptable types against the given JSON.'.freeze
+    MORE_THAN_1_MATCHED_ERROR_MESSAGE = 'There are more than one acceptable type matched against the given JSON.'.freeze
 
-    def self.get_deserialized_value(union_types, value, should_symbolize= false)
+    def self.get_deserialized_value(union_types, value, should_symbolize: false)
       union_types.find(&:is_valid).deserialize(value, should_symbolize: should_symbolize)
     end
 
@@ -100,13 +101,12 @@ module CoreLibrary
       nested_cases
     end
 
-
     def self.get_matched_count(value, union_types, is_for_one_of)
       matched_count = get_valid_cases_count(value, union_types)
 
       if is_for_one_of && matched_count == 1
         return matched_count
-      elsif !is_for_one_of && matched_count > 0
+      elsif !is_for_one_of && matched_count.positive?
         return matched_count
       end
 
@@ -154,21 +154,10 @@ module CoreLibrary
     end
 
     def self.serialize_value(value, context, collection_cases, union_types)
-      if context.is_array && context.is_dict && context.is_array_of_dict
-        return serialize_array_of_dict_case(value, collection_cases)
-      end
-
-      if context.is_array && context.is_dict
-        return serialize_dict_of_array_case(value, collection_cases)
-      end
-
-      if context.is_array
-        return serialize_array_case(value, collection_cases)
-      end
-
-      if context.is_dict
-        return serialize_dict_case(value, collection_cases)
-      end
+      return serialize_array_of_dict_case(value, collection_cases) if context.is_array && context.is_dict && context.is_array_of_dict
+      return serialize_dict_of_array_case(value, collection_cases) if context.is_array && context.is_dict
+      return serialize_array_case(value, collection_cases) if context.is_array
+      return serialize_dict_case(value, collection_cases) if context.is_dict
 
       get_serialized_value(union_types, value)
     end
@@ -208,21 +197,12 @@ module CoreLibrary
     end
 
     def self.deserialize_value(value, context, collection_cases, union_types, should_symbolize: false)
-      if context.is_array && context.is_dict && context.is_array_of_dict
-        return deserialize_array_of_dict_case(value, collection_cases, should_symbolize: should_symbolize)
-      end
+      return deserialize_array_of_dict_case(value, collection_cases, should_symbolize: should_symbolize) if context.is_array && context.is_dict && context.is_array_of_dict
 
-      if context.is_array && context.is_dict
-        return deserialize_dict_of_array_case(value, collection_cases, should_symbolize: should_symbolize)
-      end
+      return deserialize_dict_of_array_case(value, collection_cases, should_symbolize: should_symbolize) if context.is_array && context.is_dict
 
-      if context.is_array
-        return deserialize_array_case(value, collection_cases, should_symbolize: should_symbolize)
-      end
-
-      if context.is_dict
-        return deserialize_dict_case(value, collection_cases, should_symbolize: should_symbolize)
-      end
+      return deserialize_array_case(value, collection_cases, should_symbolize: should_symbolize) if context.is_array
+      return deserialize_dict_case(value, collection_cases, should_symbolize: should_symbolize) if context.is_dict
 
       get_deserialized_value(union_types, value, should_symbolize: should_symbolize)
     end
@@ -262,10 +242,15 @@ module CoreLibrary
     end
 
     def self.process_errors(value, union_types, error_messages, is_nested, is_for_one_of)
-      error_messages << UnionTypeHelper.get_combined_error_messages(union_types).join(", ")
+      error_messages << UnionTypeHelper.get_combined_error_messages(union_types).join(', ')
 
       unless is_nested
-        UnionTypeHelper.raise_validation_exception(value, union_types, error_messages.to_a.join(", "), is_for_one_of)
+        UnionTypeHelper.raise_validation_exception(
+          value,
+          union_types,
+          error_messages.to_a.join(', '),
+          is_for_one_of
+        )
       end
 
       error_messages
@@ -277,20 +262,24 @@ module CoreLibrary
         if union_type.instance_of?(LeafType)
           combined_error_messages << union_type.type_to_match.name
         elsif union_type.error_messages
-          combined_error_messages << union_type.error_messages.to_a.join(", ")
+          combined_error_messages << union_type.error_messages.to_a.join(', ')
         end
       end
       combined_error_messages
     end
 
     def self.raise_validation_exception(value, union_types, error_message, is_for_one_of)
-      if is_for_one_of
-        matched_count = union_types.count(&:is_valid)
-        message = matched_count > 0 ? UnionTypeHelper::MORE_THAN_1_MATCHED_ERROR_MESSAGE : UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE
-        raise OneOfValidationException, "#{message}\nActual Value: #{value}\nExpected Type: One Of #{error_message}."
-      else
-        raise AnyOfValidationException, "#{UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE}\nActual Value: #{value}\nExpected Type: Any Of #{error_message}."
+      unless is_for_one_of
+        raise AnyOfValidationException,
+              "#{UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE}\nActual Value: #{value}\nExpected Type: Any Of #{error_message}."
+        return
       end
+
+      matched_count = union_types.count(&:is_valid)
+      message = matched_count.positive? ? UnionTypeHelper::MORE_THAN_1_MATCHED_ERROR_MESSAGE : UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE
+
+      raise OneOfValidationException,
+            "#{message}\nActual Value: #{value}\nExpected Type: One Of #{error_message}."
     end
   end
 end

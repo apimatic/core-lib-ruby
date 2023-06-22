@@ -15,8 +15,11 @@ module CoreLibrary
     def validate(value)
       context = @union_type_context
       UnionTypeHelper.update_nested_flag_for_union_types(@union_types)
-      is_optional_or_nullable = UnionTypeHelper.is_optional_or_nullable_case(context,
-                                                                             @union_types.map { |nested_type| nested_type.union_type_context })
+      is_optional_or_nullable = UnionTypeHelper.is_optional_or_nullable_case(
+        context,
+        @union_types.map(&:union_type_context
+        )
+      )
 
       if value.nil? && is_optional_or_nullable
         @is_valid = true
@@ -38,7 +41,6 @@ module CoreLibrary
 
       self
     end
-
 
     # Serializes a given value.
     # @param value [Object] The value to be serialized.

@@ -37,7 +37,6 @@ require_relative 'apimatic-core/types/union_types/any_of'
 require_relative 'apimatic-core/types/union_types/one_of'
 require_relative 'apimatic-core/types/union_types/union_type_context'
 
-
 require_relative 'apimatic-core/utilities/api_helper'
 require_relative 'apimatic-core/utilities/date_time_helper'
 require_relative 'apimatic-core/utilities/comparison_helper'

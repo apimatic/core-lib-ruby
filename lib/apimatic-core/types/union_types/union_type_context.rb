@@ -1,8 +1,8 @@
 module CoreLibrary
   # Represents the context for a UnionType
   class UnionTypeContext
-
-    attr_reader :is_array, :is_dict, :is_array_of_dict, :is_optional, :is_nullable, :date_time_format, :date_time_converter
+    attr_reader :is_array, :is_dict, :is_array_of_dict, :is_optional,
+                :is_nullable, :date_time_format, :date_time_converter
 
     attr_accessor :is_nested, :discriminator, :discriminator_value
 

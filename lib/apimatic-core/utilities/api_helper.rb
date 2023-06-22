@@ -72,9 +72,7 @@ module CoreLibrary
     # Deserializer to use when the type of response is not known beforehand.
     # @param response The response received.
     def self.dynamic_deserializer(response, should_symbolize)
-      decoded = json_deserialize(response, should_symbolize) unless response.nil? ||
-        response.to_s.strip.empty?
-      decoded
+      json_deserialize(response, should_symbolize) unless response.nil? || response.to_s.strip.empty?
     end
 
     # Deserializes response to a known custom model type.
@@ -236,13 +234,11 @@ module CoreLibrary
     # @return [Object] The deserialized response based on the union_type.
     # rubocop:disable Style/OptionalBooleanParameter
     def self.deserialize_union_type(union_type, response, should_symbolize = false, should_deserialize = false)
-      if should_deserialize
-        response = ApiHelper.json_deserialize(response, false, true)
-      end
+      response = ApiHelper.json_deserialize(response, false, true) if should_deserialize
 
       union_type_result = union_type.validate(response)
 
-      return union_type_result.deserialize(response, should_symbolize: should_symbolize)
+      union_type_result.deserialize(response, should_symbolize: should_symbolize)
     end
 
     def self.apply_primitive_converter(value)
@@ -257,7 +253,7 @@ module CoreLibrary
       return false if value.downcase == 'false'
 
       # Default: return the original string
-      return value
+      value
     end
 
     # Checks if a value or all values in a nested structure satisfy a given type condition.
@@ -286,12 +282,10 @@ module CoreLibrary
         if apply_primitive_converter
           ApiHelper.apply_primitive_converter(json)
         else
-          raise TypeError, "Server responded with invalid JSON."
+          raise TypeError, 'Server responded with invalid JSON.'
         end
       end
     end
-
-    # rubocop:enable Style/OptionalBooleanParameter
 
     # Parses JSON string.
     # @param [object] obj The object to serialize.

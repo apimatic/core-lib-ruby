@@ -96,18 +96,16 @@ module CoreLibrary
       self
     end
 
-
     # Validates the parameter value to be sent in the request.
     # @raise [ArgumentError] If the parameter is required but the value is nil.
     # @return [void]
     def validate
       raise ArgumentError, "Required parameter #{@key} cannot be nil." if @is_required && @value.nil?
 
-      unless @validator.nil?
-        _validated_union_type = @validator.call(@value)
-        @value_convertor = proc do |value| _validated_union_type.serialize(value) end if
-          _validated_union_type.is_valid
-      end
+      return if @validator.nil?
+
+      validated_type = @validator.call(@value)
+      @value_convertor = proc { |value| validated_type.serialize(value) } if validated_type.is_valid
     end
   end
 end

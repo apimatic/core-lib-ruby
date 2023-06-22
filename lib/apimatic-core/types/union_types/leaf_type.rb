@@ -1,12 +1,11 @@
 module CoreLibrary
   # Represents a leaf type in a UnionType
   class LeafType < UnionType
-
     attr_reader :type_to_match
 
     # Initializes a new instance of LeafType
     # @param type_to_match [Class] The type to match against
-    # @param union_type_context [UnionTypeContext] The UnionTypeContext associated with the leaf type (default: UnionTypeContext)
+    # @param union_type_context [UnionTypeContext] The UnionTypeContext associated with the leaf type
     def initialize(type_to_match, union_type_context = UnionTypeContext.new)
       super(nil, union_type_context)
       @type_to_match = type_to_match
@@ -18,11 +17,11 @@ module CoreLibrary
     def validate(value)
       context = @union_type_context
 
-      if value.nil?
-        @is_valid = context.is_nullable_or_optional
-      else
-        @is_valid = validate_value_against_case(value, context)
-      end
+      @is_valid = if value.nil?
+                    context.is_nullable_or_optional
+                  else
+                    validate_value_against_case(value, context)
+                  end
 
       self
     end
@@ -40,20 +39,19 @@ module CoreLibrary
     def deserialize(value, should_symbolize: false)
       return nil if value.nil?
 
-      deserialize_value_against_case(value, @union_type_context)
+      deserialize_value_against_case(value, @union_type_context, should_symbolize: should_symbolize)
     end
 
     private
 
     def validate_value_against_case(value, context)
-      case
-      when context.is_array && context.is_dict && context.is_array_of_dict
+      if context.is_array && context.is_dict && context.is_array_of_dict
         validate_array_of_dict_case(value)
-      when context.is_array && context.is_dict
+      elsif context.is_array && context.is_dict
         validate_dict_of_array_case(value)
-      when context.is_array
+      elsif context.is_array
         validate_array_case(value)
-      when context.is_dict
+      elsif context.is_dict
         validate_dict_case(value)
       else
         validate_simple_case(value)
@@ -118,11 +116,12 @@ module CoreLibrary
 
     def validate_value(value, context)
       if @type_to_match == DateTime
-        if value.instance_of?(DateTime) and context.date_time_converter
-          dt_string = context.date_time_converter.call(value)
-        else
-          dt_string = value
-        end
+        dt_string = if value.instance_of?(DateTime) && context.date_time_converter
+                      context.date_time_converter.call(value)
+                    else
+                      value
+                    end
+
         DateTimeHelper.validate_datetime(context.date_time_format, dt_string)
       elsif @type_to_match == Date
         DateTimeHelper.validate_date(value)
@@ -155,14 +154,13 @@ module CoreLibrary
     end
 
     def serialize_value_against_case(value, context)
-      case
-      when context.is_array && context.is_dict && context.is_array_of_dict
+      if context.is_array && context.is_dict && context.is_array_of_dict
         serialize_array_of_dict_case(value)
-      when context.is_array && context.is_dict
+      elsif context.is_array && context.is_dict
         serialize_dict_of_array_case(value)
-      when context.is_array
+      elsif context.is_array
         serialize_array_case(value)
-      when context.is_dict
+      elsif context.is_dict
         serialize_dict_case(value)
       else
         serialize_simple_case(value)
@@ -291,7 +289,8 @@ module CoreLibrary
       elsif @type_to_match == Date
         ApiHelper.date_deserializer(value, false, should_symbolize: should_symbolize)
       elsif @type_to_match == DateTime
-        ApiHelper.deserialize_datetime(value, @union_type_context.date_time_format, false, should_symbolize: should_symbolize)
+        ApiHelper.deserialize_datetime(value, @union_type_context.date_time_format,
+                                       false, should_symbolize: should_symbolize)
       else
         value
       end

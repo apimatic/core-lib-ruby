@@ -124,58 +124,51 @@ module CoreLibrary
     end
 
     def self.validate_datetime(dt_format, dt)
-        case dt_format
-        when DateTimeFormat::HTTP_DATE_TIME
-          return DateTimeHelper.is_rfc_1123(dt)
-        when DateTimeFormat::RFC3339_DATE_TIME
-          return DateTimeHelper.is_rfc_3339(dt)
-        when DateTimeFormat::UNIX_DATE_TIME
-          return DateTimeHelper.is_unix_timestamp(dt)
-        end
+      case dt_format
+      when DateTimeFormat::HTTP_DATE_TIME
+        return DateTimeHelper.is_rfc_1123(dt)
+      when DateTimeFormat::RFC3339_DATE_TIME
+        return DateTimeHelper.is_rfc_3339(dt)
+      when DateTimeFormat::UNIX_DATE_TIME
+        return DateTimeHelper.is_unix_timestamp(dt)
+      end
 
-        false
+      false
     end
 
     def self.validate_date(date_value)
-      begin
-        if date_value.instance_of?(Date)
-          true
-        elsif date_value.instance_of?(String) and date_value.match?(/^\d{4}-\d{2}-\d{2}$/)
-          DateTime.strptime(date_value, "%Y-%m-%d")
-          true
-        else
-          false
-        end
-      rescue ArgumentError
+      if date_value.instance_of?(Date)
+        true
+      elsif date_value.instance_of?(String) && date_value.match?(/^\d{4}-\d{2}-\d{2}$/)
+        DateTime.strptime(date_value, '%Y-%m-%d')
+        true
+      else
         false
       end
+    rescue ArgumentError
+      false
     end
 
     def self.is_rfc_1123(datetime_value)
-      begin
-        DateTime.strptime(datetime_value, "%a, %d %b %Y %H:%M:%S %Z")
-        true
-      rescue ArgumentError, TypeError
-        false
-      end
+      DateTime.strptime(datetime_value, '%a, %d %b %Y %H:%M:%S %Z')
+      true
+    rescue ArgumentError, TypeError
+      false
     end
 
+
     def self.is_rfc_3339(datetime_value)
-      begin
-        DateTime.strptime(datetime_value, "%Y-%m-%dT%H:%M:%S")
-        true
-      rescue ArgumentError, TypeError
-        false
-      end
+      DateTime.strptime(datetime_value, '%Y-%m-%dT%H:%M:%S')
+      true
+    rescue ArgumentError, TypeError
+      false
     end
 
     def self.is_unix_timestamp(timestamp)
-      begin
-        Time.at(Float(timestamp))
-        true
-      rescue ArgumentError, TypeError
-        false
-      end
+      Time.at(Float(timestamp))
+      true
+    rescue ArgumentError, TypeError
+      false
     end
   end
 end
