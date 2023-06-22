@@ -103,10 +103,11 @@ module CoreLibrary
     def validate
       raise ArgumentError, "Required parameter #{@key} cannot be nil." if @is_required && @value.nil?
 
-      _validated_union_type = @validator.call(@value) unless @validator.nil?
-      @value_convertor = proc do |value| _validated_union_type.serialize(value) end unless
-        _validated_union_type.is_valid
+      unless @validator.nil?
+        _validated_union_type = @validator.call(@value)
+        @value_convertor = proc do |value| _validated_union_type.serialize(value) end if
+          _validated_union_type.is_valid
+      end
     end
-
   end
 end

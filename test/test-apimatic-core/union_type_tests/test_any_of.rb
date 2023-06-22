@@ -210,7 +210,7 @@ class TestAnyOf < Minitest::Test
         LeafType.new(String)
       ]
     )
-    date = expected = Date.new(2001,3,2)
+    date = expected = Date.new(2001, 3, 2)
     json = date.to_s
     deserialized_date = ApiHelper.json_deserialize(json, false, true)
     _any_of = _any_of.validate(deserialized_date)
@@ -227,7 +227,7 @@ class TestAnyOf < Minitest::Test
         LeafType.new(String)
       ]
     )
-    expected = Date.new(2001,3,2)
+    expected = Date.new(2001, 3, 2)
     json = "2001-03-02"
     deserialized_date = ApiHelper.json_deserialize(json, false, true)
     _any_of = _any_of.validate(json)
@@ -236,7 +236,6 @@ class TestAnyOf < Minitest::Test
     assert _any_of.is_valid
     assert_equal(expected, actual, 'Actual did not match the expected')
   end
-
 
   def test_deserialize_integer_type_any_of
     _any_of = AnyOf.new(
@@ -2158,12 +2157,16 @@ class TestAnyOf < Minitest::Test
         LeafType.new(DateTime,
                      UnionTypeContext.new(
                        is_array: true,
-                       date_time_converter: proc do |dt_string| DateTimeHelper.to_rfc1123(dt_string) end,
+                       date_time_converter: proc do |dt_string|
+                         DateTimeHelper.to_rfc1123(dt_string)
+                       end,
                        date_time_format: DateTimeFormat::HTTP_DATE_TIME)
         ),
         LeafType.new(DateTime,
                      UnionTypeContext.new(
-                       date_time_converter: proc do |dt_string| DateTimeHelper.to_rfc1123(dt_string) end,
+                       date_time_converter: proc do |dt_string|
+                         DateTimeHelper.to_rfc1123(dt_string)
+                       end,
                        date_time_format: DateTimeFormat::HTTP_DATE_TIME)
         )
       ]
@@ -2175,6 +2178,44 @@ class TestAnyOf < Minitest::Test
     _any_of.validate(dt)
 
     assert _any_of.is_valid
+  end
+
+  def test_serialize_datetime_unix_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::UNIX_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_unix(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    now = DateTime.now
+    expected = DateTimeHelper.to_unix(now)
+    _any_of = _any_of.validate(now)
+    actual = _any_of.serialize(now)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_serialize_datetime_rfc_3339_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::RFC3339_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc3339(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    now = DateTime.now
+    expected = DateTimeHelper.to_rfc3339(now)
+    _any_of = _any_of.validate(now)
+    actual = _any_of.serialize(now)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
   end
 
   def test_serialize_datetime_type_any_of
@@ -2191,6 +2232,228 @@ class TestAnyOf < Minitest::Test
     expected = DateTimeHelper.to_rfc1123(now)
     _any_of = _any_of.validate(now)
     actual = _any_of.serialize(now)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_serialize_datetime_array_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       is_array: true,
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    now = DateTime.now
+    dt_array = [now]
+    expected = [DateTimeHelper.to_rfc1123(now)]
+    _any_of = _any_of.validate(dt_array)
+    actual = _any_of.serialize(dt_array)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_serialize_datetime_map_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       is_dict: true,
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    now = DateTime.now
+    dt_map = {
+      'key1' => now,
+    }
+    expected =
+      {
+        'key1' => DateTimeHelper.to_rfc1123(now),
+      }
+    _any_of = _any_of.validate(dt_map)
+    actual = _any_of.serialize(dt_map)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_serialize_datetime_map_of_array_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       is_array: true,
+                       is_dict: true,
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    now = DateTime.now
+    dt_map_of_array = {
+      'key1' => [now],
+    }
+    expected =
+      {
+        'key1' => [DateTimeHelper.to_rfc1123(now)],
+      }
+    _any_of = _any_of.validate(dt_map_of_array)
+    actual = _any_of.serialize(dt_map_of_array)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_serialize_datetime_array_of_map_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       is_array: true,
+                       is_dict: true,
+                       is_array_of_dict: true,
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)])
+    now = DateTime.now
+    dt_array_of_map = [
+      {
+        'key1' => now,
+      }
+    ]
+    expected = [
+      {
+        'key1' => DateTimeHelper.to_rfc1123(now),
+      }
+    ]
+    _any_of = _any_of.validate(dt_array_of_map)
+    actual = _any_of.serialize(dt_array_of_map)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_serialize_datetime_outer_array_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(is_array: true)
+    )
+    now = DateTime.now
+    dt_array = [now]
+    expected = [DateTimeHelper.to_rfc1123(now)]
+    _any_of = _any_of.validate(dt_array)
+    actual = _any_of.serialize(dt_array)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_serialize_datetime_outer_dict_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(is_dict: true)
+    )
+    now = DateTime.now
+    dt_map = {
+      'key1' => now,
+    }
+    expected =
+      {
+        'key1' => DateTimeHelper.to_rfc1123(now),
+      }
+    _any_of = _any_of.validate(dt_map)
+    actual = _any_of.serialize(dt_map)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_serialize_datetime_outer_map_of_array_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(
+        is_array: true,
+        is_dict: true,
+      )
+    )
+    now = DateTime.now
+    dt_map_of_array = {
+      'key1' => [now],
+    }
+    expected =
+      {
+        'key1' => [DateTimeHelper.to_rfc1123(now)],
+      }
+    _any_of = _any_of.validate(dt_map_of_array)
+    actual = _any_of.serialize(dt_map_of_array)
+
+    assert _any_of.is_valid
+    assert_equal(expected, actual, 'Actual did not match the expected')
+  end
+
+  def test_serialize_datetime_outer_array_of_map_type_any_of
+    _any_of = AnyOf.new(
+      [
+        LeafType.new(DateTime,
+                     UnionTypeContext.new(
+                       date_time_format: CoreLibrary::DateTimeFormat::HTTP_DATE_TIME,
+                       date_time_converter: ->(value) { DateTimeHelper.to_rfc1123(value) }
+                     )
+        ),
+        LeafType.new(String)
+      ],
+      UnionTypeContext.new(
+        is_array: true,
+        is_dict: true,
+        is_array_of_dict: true
+      )
+    )
+    now = DateTime.now
+    dt_array_of_map = [
+      {
+        'key1' => now,
+      }
+    ]
+    expected = [
+      {
+        'key1' => DateTimeHelper.to_rfc1123(now),
+      }
+    ]
+    _any_of = _any_of.validate(dt_array_of_map)
+    actual = _any_of.serialize(dt_array_of_map)
 
     assert _any_of.is_valid
     assert_equal(expected, actual, 'Actual did not match the expected')
