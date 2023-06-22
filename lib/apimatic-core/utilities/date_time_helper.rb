@@ -156,7 +156,6 @@ module CoreLibrary
       false
     end
 
-
     def self.rfc_3339?(datetime_value)
       DateTime.strptime(datetime_value, '%Y-%m-%dT%H:%M:%S')
       true

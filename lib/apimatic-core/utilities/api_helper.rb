@@ -232,7 +232,6 @@ module CoreLibrary
     # @param [Boolean] should_deserialize Flag indicating whether the response should be deserialized.
     #                                    Default is true.
     # @return [Object] The deserialized response based on the union_type.
-    # rubocop:disable Style/OptionalBooleanParameter
     def self.deserialize_union_type(union_type, response, should_symbolize = false, should_deserialize = false)
       response = ApiHelper.json_deserialize(response, false, true) if should_deserialize
 

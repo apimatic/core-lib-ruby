@@ -163,7 +163,6 @@ module CoreLibrary
     # @param [Hash] global_errors The global errors object.
     # @param [Boolean] should_symbolize_hash Flag to symbolize the hash during response deserialization.
     # @return [Object] The deserialized response of the API Call.
-    # rubocop:disable Style/OptionalBooleanParameter
     def handle(response, global_errors, should_symbolize_hash = false)
       @endpoint_logger.info("Validating response for #{@endpoint_name_for_logging}.")
 
