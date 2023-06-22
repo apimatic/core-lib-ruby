@@ -40,6 +40,49 @@ class RequestBuilderTest < Minitest::Test
     assert_includes(actual.query_url, "value")
   end
 
+  def test_template_param_one_of_any_of
+    actual = MockHelper.create_basic_request_builder
+                       .path("/path/{template}")
+                       .template_param(MockHelper.new_parameter(["value"],
+                                                                key: "template")
+                                                 .should_encode(false)
+                                                 .is_required(true)
+                                                 .validator(proc do |value|
+                                                   OneOf.new([LeafType.new(Float), LeafType.new(String)], UnionTypeContext.new(is_array: true))
+                                                        .validate(value)
+                                                 end)
+                       )
+                       .build({})
+
+    assert_includes(actual.query_url, "value")
+  end
+
+  def test_invalid_template_param_one_of_any_of
+    assert_raises OneOfValidationException do
+      MockHelper.create_basic_request_builder
+                .path("/path/{template}")
+                .template_param(MockHelper.new_parameter(1,
+                                                         key: "template")
+                                          .validator(proc do |value|
+                                            OneOf.new([LeafType.new(Float), LeafType.new(String)], UnionTypeContext.new(is_array: true))
+                                                 .validate(value)
+                                          end)
+                )
+                .build({})
+    end
+  end
+
+  def test_invalid_template_param_is_required
+    assert_raises ArgumentError do
+      MockHelper.create_basic_request_builder
+                .path("/path/{template}")
+                .template_param(MockHelper.new_parameter(nil, key: "template")
+                                          .is_required(true)
+                )
+                .build({})
+    end
+  end
+
   def test_query_param
     actual = MockHelper.create_basic_request_builder
                        .query_param(MockHelper.new_parameter("value", key: "key"))
@@ -247,23 +290,22 @@ class RequestBuilderTest < Minitest::Test
     parent1 = ParentModel.new
     parent1.name = "parent 1"
     parent1.profession = "software"
-    parent1.children = [ child1 ]
+    parent1.children = [child1]
 
     parent2 = ParentModel.new
     parent2.name = "parent 2"
     parent2.profession = "electrical"
     parent2.children = []
 
-    models = [ parent1, parent2 ]
+    models = [parent1, parent2]
 
     file = File::open("README.md", "r")
 
     actual = MockHelper.create_basic_request_builder
-              .multipart_param(MockHelper.new_parameter(StringIO.new(models.to_json), key: 'models')
-                                 .default_content_type('application/json'))
-               .multipart_param(MockHelper.new_parameter(FileWrapper.new(file, content_type: 'application/octet-stream'), key: 'file'))
-              .build({})
-
+                       .multipart_param(MockHelper.new_parameter(StringIO.new(models.to_json), key: 'models')
+                                                  .default_content_type('application/json'))
+                       .multipart_param(MockHelper.new_parameter(FileWrapper.new(file, content_type: 'application/octet-stream'), key: 'file'))
+                       .build({})
 
     assert(actual.parameters["models"].class == Multipart::Post::UploadIO)
     assert(actual.parameters["models"].content_type == "application/json")
