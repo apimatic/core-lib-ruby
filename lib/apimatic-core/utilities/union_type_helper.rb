@@ -222,7 +222,10 @@ module CoreLibrary
     def self.deserialize_dict_of_array_case(dict_value, collection_cases, should_symbolize: false)
       deserialized_value = {}
       dict_value.each do |key, value|
-        deserialized_value[key] = deserialize_array_case(value, collection_cases[key], should_symbolize: should_symbolize)
+        deserialized_value[key] = deserialize_array_case(
+          value,
+          collection_cases[key],
+          should_symbolize: should_symbolize)
       end
       deserialized_value
     end
@@ -275,12 +278,12 @@ module CoreLibrary
     def self.raise_validation_exception(value, union_types, error_message, is_for_one_of)
       unless is_for_one_of
         raise AnyOfValidationException,
-              "#{UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE}\nActual Value: #{value}\nExpected Type: Any Of #{error_message}."
-        return
+              "#{UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE}\nActual
+                  Value: #{value}\nExpected Type: Any Of #{error_message}."
       end
 
       matched_count = union_types.count(&:is_valid)
-      message = matched_count.positive? ?
+      message = matched_count > 0 ?
                   UnionTypeHelper::MORE_THAN_1_MATCHED_ERROR_MESSAGE : UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE
 
       raise OneOfValidationException,

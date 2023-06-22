@@ -285,7 +285,6 @@ module CoreLibrary
       end
     end
 
-
     # Parses JSON string.
     # @param [object] obj The object to serialize.
     def self.json_serialize(obj)
