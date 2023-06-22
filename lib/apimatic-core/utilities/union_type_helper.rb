@@ -13,7 +13,7 @@ module CoreLibrary
     end
 
     def self.validate_array_of_dict_case(union_types, array_value, is_for_one_of)
-      return [false, []] if is_invalid_array_value(array_value)
+      return [false, []] if invalid_array_value?(array_value)
 
       collection_cases = []
       valid_cases = []
@@ -27,7 +27,7 @@ module CoreLibrary
     end
 
     def self.validate_dict_of_array_case(union_types, dict_value, is_for_one_of)
-      return [false, []] if is_invalid_dict_value(dict_value)
+      return [false, []] if invalid_dict_value?(dict_value)
 
       collection_cases = {}
       valid_cases = []
@@ -41,7 +41,7 @@ module CoreLibrary
     end
 
     def self.validate_dict_case(union_types, dict_value, is_for_one_of)
-      return [false, []] if is_invalid_dict_value(dict_value)
+      return [false, []] if invalid_dict_value?(dict_value)
 
       is_valid, collection_cases = process_dict_items(union_types, dict_value, is_for_one_of)
 
@@ -63,7 +63,7 @@ module CoreLibrary
     end
 
     def self.validate_array_case(union_types, array_value, is_for_one_of)
-      return [false, []] if is_invalid_array_value(array_value)
+      return [false, []] if invalid_array_value?(array_value)
 
       is_valid, collection_cases = process_array_items(union_types, array_value, is_for_one_of)
 
@@ -135,8 +135,8 @@ module CoreLibrary
       end
     end
 
-    def self.is_optional_or_nullable_case(current_context, inner_contexts)
-      current_context.is_nullable_or_optional || inner_contexts.any?(&:is_nullable_or_optional)
+    def self.optional_or_nullable_case?(current_context, inner_contexts)
+      current_context.nullable_or_optional? || inner_contexts.any?(&:nullable_or_optional?)
     end
 
     def self.update_nested_flag_for_union_types(nested_union_types)
@@ -145,17 +145,19 @@ module CoreLibrary
       end
     end
 
-    def self.is_invalid_array_value(value)
+    def self.invalid_array_value?(value)
       value.nil? || !value.instance_of?(Array)
     end
 
-    def self.is_invalid_dict_value(value)
+    def self.invalid_dict_value?(value)
       value.nil? || !value.instance_of?(Hash)
     end
 
     def self.serialize_value(value, context, collection_cases, union_types)
-      return serialize_array_of_dict_case(value, collection_cases) if context.is_array && context.is_dict && context.is_array_of_dict
-      return serialize_dict_of_array_case(value, collection_cases) if context.is_array && context.is_dict
+      return serialize_array_of_dict_case(value, collection_cases) if
+        context.is_array && context.is_dict && context.is_array_of_dict
+      return serialize_dict_of_array_case(value, collection_cases) if
+        context.is_array && context.is_dict
       return serialize_array_case(value, collection_cases) if context.is_array
       return serialize_dict_case(value, collection_cases) if context.is_dict
 
@@ -197,9 +199,11 @@ module CoreLibrary
     end
 
     def self.deserialize_value(value, context, collection_cases, union_types, should_symbolize: false)
-      return deserialize_array_of_dict_case(value, collection_cases, should_symbolize: should_symbolize) if context.is_array && context.is_dict && context.is_array_of_dict
+      return deserialize_array_of_dict_case(value, collection_cases, should_symbolize: should_symbolize) if
+        context.is_array && context.is_dict && context.is_array_of_dict
 
-      return deserialize_dict_of_array_case(value, collection_cases, should_symbolize: should_symbolize) if context.is_array && context.is_dict
+      return deserialize_dict_of_array_case(value, collection_cases, should_symbolize: should_symbolize) if
+        context.is_array && context.is_dict
 
       return deserialize_array_case(value, collection_cases, should_symbolize: should_symbolize) if context.is_array
       return deserialize_dict_case(value, collection_cases, should_symbolize: should_symbolize) if context.is_dict
@@ -276,7 +280,8 @@ module CoreLibrary
       end
 
       matched_count = union_types.count(&:is_valid)
-      message = matched_count.positive? ? UnionTypeHelper::MORE_THAN_1_MATCHED_ERROR_MESSAGE : UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE
+      message = matched_count.positive? ?
+                  UnionTypeHelper::MORE_THAN_1_MATCHED_ERROR_MESSAGE : UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE
 
       raise OneOfValidationException,
             "#{message}\nActual Value: #{value}\nExpected Type: One Of #{error_message}."

@@ -90,11 +90,11 @@ module TestComponent
     def self.validate(dictionary)
       
       if value.is_a? self
-        return (APIHelper.is_valid_type(
+        return (APIHelper.valid_type?(
           value=dictionary.any_of_required,
           type_callable=proc do |value| 
             UnionTypeLookUp.get('ScalarModelAnyOfRequired').validate(value) end) and
-        APIHelper.is_valid_type(
+        APIHelper.valid_type?(
           value=dictionary.one_of_req_nullable,
           type_callable=proc do |value| 
             UnionTypeLookUp.get('ScalarModelOneOfReqNullable').validate(value) end))
@@ -102,11 +102,11 @@ module TestComponent
       
       return false unless value.is_a? hash
 
-      return (APIHelper.is_valid_type(
+      return (APIHelper.valid_type?(
         value=dictionary['anyOfRequired'],
         type_callable=proc do |value| 
           UnionTypeLookUp.get('ScalarModelAnyOfRequired').validate(value) end) and
-      APIHelper.is_valid_type(
+      APIHelper.valid_type?(
         value=dictionary['oneOfReqNullable'],
         type_callable=proc do |value| 
           UnionTypeLookUp.get('ScalarModelOneOfReqNullable').validate(value) end))

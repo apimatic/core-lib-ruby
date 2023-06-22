@@ -82,22 +82,22 @@ module TestComponent
     def self.validate(dictionary)
 
       if dictionary.instance_of? self
-        return (CoreLibrary::ApiHelper.is_valid_type(
+        return (CoreLibrary::ApiHelper.valid_type?(
           value = dictionary.starts_at,
           type_callable = proc do |value|
             value.instance_of? String
           end) and
-          CoreLibrary::ApiHelper.is_valid_type(
+          CoreLibrary::ApiHelper.valid_type?(
             value = dictionary.ends_at,
             type_callable = proc do |value|
               value.instance_of? String
             end) and
-          CoreLibrary::ApiHelper.is_valid_type(
+          CoreLibrary::ApiHelper.valid_type?(
             value = dictionary.offer_tea_break,
             type_callable = proc do |value|
               value.instance_of? TrueClass or value.instance_of? FalseClass
             end) and
-          CoreLibrary::ApiHelper.is_valid_type(
+          CoreLibrary::ApiHelper.valid_type?(
             value = dictionary.session_type,
             type_callable = proc do |value|
               value.instance_of? String
@@ -106,22 +106,22 @@ module TestComponent
 
       return false unless dictionary.instance_of? Hash
 
-      return (CoreLibrary::ApiHelper.is_valid_type(
+      return (CoreLibrary::ApiHelper.valid_type?(
         value = dictionary['startsAt'],
         type_callable = proc do |value|
           value.instance_of? String
         end) and
-        CoreLibrary::ApiHelper.is_valid_type(
+        CoreLibrary::ApiHelper.valid_type?(
           value = dictionary['endsAt'],
           type_callable = proc do |value|
             value.instance_of? String
           end) and
-        CoreLibrary::ApiHelper.is_valid_type(
+        CoreLibrary::ApiHelper.valid_type?(
           value = dictionary['offerTeaBreak'],
           type_callable = proc do |value|
             value.instance_of? TrueClass or value.instance_of? FalseClass
           end) and
-        CoreLibrary::ApiHelper.is_valid_type(
+        CoreLibrary::ApiHelper.valid_type?(
           value = dictionary['sessionType'],
           type_callable = proc do |value|
             value.instance_of? String

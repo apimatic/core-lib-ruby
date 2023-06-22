@@ -23,7 +23,7 @@ module CoreLibrary
 
     # Determines if the UnionTypeContext is nullable or optional
     # @return [Boolean] True if the context is nullable or optional, false otherwise
-    def is_nullable_or_optional
+    def nullable_or_optional?
       @is_nullable || @is_optional
     end
   end

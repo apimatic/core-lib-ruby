@@ -18,7 +18,7 @@ module CoreLibrary
       context = @union_type_context
 
       @is_valid = if value.nil?
-                    context.is_nullable_or_optional
+                    context.nullable_or_optional?
                   else
                     validate_value_against_case(value, context)
                   end
@@ -105,7 +105,7 @@ module CoreLibrary
     def validate_simple_case(value)
       context = @union_type_context
 
-      if value.nil? || context.is_nullable_or_optional
+      if value.nil? || context.nullable_or_optional?
         true
       elsif value.nil? || value.instance_of?(Array)
         false
@@ -225,14 +225,13 @@ module CoreLibrary
     end
 
     def deserialize_value_against_case(value, context, should_symbolize: false)
-      case
-      when context.is_array && context.is_dict && context.is_array_of_dict
+      if context.is_array && context.is_dict && context.is_array_of_dict
         deserialize_array_of_dict_case(value, should_symbolize: should_symbolize)
-      when context.is_array && context.is_dict
+      elsif context.is_array && context.is_dict
         deserialize_dict_of_array_case(value, should_symbolize: should_symbolize)
-      when context.is_array
+      elsif context.is_array
         deserialize_array_case(value, should_symbolize: should_symbolize)
-      when context.is_dict
+      elsif context.is_dict
         deserialize_dict_case(value, should_symbolize: should_symbolize)
       else
         deserialize_simple_case(value, should_symbolize: should_symbolize)

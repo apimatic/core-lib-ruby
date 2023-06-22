@@ -15,10 +15,9 @@ module CoreLibrary
     def validate(value)
       context = @union_type_context
       UnionTypeHelper.update_nested_flag_for_union_types(@union_types)
-      is_optional_or_nullable = UnionTypeHelper.is_optional_or_nullable_case(
+      is_optional_or_nullable = UnionTypeHelper.optional_or_nullable_case?(
         context,
-        @union_types.map(&:union_type_context
-        )
+        @union_types.map(&:union_type_context)
       )
 
       if value.nil? && is_optional_or_nullable

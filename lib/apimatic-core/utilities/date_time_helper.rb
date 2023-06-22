@@ -126,11 +126,11 @@ module CoreLibrary
     def self.validate_datetime(dt_format, dt)
       case dt_format
       when DateTimeFormat::HTTP_DATE_TIME
-        return DateTimeHelper.is_rfc_1123(dt)
+        return DateTimeHelper.rfc_1123?(dt)
       when DateTimeFormat::RFC3339_DATE_TIME
-        return DateTimeHelper.is_rfc_3339(dt)
+        return DateTimeHelper.rfc_3339?(dt)
       when DateTimeFormat::UNIX_DATE_TIME
-        return DateTimeHelper.is_unix_timestamp(dt)
+        return DateTimeHelper.unix_timestamp?(dt)
       end
 
       false
@@ -149,7 +149,7 @@ module CoreLibrary
       false
     end
 
-    def self.is_rfc_1123(datetime_value)
+    def self.rfc_1123?(datetime_value)
       DateTime.strptime(datetime_value, '%a, %d %b %Y %H:%M:%S %Z')
       true
     rescue ArgumentError, TypeError
@@ -157,14 +157,14 @@ module CoreLibrary
     end
 
 
-    def self.is_rfc_3339(datetime_value)
+    def self.rfc_3339?(datetime_value)
       DateTime.strptime(datetime_value, '%Y-%m-%dT%H:%M:%S')
       true
     rescue ArgumentError, TypeError
       false
     end
 
-    def self.is_unix_timestamp(timestamp)
+    def self.unix_timestamp?(timestamp)
       Time.at(Float(timestamp))
       true
     rescue ArgumentError, TypeError

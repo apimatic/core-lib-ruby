@@ -260,11 +260,11 @@ module CoreLibrary
     # value        - The value or nested structure to be checked.
     # type_callable - A callable object that defines the type condition.
     # Returns true if the value or all values in the structure satisfy the type condition, false otherwise.
-    def self.is_valid_type(value, type_callable)
+    def self.valid_type?(value, type_callable)
       if value.is_a?(Array)
-        value.all? { |item| is_valid_type(item, type_callable) }
+        value.all? { |item| valid_type?(item, type_callable) }
       elsif value.is_a?(Hash)
-        value.values.all? { |item| is_valid_type(item, type_callable) }
+        value.values.all? { |item| valid_type?(item, type_callable) }
       else
         !value.nil? && type_callable.call(value)
       end
@@ -272,20 +272,19 @@ module CoreLibrary
 
     # Parses JSON string.
     # @param [String] json A JSON string.
-    # rubocop:disable Style/OptionalBooleanParameter
+    # rubocop:enable Style/OptionalBooleanParameter
     def self.json_deserialize(json, should_symbolize = false, apply_primitive_converter = false)
       return if json.nil?
 
       begin
         JSON.parse(json, symbolize_names: should_symbolize)
       rescue StandardError
-        if apply_primitive_converter
-          ApiHelper.apply_primitive_converter(json)
-        else
-          raise TypeError, 'Server responded with invalid JSON.'
-        end
+        raise TypeError, 'Server responded with invalid JSON.' unless apply_primitive_converter
+
+        ApiHelper.apply_primitive_converter(json)
       end
     end
+
 
     # Parses JSON string.
     # @param [object] obj The object to serialize.
