@@ -6,7 +6,7 @@ require_relative '../../test-helper/models/evening'
 require_relative '../../test-helper/models/month_number_enum'
 require_relative '../../test-helper/models/month_name_enum'
 
-class TestOneOfAnyOf < Minitest::Test
+class OneOfAnyOfTest < Minitest::Test
   include CoreLibrary, TestComponent
 
   def setup
