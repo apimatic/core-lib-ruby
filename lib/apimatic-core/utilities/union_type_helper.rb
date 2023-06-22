@@ -225,7 +225,8 @@ module CoreLibrary
         deserialized_value[key] = deserialize_array_case(
           value,
           collection_cases[key],
-          should_symbolize: should_symbolize)
+          should_symbolize: should_symbolize
+        )
       end
       deserialized_value
     end

@@ -188,7 +188,6 @@ module CoreLibrary
 
       deserialized_value
     end
-    # rubocop:enable Style/OptionalBooleanParameter
 
     # Validates the response provided and throws an error against the configured status code.
     # @param [HttpResponse] response The received response.

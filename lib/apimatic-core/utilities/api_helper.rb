@@ -271,7 +271,6 @@ module CoreLibrary
 
     # Parses JSON string.
     # @param [String] json A JSON string.
-    # rubocop:enable Style/OptionalBooleanParameter
     def self.json_deserialize(json, should_symbolize = false, apply_primitive_converter = false)
       return if json.nil?
 
