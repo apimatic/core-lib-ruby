@@ -3,8 +3,6 @@ require 'apimatic_core'
 
 require_relative '../../test-helper/models/morning'
 require_relative '../../test-helper/models/evening'
-require_relative '../../test-helper/models/month_number_enum'
-require_relative '../../test-helper/models/month_name_enum'
 
 class OneOfAnyOfTest < Minitest::Test
   include CoreLibrary, TestComponent
@@ -45,7 +43,7 @@ class OneOfAnyOfTest < Minitest::Test
         LeafType.new(FalseClass)
       ]
     )
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON.') do
       _nested_any_of_one_of.validate('string')
     end
   end
@@ -367,7 +365,7 @@ class OneOfAnyOfTest < Minitest::Test
         LeafType.new(FalseClass)
       ]
     )
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON.') do
       _any_of.validate(nil)
     end
   end

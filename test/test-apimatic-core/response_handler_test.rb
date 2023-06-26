@@ -29,7 +29,7 @@ class ResponseHandlerTest < Minitest::Test
 
   def test_nullify_404
     response_mock = MockHelper.create_response status_code: 404
-    actual = @response_handler.handle(response_mock, MockHelper.get_global_errors, TestComponent)
+    actual = @response_handler.handle(response_mock, MockHelper.get_global_errors)
     assert_nil actual
   end
 
@@ -39,7 +39,7 @@ class ResponseHandlerTest < Minitest::Test
     response_mock = MockHelper.create_response status_code: 412,
                                                raw_body: response_body_mock
     assert_raises NestedModelException do |_ex|
-      @response_handler.handle(response_mock, MockHelper.get_global_errors, TestComponent)
+      @response_handler.handle(response_mock, MockHelper.get_global_errors)
     end
   end
 
@@ -51,7 +51,7 @@ class ResponseHandlerTest < Minitest::Test
     response_mock = MockHelper.create_response status_code: 450,
                                                raw_body: response_body_mock
     assert_raises CustomErrorResponseException do
-      @response_handler.handle(response_mock, MockHelper.get_global_errors, TestComponent)
+      @response_handler.handle(response_mock, MockHelper.get_global_errors)
     end
   end
 
@@ -60,7 +60,7 @@ class ResponseHandlerTest < Minitest::Test
     response_mock = MockHelper.create_response status_code: 452,
                                                raw_body: response_body_mock
     assert_raises ExceptionWithStringException do
-      @response_handler.handle(response_mock, MockHelper.get_global_errors, TestComponent)
+      @response_handler.handle(response_mock, MockHelper.get_global_errors)
     end
   end
 
@@ -70,7 +70,7 @@ class ResponseHandlerTest < Minitest::Test
                                                raw_body: response_body_mock
     assert_raises ApiException do
       @response_handler.local_error('default', "Local Default Exception", ApiException)
-                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                       .handle(response_mock, MockHelper.get_global_errors)
     end
   end
 
@@ -79,7 +79,7 @@ class ResponseHandlerTest < Minitest::Test
     response_mock = MockHelper.create_response status_code: 400,
                                                raw_body: response_body_mock
     assert_raises ApiException do
-      @response_handler.handle(response_mock, MockHelper.get_global_errors, TestComponent)
+      @response_handler.handle(response_mock, MockHelper.get_global_errors)
     end
   end
 
@@ -91,7 +91,7 @@ class ResponseHandlerTest < Minitest::Test
     assert_raises LocalTestException do
       @response_handler.local_error(400, "Local error message", LocalTestException)
                        .local_error('default', "Local Default Exception", ApiException)
-                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                       .handle(response_mock, MockHelper.get_global_errors)
     end
   end
 
@@ -102,7 +102,7 @@ class ResponseHandlerTest < Minitest::Test
                                                raw_body: response_body_mock
     assert_raises ApiException do
       @response_handler.local_error(400, "Local error message", LocalTestException)
-                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                       .handle(response_mock, MockHelper.get_global_errors)
     end
   end
 
@@ -112,7 +112,7 @@ class ResponseHandlerTest < Minitest::Test
                                                raw_body: response_body_mock
     assert_raises EnumInException do
       @response_handler.local_error(450, "Enum Error", EnumInException)
-                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                       .handle(response_mock, MockHelper.get_global_errors)
     end
   end
 
@@ -122,7 +122,7 @@ class ResponseHandlerTest < Minitest::Test
                                                raw_body: response_body_mock
     begin
       @response_handler.local_error(400, "Local error message", LocalTestException)
-                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                       .handle(response_mock, MockHelper.get_global_errors)
     rescue => exception
       assert_instance_of LocalTestException, exception
     end
@@ -139,7 +139,7 @@ class ResponseHandlerTest < Minitest::Test
                                                raw_body: response_body_mock
     begin
       @response_handler.local_error(450, "Enum Error", EnumInException)
-                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                       .handle(response_mock, MockHelper.get_global_errors)
     rescue => exception
       assert_instance_of EnumInException, exception
     end
@@ -212,7 +212,7 @@ class ResponseHandlerTest < Minitest::Test
     begin
       @response_handler.local_error(522, '522 local', LocalTestException)
                        .local_error('4XX', '4XX local', ApiException)
-                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                       .handle(response_mock, MockHelper.get_global_errors)
     rescue => exception
       assert_instance_of ApiException, exception
     end
@@ -227,7 +227,7 @@ class ResponseHandlerTest < Minitest::Test
     response_mock = MockHelper.create_response status_code: 501, raw_body: response_body_mock
     begin
       @response_handler.local_error_template(522, '522 local', LocalTestException)
-                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                       .handle(response_mock, MockHelper.get_global_errors)
     rescue => exception
       assert_instance_of ApiException, exception
     end
@@ -239,7 +239,7 @@ class ResponseHandlerTest < Minitest::Test
   def test_void_response
     response_mock = MockHelper.create_response status_code: 200
     actual_response = @response_handler.is_response_void(true)
-                                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                                       .handle(response_mock, MockHelper.get_global_errors)
 
     assert_nil(actual_response)
   end
@@ -248,7 +248,7 @@ class ResponseHandlerTest < Minitest::Test
     response_body_mock = 'This is simple response.'
     response_mock = MockHelper.create_response status_code: 200,
                                                raw_body: response_body_mock
-    actual_response = @response_handler.handle(response_mock, MockHelper.get_global_errors, TestComponent)
+    actual_response = @response_handler.handle(response_mock, MockHelper.get_global_errors)
     expected_response = 'This is simple response.'
     refute_nil(actual_response)
 
@@ -264,7 +264,7 @@ class ResponseHandlerTest < Minitest::Test
                                        .deserialize_into(proc do |response_body|
                                          response_body.to_i
                                        end)
-                                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                                       .handle(response_mock, MockHelper.get_global_errors)
     expected_response = 1234
 
     refute_nil(actual_response)
@@ -283,7 +283,7 @@ class ResponseHandlerTest < Minitest::Test
                                            AnyOf.new([LeafType.new(Float, UnionTypeContext.new(is_array: true)),
                                                       LeafType.new(String)]), response, should_symbolize, true)
                                        end)
-                                       .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                                       .handle(response_mock, MockHelper.get_global_errors)
     expected_response = "Sunday"
 
     refute_nil(actual_response)
@@ -299,7 +299,7 @@ class ResponseHandlerTest < Minitest::Test
                         .deserializer(ApiHelper.method(:deserialize_primitive_types))
                         .is_primitive_response(true)
                         .is_response_array(true)
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = [12, 34, 56, 56]
 
     refute_nil(actual_response)
@@ -318,7 +318,7 @@ class ResponseHandlerTest < Minitest::Test
                             OneOf.new([LeafType.new(Evening), LeafType.new(Morning)]),
                             response, should_symbolize, true)
                         end)
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = Morning.new("9:00", "10:00", true, "Morning")
 
     refute_nil(actual_response)
@@ -333,7 +333,7 @@ class ResponseHandlerTest < Minitest::Test
     actual_response = @response_handler
                         .deserializer(ApiHelper.method(:custom_type_deserializer))
                         .deserialize_into(Validate.method(:from_hash))
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = Validate.new("QA", "farhan")
 
     refute_nil(actual_response)
@@ -350,7 +350,7 @@ class ResponseHandlerTest < Minitest::Test
                         .deserializer(ApiHelper.method(:custom_type_deserializer))
                         .is_response_array(true)
                         .deserialize_into(Validate.method(:from_hash))
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = [Validate.new("QA1", "farhan1"), Validate.new("QA2", "farhan2")]
 
     refute_nil(actual_response)
@@ -448,7 +448,7 @@ class ResponseHandlerTest < Minitest::Test
     actual_response = @response_handler
                         .deserializer(ApiHelper.method(:deserialize_datetime))
                         .datetime_format(DateTimeFormat::RFC3339_DATE_TIME)
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = DateTimeHelper.from_rfc3339(response_body_mock)
 
     refute_nil(actual_response)
@@ -463,7 +463,7 @@ class ResponseHandlerTest < Minitest::Test
     actual_response = @response_handler
                         .deserializer(ApiHelper.method(:date_deserializer))
                         .is_date_response(true)
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = date.to_s
 
     refute_nil(actual_response)
@@ -481,7 +481,7 @@ class ResponseHandlerTest < Minitest::Test
                         .deserializer(ApiHelper.method(:deserialize_datetime))
                         .datetime_format(DateTimeFormat::RFC3339_DATE_TIME)
                         .is_response_array(true)
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = example_datetime.map { |dt| DateTimeHelper::from_rfc3339(DateTimeHelper::to_rfc3339(dt)) }
 
     refute_nil(actual_response)
@@ -500,7 +500,7 @@ class ResponseHandlerTest < Minitest::Test
                         .deserialize_into(AttributesAndElements)
                         .xml_attribute(XmlAttributes.new
                                                     .root_element_name('AttributesAndElements'))
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = AttributesAndElements.new('Attribute String', 321321,
                                                   'Element string', 123123)
 
@@ -526,7 +526,7 @@ class ResponseHandlerTest < Minitest::Test
                         .xml_attribute(XmlAttributes.new
                                                     .root_element_name('arrayOfModels')
                                                     .array_item_name('item'))
-                        .handle(response_mock, MockHelper.get_global_errors, TestComponent)
+                        .handle(response_mock, MockHelper.get_global_errors)
     expected_response = XmlHelper::deserialize_xml_to_array(response_body_mock, 'arrayOfModels',
                                                             'item', AttributesAndElements)
 

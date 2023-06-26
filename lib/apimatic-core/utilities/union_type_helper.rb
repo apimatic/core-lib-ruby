@@ -4,14 +4,6 @@ module CoreLibrary
     NONE_MATCHED_ERROR_MESSAGE = 'We could not match any acceptable types against the given JSON.'.freeze
     MORE_THAN_1_MATCHED_ERROR_MESSAGE = 'There are more than one acceptable type matched against the given JSON.'.freeze
 
-    def self.get_deserialized_value(union_types, value, should_symbolize: false)
-      union_types.find(&:is_valid).deserialize(value, should_symbolize: should_symbolize)
-    end
-
-    def self.get_serialized_value(union_types, value)
-      union_types.find(&:is_valid).serialize(value)
-    end
-
     def self.validate_array_of_dict_case(union_types, array_value, is_for_one_of)
       return [false, []] if invalid_array_value?(array_value)
 
@@ -156,9 +148,12 @@ module CoreLibrary
     def self.serialize_value(value, context, collection_cases, union_types)
       return serialize_array_of_dict_case(value, collection_cases) if
         context.is_array && context.is_dict && context.is_array_of_dict
+
       return serialize_dict_of_array_case(value, collection_cases) if
         context.is_array && context.is_dict
+
       return serialize_array_case(value, collection_cases) if context.is_array
+
       return serialize_dict_case(value, collection_cases) if context.is_dict
 
       get_serialized_value(union_types, value)
@@ -196,6 +191,10 @@ module CoreLibrary
         serialized_value << valid_case.serialize(item)
       end
       serialized_value
+    end
+
+    def self.get_serialized_value(union_types, value)
+      union_types.find(&:is_valid).serialize(value)
     end
 
     def self.deserialize_value(value, context, collection_cases, union_types, should_symbolize: false)
@@ -247,6 +246,10 @@ module CoreLibrary
         deserialized_value << valid_case.deserialize(item, should_symbolize: should_symbolize)
       end
       deserialized_value
+    end
+
+    def self.get_deserialized_value(union_types, value, should_symbolize: false)
+      union_types.find(&:is_valid).deserialize(value, should_symbolize: should_symbolize)
     end
 
     def self.process_errors(value, union_types, error_messages, is_nested, is_for_one_of)

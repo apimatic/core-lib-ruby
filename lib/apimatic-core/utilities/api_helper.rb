@@ -240,7 +240,11 @@ module CoreLibrary
       union_type_result.deserialize(response, should_symbolize: should_symbolize)
     end
 
-    def self.apply_primitive_converter(value)
+    # Applies a primitive type parser to deserialize a value.
+    # @param [String] value The value to be parsed.
+    # @return [Integer, Float, Boolean, String] The deserialized value,
+    #   which can be an Integer, Float, Boolean, or String.
+    def self.apply_primitive_type_parser(value)
       # Attempt to deserialize as Integer
       return value.to_i if value.match?(/^\d+$/)
 
@@ -256,9 +260,10 @@ module CoreLibrary
     end
 
     # Checks if a value or all values in a nested structure satisfy a given type condition.
-    # value        - The value or nested structure to be checked.
-    # type_callable - A callable object that defines the type condition.
-    # Returns true if the value or all values in the structure satisfy the type condition, false otherwise.
+    # @param [Object] value The value or nested structure to be checked.
+    # @param [Proc] type_callable A callable object that defines the type condition.
+    # @return [Boolean] Returns true if the value or all values in the
+    #   structure satisfy the type condition, false otherwise.
     def self.valid_type?(value, type_callable)
       if value.is_a?(Array)
         value.all? { |item| valid_type?(item, type_callable) }
@@ -269,17 +274,23 @@ module CoreLibrary
       end
     end
 
-    # Parses JSON string.
+    # Parses a JSON string.
     # @param [String] json A JSON string.
-    def self.json_deserialize(json, should_symbolize = false, apply_primitive_converter = false)
+    # @param [Boolean] should_symbolize Determines whether the keys should be symbolized.
+    #   If set to true, the keys will be converted to symbols. Defaults to false.
+    # @param [Boolean] allow_primitive_type_parsing Determines whether to allow parsing of primitive types.
+    #   If set to true, the method will attempt to parse primitive types like numbers and booleans. Defaults to false.
+    # @return [Hash, Array, nil] The parsed JSON object, or nil if the input string is nil.
+    # @raise [TypeError] if the server responds with invalid JSON and primitive type parsing is not allowed.
+    def self.json_deserialize(json, should_symbolize = false, allow_primitive_type_parsing = false)
       return if json.nil?
 
       begin
         JSON.parse(json, symbolize_names: should_symbolize)
       rescue StandardError
-        raise TypeError, 'Server responded with invalid JSON.' unless apply_primitive_converter
+        raise TypeError, 'Server responded with invalid JSON.' unless allow_primitive_type_parsing
 
-        ApiHelper.apply_primitive_converter(json)
+        ApiHelper.apply_primitive_type_parser(json)
       end
     end
 

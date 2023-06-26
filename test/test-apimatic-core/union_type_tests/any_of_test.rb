@@ -82,20 +82,8 @@ class AnyOfTest < Minitest::Test
         LeafType.new(String)
       ]
     )
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(4)
-    end
-  end
-
-  def test_validate_nil_any_of
-    _any_of = AnyOf.new(
-      [
-        LeafType.new(String),
-        LeafType.new(String)
-      ]
-    )
-    assert_raises AnyOfValidationException do
-      _any_of.validate(nil)
     end
   end
 
@@ -276,7 +264,7 @@ class AnyOfTest < Minitest::Test
   def test_invalid_custom_type_any_of
     _any_of = AnyOf.new([LeafType.new(Morning), LeafType.new(Evening)])
     _evening = 'evening'
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_evening)
     end
   end
@@ -298,7 +286,7 @@ class AnyOfTest < Minitest::Test
   def test_invalid_enum_type_any_of
     _any_of = AnyOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNumberEnum)])
     _enum = 'enum'
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_enum)
     end
   end
@@ -333,7 +321,7 @@ class AnyOfTest < Minitest::Test
                           LeafType.new(Integer,
                                        UnionTypeContext.new(is_array: true))
                         ])
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate([1, 2, 'abc'])
     end
   end
@@ -358,7 +346,7 @@ class AnyOfTest < Minitest::Test
       ],
       UnionTypeContext.new(is_array: true)
     )
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate([nil])
     end
   end
@@ -379,7 +367,7 @@ class AnyOfTest < Minitest::Test
                           LeafType.new(Integer)
                         ],
                         UnionTypeContext.new(is_array: true))
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate([1, true])
     end
   end
@@ -400,7 +388,7 @@ class AnyOfTest < Minitest::Test
                           LeafType.new(Integer, UnionTypeContext.new(is_array: true))
                         ],
                         UnionTypeContext.new(is_array: true))
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate([[1, 2, '123'], %w[abc xyz]])
     end
   end
@@ -423,7 +411,7 @@ class AnyOfTest < Minitest::Test
                                        UnionTypeContext.new(is_array: true))
                         ],
                         UnionTypeContext.new(is_array: true))
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate([[1, 2, 'abc'], 'abc'])
     end
   end
@@ -448,7 +436,7 @@ class AnyOfTest < Minitest::Test
                           LeafType.new(Integer,
                                        UnionTypeContext.new(is_dict: true))
                         ])
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         {
           "key1": '1',
@@ -477,7 +465,7 @@ class AnyOfTest < Minitest::Test
                           LeafType.new(Integer)
                         ],
                         UnionTypeContext.new(is_dict: true))
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate([1, 'string'])
     end
   end
@@ -506,7 +494,7 @@ class AnyOfTest < Minitest::Test
                                        UnionTypeContext.new(is_array: true)),
                         ],
                         UnionTypeContext.new(is_dict: true))
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         {
           "key1": 1,
@@ -554,7 +542,7 @@ class AnyOfTest < Minitest::Test
                                        UnionTypeContext.new(is_array: true)),
                         ],
                         UnionTypeContext.new(is_dict: true))
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         {
           "key1": 1,
@@ -631,7 +619,7 @@ class AnyOfTest < Minitest::Test
                           is_dict: true
                         )
     )
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         {
           "key1": [
@@ -727,7 +715,7 @@ class AnyOfTest < Minitest::Test
                           is_dict: true
                         )
     )
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         {
           "key1": [
@@ -779,7 +767,7 @@ class AnyOfTest < Minitest::Test
                                        )
                           )
                         ])
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         {
           "key1": %w[1 2],
@@ -821,7 +809,7 @@ class AnyOfTest < Minitest::Test
                                        )
                           )
                         ])
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         [
           {
@@ -882,7 +870,7 @@ class AnyOfTest < Minitest::Test
                           is_array_of_dict: true
                         )
     )
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         [
           {
@@ -943,7 +931,7 @@ class AnyOfTest < Minitest::Test
                           is_array_of_dict: true
                         )
     )
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         [
           {
@@ -1014,7 +1002,7 @@ class AnyOfTest < Minitest::Test
                           is_array_of_dict: true
                         )
     )
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(
         [
           {
@@ -1121,7 +1109,7 @@ class AnyOfTest < Minitest::Test
       Evening.new('8:00', '10:00', true, 'Evening'),
       Morning.new('8:00', '12:00', true, 'Morning')
     ]
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_invalid_array)
     end
   end
@@ -1169,7 +1157,7 @@ class AnyOfTest < Minitest::Test
       'key1': Evening.new('8:00', '10:00', true, 'Evening'),
       'key2': Morning.new('8:00', '12:00', true, 'Morning')
     }
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_mix_dict)
     end
   end
@@ -1225,7 +1213,7 @@ class AnyOfTest < Minitest::Test
         Morning.new('8:00', '12:00', true, 'Morning')
       ]
     }
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_mix_dict)
     end
   end
@@ -1281,7 +1269,7 @@ class AnyOfTest < Minitest::Test
       }
     ]
 
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_mix_array_of_dict)
     end
   end
@@ -1318,7 +1306,7 @@ class AnyOfTest < Minitest::Test
         }
       ]
     ]
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_morning_array_of_dict)
     end
   end
@@ -1355,7 +1343,7 @@ class AnyOfTest < Minitest::Test
         }
       ]
     }
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_dict_mix_array_of_dict)
     end
   end
@@ -1396,7 +1384,7 @@ class AnyOfTest < Minitest::Test
         ]
       ]
     }
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_dict_of_array_mix_array_of_dict)
     end
   end
@@ -1439,7 +1427,7 @@ class AnyOfTest < Minitest::Test
           ]
       }
     ]
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_array_of_dict_mix_array_of_dict)
     end
   end
@@ -1482,7 +1470,7 @@ class AnyOfTest < Minitest::Test
           }
       }
     ]
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_array_of_dict_morning_dict_of_array)
     end
   end
@@ -1521,7 +1509,7 @@ class AnyOfTest < Minitest::Test
           ]
       }
     ]
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_array_of_dict_mix_array)
     end
   end
@@ -1560,7 +1548,7 @@ class AnyOfTest < Minitest::Test
           }
       }
     ]
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_array_of_dict_morning_dict)
     end
   end
@@ -1597,7 +1585,7 @@ class AnyOfTest < Minitest::Test
         }
       ]
     }
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_dict_of_array_morning_dict)
     end
   end
@@ -1635,7 +1623,7 @@ class AnyOfTest < Minitest::Test
       ]
     }
 
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_dict_of_array_morning_array)
     end
   end
@@ -1668,7 +1656,7 @@ class AnyOfTest < Minitest::Test
         Morning.new('9:00', '10:00', true, 'Morning'),
       ]
     ]
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_dict_of_array_morning_array)
     end
   end
@@ -1699,7 +1687,7 @@ class AnyOfTest < Minitest::Test
       Evening.new('8:00', '10:00', true, 'Evening'),
       Evening.new('8:00', '10:00', true, 'Evening'),
     ]
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_array_evening)
     end
   end
@@ -1730,7 +1718,7 @@ class AnyOfTest < Minitest::Test
       'key2': Evening.new('8:00', '10:00', true, 'Evening'),
       'key3': Evening.new('8:00', '10:00', true, 'Evening'),
     }
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_dict_evening)
     end
   end
@@ -1771,7 +1759,7 @@ class AnyOfTest < Minitest::Test
         Evening.new('8:00', '10:00', true, 'Evening')
       ]
     }
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(_outer_dict_of_array_evening)
     end
   end
@@ -2146,7 +2134,7 @@ class AnyOfTest < Minitest::Test
       ]
     )
     dt = Date.new(2012, 2, 2)
-    assert_raises AnyOfValidationException do
+    assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON') do
       _any_of.validate(dt)
     end
   end

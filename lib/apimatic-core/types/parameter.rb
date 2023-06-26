@@ -98,7 +98,6 @@ module CoreLibrary
 
     # Validates the parameter value to be sent in the request.
     # @raise [ArgumentError] If the parameter is required but the value is nil.
-    # @return [void]
     def validate
       raise ArgumentError, "Required parameter #{@key} cannot be nil." if @is_required && @value.nil?
 

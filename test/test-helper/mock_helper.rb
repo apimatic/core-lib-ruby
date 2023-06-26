@@ -114,14 +114,12 @@ module TestComponent
                          .base_uri_executor(method(:get_base_uri))
                          .global_errors(get_global_errors)
                          .auth_managers(auth_managers)
-                         .sdk_module(CoreLibrary)
     end
 
     def self.create_global_configurations(http_callback: nil)
       GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback))
                          .base_uri_executor(method(:get_base_uri))
                          .global_errors(get_global_errors)
-                         .sdk_module(CoreLibrary)
     end
 
     def self.create_global_configurations_without_client

@@ -12,7 +12,6 @@ module CoreLibrary
       @additional_headers = {}
       @auth_managers = {}
       @base_uri_executor = nil
-      @sdk_module = nil
       @symbolize_hash = false
     end
 
@@ -28,19 +27,6 @@ module CoreLibrary
     # @return [Hash] The hash of global errors.
     def get_global_errors
       @global_errors
-    end
-
-    # Sets the current SDK module core library is being used for.
-    # @return [GlobalConfiguration] Current Instance.
-    def sdk_module(sdk_module)
-      @sdk_module = sdk_module
-      self
-    end
-
-    # Getter for the current SDK module the core library is being used for.
-    # @return [Module] Current SDK module.
-    def get_sdk_module
-      @sdk_module
     end
 
     # The setter for the global headers to be attached with all requests.

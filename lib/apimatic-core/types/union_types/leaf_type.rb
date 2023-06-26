@@ -122,9 +122,9 @@ module CoreLibrary
                       value
                     end
 
-        DateTimeHelper.validate_datetime(context.date_time_format, dt_string)
+        DateTimeHelper.valid_datetime?(context.date_time_format, dt_string)
       elsif @type_to_match == Date
-        DateTimeHelper.validate_date(value)
+        DateTimeHelper.valid_date?(value)
       else
         validate_value_with_discriminator(value, context)
       end

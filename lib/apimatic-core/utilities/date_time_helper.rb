@@ -123,7 +123,7 @@ module CoreLibrary
       end
     end
 
-    def self.validate_datetime(dt_format, dt)
+    def self.valid_datetime?(dt_format, dt)
       case dt_format
       when DateTimeFormat::HTTP_DATE_TIME
         return DateTimeHelper.rfc_1123?(dt)
@@ -136,7 +136,7 @@ module CoreLibrary
       false
     end
 
-    def self.validate_date(date_value)
+    def self.valid_date?(date_value)
       if date_value.instance_of?(Date)
         true
       elsif date_value.instance_of?(String) && date_value.match?(/^\d{4}-\d{2}-\d{2}$/)
