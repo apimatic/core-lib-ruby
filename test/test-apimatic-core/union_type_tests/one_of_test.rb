@@ -170,7 +170,7 @@ class OneOfTest < Minitest::Test
 
   def test_valid_enum_type_one_of
     _one_of = OneOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNumberEnum)])
-    _enum = TestComponent::MonthNumberEnum.new
+    _enum = TestComponent::MonthNumberEnum::FEBRUARY
     _one_of.validate(_enum)
     assert _one_of.is_valid
   end

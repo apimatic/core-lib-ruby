@@ -90,26 +90,52 @@ module TestComponent
     def self.validate(dictionary)
       
       if value.is_a? self
-        return (APIHelper.valid_type?(
+        return (ApiHelper.valid_type?(
           value=dictionary.any_of_required,
-          type_callable=proc do |value| 
-            UnionTypeLookUp.get('ScalarModelAnyOfRequired').validate(value) end) and
-        APIHelper.valid_type?(
+          type_callable=proc do |value|
+            AnyOf.new(
+              [
+                LeafType.new(Float),
+                AnyOf.new([LeafType.new(TrueClass), LeafType.new(FalseClass)])
+              ]
+            ).validate(value) end) and
+          ApiHelper.valid_type?(
           value=dictionary.one_of_req_nullable,
-          type_callable=proc do |value| 
-            UnionTypeLookUp.get('ScalarModelOneOfReqNullable').validate(value) end))
+          type_callable=proc do |value|
+            OneOf.new(
+              [
+                LeafType.new(Integer),
+                LeafType.new(String)
+              ],
+              UnionTypeContext.new(
+                is_nullable: true
+              )
+            ).validate(value) end))
       end
       
       return false unless value.is_a? hash
 
-      return (APIHelper.valid_type?(
+      return (ApiHelper.valid_type?(
         value=dictionary['anyOfRequired'],
-        type_callable=proc do |value| 
-          UnionTypeLookUp.get('ScalarModelAnyOfRequired').validate(value) end) and
-      APIHelper.valid_type?(
+        type_callable=proc do |value|
+          AnyOf.new(
+            [
+              LeafType.new(Float),
+              AnyOf.new([LeafType.new(TrueClass), LeafType.new(FalseClass)])
+            ]
+          ).validate(value) end) and
+        ApiHelper.valid_type?(
         value=dictionary['oneOfReqNullable'],
-        type_callable=proc do |value| 
-          UnionTypeLookUp.get('ScalarModelOneOfReqNullable').validate(value) end))
+        type_callable=proc do |value|
+          OneOf.new(
+            [
+              LeafType.new(Integer),
+              LeafType.new(String)
+            ],
+            UnionTypeContext.new(
+              is_nullable: true
+            )
+          ).validate(value) end))
     end
   end
 end

@@ -40,9 +40,9 @@ module TestComponent
     ].freeze
 
     def validate(value)
-      return false if value.nil? || value.empty?
+      return false if value.nil?
 
-      return MONTH_NAME_ENUM.include?(value)
+      MONTH_NAME_ENUM.include?(value)
     end
   end
 end

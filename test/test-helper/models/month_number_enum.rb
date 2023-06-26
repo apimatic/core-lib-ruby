@@ -39,10 +39,10 @@ module TestComponent
       DECEMBER = 12
     ].freeze
 
-    def validate(value)
-      return false if value.nil? || value.empty?
+    def self.validate(value)
+      return false if value.nil?
 
-      return MONTH_NUMBER_ENUM.include?(value)
+      MONTH_NUMBER_ENUM.include?(value)
     end
   end
 end

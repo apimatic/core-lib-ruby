@@ -278,7 +278,7 @@ class AnyOfTest < Minitest::Test
 
   def test_valid_enum_type_any_of
     _any_of = AnyOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNumberEnum)])
-    _enum = TestComponent::MonthNumberEnum.new
+    _enum = TestComponent::MonthNumberEnum::JANUARY
     _any_of.validate(_enum)
     assert _any_of.is_valid
   end
