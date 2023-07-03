@@ -282,8 +282,9 @@ module CoreLibrary
     def self.raise_validation_exception(value, union_types, error_message, is_for_one_of)
       unless is_for_one_of
         raise AnyOfValidationException,
-              "#{UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE}" +
-                "\nActual Value: #{ApiHelper.json_serialize(value)}\nExpected Type: Any Of #{error_message}."
+              "#{UnionTypeHelper::NONE_MATCHED_ERROR_MESSAGE.to_s}" \
+              "\nActual Value: #{ApiHelper.json_serialize(value)}\nExpected Type: Any Of #{error_message}."
+
       end
 
       matched_count = union_types.count(&:is_valid)
