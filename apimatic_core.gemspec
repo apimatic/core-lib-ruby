@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email = 'support@apimatic.io'
   s.homepage = 'https://apimatic.io'
   s.license = 'MIT'
-  s.add_dependency('apimatic_core_interfaces', '~> 0.1.0')
+  s.add_dependency('apimatic_core_interfaces', '~> 0.2.0')
   s.add_dependency('nokogiri', '~> 1.10', '>=1.10.10')
   s.add_dependency('certifi', '~> 2018.1', '>= 2018.01.18')
   s.add_dependency('faraday-multipart', '~> 1.0')
