@@ -2461,7 +2461,9 @@ class AnyOfTest < Minitest::Test
     }
     assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON.
 Actual
-                  Value: {:key1=>[#<TestComponent::Evening:0x000002418ed2b438 @starts_at="8:00", @ends_at="10:00", @offer_dinner=true, @session_type="Morning">, #<TestComponent::Morning:0x000002418ed2b398 @starts_at="8:00", @ends_at="12:00", @offer_tea_break=true, @session_type="Morning">]}
+                  Value: {:key1=>[#<TestComponent::Evening:0x000002418ed2b438 @starts_at="8:00", @ends_at="10:00",
+ @offer_dinner=true, @session_type="Morning">, #<TestComponent::Morning:0x000002418ed2b398 @starts_at="8:00",
+@ends_at="12:00", @offer_tea_break=true, @session_type="Morning">]}
 Expected Type: Any Of TestComponent::Morning, TestComponent::Evening.') do
       _any_of.validate(_mix_dict)
     end

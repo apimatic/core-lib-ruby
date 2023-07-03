@@ -1759,7 +1759,10 @@ class OneOfTest < Minitest::Test
     ]
 
     assert_raises(OneOfValidationException, 'We could not match any acceptable types against the given JSON.
-Actual Value: [#<TestComponent::Morning:0x0000023af8049ec8 @starts_at="8:00", @ends_at="10:00", @offer_tea_break=true, @session_type="Evening">, #<TestComponent::Evening:0x0000023af8049e00 @starts_at="8:00", @ends_at="10:00", @offer_dinner=true, @session_type="Evening">, #<TestComponent::Evening:0x0000023af8049d60 @starts_at="8:00", @ends_at="10:00", @offer_dinner=true, @session_type="Evening">]
+Actual Value: [#<TestComponent::Morning:0x0000023af8049ec8 @starts_at="8:00", @ends_at="10:00",
+@offer_tea_break=true, @session_type="Evening">, #<TestComponent::Evening:0x0000023af8049e00
+@starts_at="8:00", @ends_at="10:00", @offer_dinner=true, @session_type="Evening">,
+#<TestComponent::Evening:0x0000023af8049d60 @starts_at="8:00", @ends_at="10:00", @offer_dinner=true, @session_type="Evening">]
 Expected Type: One Of TestComponent::Morning, TestComponent::Evening.') do
       _one_of.validate(_outer_array_evening)
     end
