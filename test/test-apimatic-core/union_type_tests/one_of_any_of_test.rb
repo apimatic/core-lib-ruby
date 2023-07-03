@@ -386,14 +386,17 @@ class OneOfAnyOfTest < Minitest::Test
       ]
     )
 
-    assert_raises(OneOfValidationException, 'We could not match any acceptable types against the given JSON.
-Actual Value: {:key1=>[1, 2, 3]}
-Expected Type: One Of String, String, String, FalseClass.') do
+    error = assert_raises(OneOfValidationException) do
       _nested_any_of_one_of.validate(
         {
           'key1': [1, 2, 3]
         }
       )
     end
+
+    expected_message = 'We could not match any acceptable types against the given JSON.
+Actual Value: {"key1":[1,2,3]}
+Expected Type: One Of String, String, String, FalseClass.'
+    assert_equal expected_message, error.message
   end
 end
