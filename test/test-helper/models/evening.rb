@@ -79,38 +79,36 @@ module TestComponent
 
     # Validates an instance of the object from a given value.
     # @param [Evening | Hash] The value against the validation is performed.
-    def self.validate(dictionary)
-
-      if dictionary.instance_of? self
-        return (CoreLibrary::ApiHelper.valid_type?(
-          value=dictionary.starts_at,
-          type_callable=proc do |value| value.instance_of? String end) and
-          CoreLibrary::ApiHelper.valid_type?(
-            value=dictionary.ends_at,
-            type_callable=proc do |value| value.instance_of? String end) and
-          CoreLibrary::ApiHelper.valid_type?(
-            value=dictionary.offer_dinner,
-            type_callable=proc do |value| value.instance_of? TrueClass or value.instance_of? FalseClass end) and
-          CoreLibrary::ApiHelper.valid_type?(
-            value=dictionary.session_type,
-            type_callable=proc do |value| value.instance_of? String end))
+    def self.validate(value)
+      if value.instance_of? self
+        return (
+          CoreLibrary::ApiHelper.valid_type?(value.starts_at,
+                                             ->(value) { value.instance_of? String }) and
+            CoreLibrary::ApiHelper.valid_type?(value.ends_at,
+                                               ->(value) { value.instance_of? String }) and
+            CoreLibrary::ApiHelper.valid_type?(value.offer_dinner,
+                                               ->(value) { value.instance_of? TrueClass or
+                                                 value.instance_of? FalseClass }) and
+            CoreLibrary::ApiHelper.valid_type?(value.session_type,
+                                               ->(value) { value.instance_of? String })
+        )
       end
 
-      return false unless dictionary.instance_of? Hash
+      return false unless value.instance_of? Hash
 
-      return (CoreLibrary::ApiHelper.valid_type?(
-        value=dictionary['startsAt'],
-        type_callable=proc do |value| value.instance_of? String end) and
-        CoreLibrary::ApiHelper.valid_type?(
-          value=dictionary['endsAt'],
-          type_callable=proc do |value| value.instance_of? String end) and
-        CoreLibrary::ApiHelper.valid_type?(
-          value=dictionary['offerDinner'],
-          type_callable=proc do |value| value.instance_of? TrueClass or value.instance_of? FalseClass end) and
-        CoreLibrary::ApiHelper.valid_type?(
-          value=dictionary['sessionType'],
-          type_callable=proc do |value| value.instance_of? String end))
+      (
+        CoreLibrary::ApiHelper.valid_type?(value['startsAt'],
+                                           ->(value) { value.instance_of? String }) and
+          CoreLibrary::ApiHelper.valid_type?(value['endsAt'],
+                                             ->(value) { value.instance_of? String }) and
+          CoreLibrary::ApiHelper.valid_type?(value['offerDinner'],
+                                             ->(value) { value.instance_of? TrueClass or
+                                               value.instance_of? FalseClass }) and
+          CoreLibrary::ApiHelper.valid_type?(value['sessionType'],
+                                             ->(value) { value.instance_of? String })
+      )
     end
+
     # Override the equals method
     def ==(other)
       return false unless other.is_a?(Evening)
