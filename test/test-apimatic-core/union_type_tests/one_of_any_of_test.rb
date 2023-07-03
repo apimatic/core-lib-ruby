@@ -331,9 +331,9 @@ class OneOfAnyOfTest < Minitest::Test
         LeafType.new(FalseClass)
       ]
     )
-    _value =  [
+    _value = [
       {
-        'key1'=> Evening.new('8:00', '10:00', true, 'Evening')
+        'key1' => Evening.new('8:00', '10:00', true, 'Evening')
       }
     ]
     json = ApiHelper.json_serialize(_value)
@@ -367,6 +367,33 @@ class OneOfAnyOfTest < Minitest::Test
     )
     assert_raises(AnyOfValidationException, 'We could not match any acceptable types against the given JSON.') do
       _any_of.validate(nil)
+    end
+  end
+
+  def test_exception_message_primitive_inner_dict_of_array_any_of_one_of
+    _nested_any_of_one_of = OneOf.new(
+      [
+        AnyOf.new(
+          [
+            LeafType.new(String,
+                         UnionTypeContext.new(is_array: true)
+            ),
+            LeafType.new(String, UnionTypeContext.new(is_array: true, is_dict: true))
+          ]
+        ),
+        LeafType.new(String),
+        LeafType.new(FalseClass)
+      ]
+    )
+
+    assert_raises(OneOfValidationException, 'We could not match any acceptable types against the given JSON.
+Actual Value: {:key1=>[1, 2, 3]}
+Expected Type: One Of String, String, String, FalseClass.') do
+      _nested_any_of_one_of.validate(
+        {
+          'key1': [1, 2, 3]
+        }
+      )
     end
   end
 end

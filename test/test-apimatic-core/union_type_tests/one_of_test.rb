@@ -55,14 +55,14 @@ class OneOfTest < Minitest::Test
 
   def test_valid_both_string_one_of
     _one_of = OneOf.new([LeafType.new(String), LeafType.new(String)])
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate('string')
     end
   end
 
   def test_invalid_one_of
     _one_of = OneOf.new([LeafType.new(String), LeafType.new(String)])
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(4)
     end
   end
@@ -74,10 +74,11 @@ class OneOfTest < Minitest::Test
         LeafType.new(String)
       ]
     )
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(nil)
     end
   end
+
   def test_valid_nullable_any_of
     _one_of = OneOf.new(
       [
@@ -120,7 +121,7 @@ class OneOfTest < Minitest::Test
         LeafType.new(String),
         LeafType.new(String)
       ],
-      UnionTypeContext.new(is_nullable: true,is_optional: true)
+      UnionTypeContext.new(is_nullable: true, is_optional: true)
     )
     _one_of.validate(nil)
     assert _one_of.is_valid
@@ -155,7 +156,7 @@ class OneOfTest < Minitest::Test
   def test_invalid_custom_type_one_of
     _one_of = OneOf.new([LeafType.new(Morning), LeafType.new(Evening)])
     _evening = 'evening'
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_evening)
     end
   end
@@ -163,7 +164,7 @@ class OneOfTest < Minitest::Test
   def test_valid_same_enum_type_one_of
     _one_of = OneOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNameEnum)])
     _enum = TestComponent::MonthNameEnum.new
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_enum)
     end
   end
@@ -178,7 +179,7 @@ class OneOfTest < Minitest::Test
   def test_invalid_enum_type_one_of
     _one_of = OneOf.new([LeafType.new(MonthNameEnum), LeafType.new(MonthNumberEnum)])
     _enum = 'enum'
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_enum)
     end
   end
@@ -213,7 +214,7 @@ class OneOfTest < Minitest::Test
                           LeafType.new(Integer,
                                        UnionTypeContext.new(is_array: true))
                         ])
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate([1, 2, 'abc'])
     end
   end
@@ -234,7 +235,7 @@ class OneOfTest < Minitest::Test
                           LeafType.new(Integer)
                         ],
                         UnionTypeContext.new(is_array: true))
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate([1, true])
     end
   end
@@ -255,7 +256,7 @@ class OneOfTest < Minitest::Test
                           LeafType.new(Integer, UnionTypeContext.new(is_array: true))
                         ],
                         UnionTypeContext.new(is_array: true))
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate([[1, 2, '123'], %w[abc xyz]])
     end
   end
@@ -278,7 +279,7 @@ class OneOfTest < Minitest::Test
                                        UnionTypeContext.new(is_array: true))
                         ],
                         UnionTypeContext.new(is_array: true))
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate([[1, 2, 'abc'], 'abc'])
     end
   end
@@ -303,7 +304,7 @@ class OneOfTest < Minitest::Test
                           LeafType.new(Integer,
                                        UnionTypeContext.new(is_dict: true))
                         ])
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         {
           "key1": '1',
@@ -332,7 +333,7 @@ class OneOfTest < Minitest::Test
                           LeafType.new(Integer)
                         ],
                         UnionTypeContext.new(is_dict: true))
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate([1, 'string'])
     end
   end
@@ -361,7 +362,7 @@ class OneOfTest < Minitest::Test
                                        UnionTypeContext.new(is_array: true)),
                         ],
                         UnionTypeContext.new(is_dict: true))
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         {
           "key1": 1,
@@ -409,7 +410,7 @@ class OneOfTest < Minitest::Test
                                        UnionTypeContext.new(is_array: true)),
                         ],
                         UnionTypeContext.new(is_dict: true))
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         {
           "key1": 1,
@@ -486,7 +487,7 @@ class OneOfTest < Minitest::Test
                           is_dict: true
                         )
     )
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         {
           "key1": [
@@ -582,7 +583,7 @@ class OneOfTest < Minitest::Test
                           is_dict: true
                         )
     )
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         {
           "key1": [
@@ -634,7 +635,7 @@ class OneOfTest < Minitest::Test
                                        )
                           )
                         ])
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         {
           "key1": %w[1 2],
@@ -676,7 +677,7 @@ class OneOfTest < Minitest::Test
                                        )
                           )
                         ])
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         [
           {
@@ -737,7 +738,7 @@ class OneOfTest < Minitest::Test
                           is_array_of_dict: true
                         )
     )
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         [
           {
@@ -798,7 +799,7 @@ class OneOfTest < Minitest::Test
                           is_array_of_dict: true
                         )
     )
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         [
           {
@@ -869,7 +870,7 @@ class OneOfTest < Minitest::Test
                           is_array_of_dict: true
                         )
     )
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         [
           {
@@ -904,7 +905,7 @@ class OneOfTest < Minitest::Test
                           is_array_of_dict: true
                         )
     )
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(
         [
           {
@@ -946,7 +947,7 @@ class OneOfTest < Minitest::Test
       Evening.new('8:00', '10:00', true, 'Evening'),
       Morning.new('8:00', '12:00', true, 'Morning')
     ]
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_invalid_array)
     end
   end
@@ -975,7 +976,7 @@ class OneOfTest < Minitest::Test
       'key1': Evening.new('8:00', '10:00', true, 'Evening'),
       'key2': Morning.new('8:00', '12:00', true, 'Morning')
     }
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_mix_dict)
     end
   end
@@ -1008,7 +1009,7 @@ class OneOfTest < Minitest::Test
         Morning.new('8:00', '12:00', true, 'Morning')
       ]
     }
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_mix_dict)
     end
   end
@@ -1042,7 +1043,7 @@ class OneOfTest < Minitest::Test
       }
     ]
 
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_mix_array_of_dict)
     end
   end
@@ -1079,7 +1080,7 @@ class OneOfTest < Minitest::Test
         }
       ]
     ]
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_morning_array_of_dict)
     end
   end
@@ -1116,7 +1117,7 @@ class OneOfTest < Minitest::Test
         }
       ]
     }
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_dict_mix_array_of_dict)
     end
   end
@@ -1157,7 +1158,7 @@ class OneOfTest < Minitest::Test
         ]
       ]
     }
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_dict_of_array_mix_array_of_dict)
     end
   end
@@ -1200,7 +1201,7 @@ class OneOfTest < Minitest::Test
           ]
       }
     ]
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_array_of_dict_mix_array_of_dict)
     end
   end
@@ -1243,7 +1244,7 @@ class OneOfTest < Minitest::Test
           }
       }
     ]
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_array_of_dict_morning_dict_of_array)
     end
   end
@@ -1282,7 +1283,7 @@ class OneOfTest < Minitest::Test
           ]
       }
     ]
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_array_of_dict_mix_array)
     end
   end
@@ -1321,7 +1322,7 @@ class OneOfTest < Minitest::Test
           }
       }
     ]
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_array_of_dict_morning_dict)
     end
   end
@@ -1358,7 +1359,7 @@ class OneOfTest < Minitest::Test
         }
       ]
     }
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_dict_of_array_morning_dict)
     end
   end
@@ -1396,7 +1397,7 @@ class OneOfTest < Minitest::Test
       ]
     }
 
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_dict_of_array_morning_array)
     end
   end
@@ -1429,7 +1430,7 @@ class OneOfTest < Minitest::Test
         Morning.new('9:00', '10:00', true, 'Morning'),
       ]
     ]
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_dict_of_array_morning_array)
     end
   end
@@ -1460,7 +1461,7 @@ class OneOfTest < Minitest::Test
       Evening.new('8:00', '10:00', true, 'Evening'),
       Evening.new('8:00', '10:00', true, 'Evening'),
     ]
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_array_evening)
     end
   end
@@ -1491,7 +1492,7 @@ class OneOfTest < Minitest::Test
       'key2': Evening.new('8:00', '10:00', true, 'Evening'),
       'key3': Evening.new('8:00', '10:00', true, 'Evening'),
     }
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_dict_evening)
     end
   end
@@ -1532,11 +1533,10 @@ class OneOfTest < Minitest::Test
         Evening.new('8:00', '10:00', true, 'Evening')
       ]
     }
-    assert_raises(OneOfValidationException,'There are more than one acceptable type matched against the given JSON.') do
+    assert_raises OneOfValidationException do
       _one_of.validate(_outer_dict_of_array_evening)
     end
   end
-
 
   def test_deserialize_array_of_dict_type_one_of
     _one_of = OneOf.new(
@@ -1700,6 +1700,7 @@ class OneOfTest < Minitest::Test
     assert _one_of.is_valid
     assert_equal(expected_morning, actual_morning, 'Actual did not match the expected.')
   end
+
   def test_deserialize_dict_of_array_type_one_of
     _one_of = OneOf.new(
       [
@@ -1729,7 +1730,9 @@ class OneOfTest < Minitest::Test
         LeafType.new(Date),
         LeafType.new(DateTime,
                      UnionTypeContext.new(
-                       date_time_converter: proc do |dt_string| DateTimeHelper.to_unix(dt_string) end,
+                       date_time_converter: proc do |dt_string|
+                         DateTimeHelper.to_unix(dt_string)
+                       end,
                        date_time_format: DateTimeFormat::UNIX_DATE_TIME)),
         LeafType.new(DateTime,
                      UnionTypeContext.new(date_time_format: DateTimeFormat::RFC3339_DATE_TIME)
@@ -1737,9 +1740,28 @@ class OneOfTest < Minitest::Test
       ]
     )
 
-    dt = Date.new(2012,12,1)
+    dt = Date.new(2012, 12, 1)
     _one_of.validate(dt)
 
     assert _one_of.is_valid
+  end
+
+  def test_exception_message_evening_outer_array_type_one_of
+    _one_of = OneOf.new([
+                          LeafType.new(Morning, UnionTypeContext.new(is_array: true)),
+                          LeafType.new(Evening)
+                        ], UnionTypeContext.new(is_array: true)
+    )
+    _outer_array_evening = [
+      Morning.new('8:00', '10:00', true, 'Evening'),
+      Evening.new('8:00', '10:00', true, 'Evening'),
+      Evening.new('8:00', '10:00', true, 'Evening'),
+    ]
+
+    assert_raises(OneOfValidationException, 'We could not match any acceptable types against the given JSON.
+Actual Value: [#<TestComponent::Morning:0x0000023af8049ec8 @starts_at="8:00", @ends_at="10:00", @offer_tea_break=true, @session_type="Evening">, #<TestComponent::Evening:0x0000023af8049e00 @starts_at="8:00", @ends_at="10:00", @offer_dinner=true, @session_type="Evening">, #<TestComponent::Evening:0x0000023af8049d60 @starts_at="8:00", @ends_at="10:00", @offer_dinner=true, @session_type="Evening">]
+Expected Type: One Of TestComponent::Morning, TestComponent::Evening.') do
+      _one_of.validate(_outer_array_evening)
+    end
   end
 end
