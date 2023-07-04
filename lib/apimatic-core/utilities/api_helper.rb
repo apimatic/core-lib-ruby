@@ -72,9 +72,7 @@ module CoreLibrary
     # Deserializer to use when the type of response is not known beforehand.
     # @param response The response received.
     def self.dynamic_deserializer(response, should_symbolize)
-      decoded = json_deserialize(response, should_symbolize) unless response.nil? ||
-                                                                    response.to_s.strip.empty?
-      decoded
+      json_deserialize(response, should_symbolize) unless response.nil? || response.to_s.strip.empty?
     end
 
     # Deserializes response to a known custom model type.
@@ -228,19 +226,73 @@ module CoreLibrary
       protocol + query + parameters
     end
 
-    # Parses JSON string.
+    # Deserialize the response based on the provided union_type.
+    # @param [UnionType] union_type The union type to validate and deserialize the response.
+    # @param [Object] response The response object to be deserialized.
+    # @param [Boolean] should_deserialize Flag indicating whether the response should be deserialized.
+    #                                    Default is true.
+    # @return [Object] The deserialized response based on the union_type.
+    def self.deserialize_union_type(union_type, response, should_symbolize = false, should_deserialize = false)
+      response = ApiHelper.json_deserialize(response, false, true) if should_deserialize
+
+      union_type_result = union_type.validate(response)
+
+      union_type_result.deserialize(response, should_symbolize: should_symbolize)
+    end
+
+    # Applies a primitive type parser to deserialize a value.
+    # @param [String] value The value to be parsed.
+    # @return [Integer, Float, Boolean, String] The deserialized value,
+    #   which can be an Integer, Float, Boolean, or String.
+    def self.apply_primitive_type_parser(value)
+      # Attempt to deserialize as Integer
+      return value.to_i if value.match?(/^\d+$/)
+
+      # Attempt to deserialize as Float
+      return value.to_f if value.match?(/^\d+(\.\d+)?$/)
+
+      # Attempt to deserialize as Boolean
+      return true if value.downcase == 'true'
+      return false if value.downcase == 'false'
+
+      # Default: return the original string
+      value
+    end
+
+    # Checks if a value or all values in a nested structure satisfy a given type condition.
+    # @param [Object] value The value or nested structure to be checked.
+    # @param [Proc] type_callable A callable object that defines the type condition.
+    # @return [Boolean] Returns true if the value or all values in the
+    #   structure satisfy the type condition, false otherwise.
+    def self.valid_type?(value, type_callable)
+      if value.is_a?(Array)
+        value.all? { |item| valid_type?(item, type_callable) }
+      elsif value.is_a?(Hash)
+        value.values.all? { |item| valid_type?(item, type_callable) }
+      else
+        !value.nil? && type_callable.call(value)
+      end
+    end
+
+    # Parses a JSON string.
     # @param [String] json A JSON string.
-    # rubocop:disable Style/OptionalBooleanParameter
-    def self.json_deserialize(json, should_symbolize = false)
+    # @param [Boolean] should_symbolize Determines whether the keys should be symbolized.
+    #   If set to true, the keys will be converted to symbols. Defaults to false.
+    # @param [Boolean] allow_primitive_type_parsing Determines whether to allow parsing of primitive types.
+    #   If set to true, the method will attempt to parse primitive types like numbers and booleans. Defaults to false.
+    # @return [Hash, Array, nil] The parsed JSON object, or nil if the input string is nil.
+    # @raise [TypeError] if the server responds with invalid JSON and primitive type parsing is not allowed.
+    def self.json_deserialize(json, should_symbolize = false, allow_primitive_type_parsing = false)
       return if json.nil?
 
       begin
         JSON.parse(json, symbolize_names: should_symbolize)
       rescue StandardError
-        raise TypeError, 'Server responded with invalid JSON.'
+        raise TypeError, 'Server responded with invalid JSON.' unless allow_primitive_type_parsing
+
+        ApiHelper.apply_primitive_type_parser(json)
       end
     end
-    # rubocop:enable Style/OptionalBooleanParameter
 
     # Parses JSON string.
     # @param [object] obj The object to serialize.
@@ -381,154 +433,6 @@ module CoreLibrary
         val = nil
       end
       val
-    end
-
-    # Deserialize the value against the template (group of types).
-    # @param [String] value The value to be deserialized.
-    # @param [String] template The type-combination group for which the value will be mapped (oneOf(Integer, String)).
-    def self.deserialize(template, value, sdk_module, should_symbolize)
-      decoded = json_deserialize(value, should_symbolize)
-      map_types(decoded, template, sdk_module: sdk_module)
-    end
-
-    # Validates and processes the value against the template(group of types).
-    # @param [String] value The value to be mapped against the template.
-    # @param [String] template The parameter indicates the group of types (oneOf(Integer, String)).
-    # @param [String] group_name The parameter indicates the group (oneOf|anyOf).
-    def self.map_types(value, template, group_name: nil, sdk_module: nil)
-      result_value = nil
-      matches = 0
-      types = []
-      group_name = template.partition('(').first if group_name.nil? && template.match?(/anyOf|oneOf/)
-
-      return if value.nil?
-
-      if template.end_with?('{}') || template.end_with?('[]')
-        types = template.split(group_name, 2).last.gsub(/\s+/, '').split
-      else
-        template = template.split(group_name, 2).last.delete_prefix('(').delete_suffix(')')
-        types = template.scan(/(anyOf|oneOf)[(]([^[)]]*)[)]/).flatten.combination(2).map { |a, b| "#{a}(#{b})" }
-        types.each { |t| template = template.gsub(", #{t}", '') }
-        types = template.gsub(/\s+/, '').split(',').push(*types)
-      end
-      types.each do |element|
-        if element.match?(/^(oneOf|anyOf)[(].*$/)
-          begin
-            result_value = map_types(value, element, matches)
-            matches += 1
-          rescue ValidationException
-            next
-          end
-        elsif element.end_with?('{}')
-          result_value, matches = map_hash_type(value, element, group_name, matches)
-        elsif element.end_with?('[]')
-          result_value, matches = map_array_type(value, element, group_name, matches)
-        else
-          begin
-            result_value, matches = map_type(value, element, group_name, matches, sdk_module)
-          rescue StandardError
-            next
-          end
-        end
-        break if group_name == 'anyOf' && matches == 1
-      end
-      raise ValidationException, "The value #{value} provided doesn't validate against the schema #{template}" unless
-        matches == 1
-
-      value = result_value unless result_value.nil?
-      value
-    end
-
-    # Validates and processes the value against the [Hash] type.
-    # @param [String] value The value to be mapped against the type.
-    # @param [String] type The possible type of the value.
-    # @param [String] group_name The parameter indicates the group (oneOf|anyOf).
-    # @param [Integer] matches The parameter indicates the number of matches of value against types.
-    def self.map_hash_type(value, type, group_name, matches)
-      if value.instance_of? Hash
-        decoded = {}
-        value.each do |key, val|
-          type = type.chomp('{}').to_s
-          val = map_types(val, type, group_name: group_name)
-          decoded[key] = val unless type.empty?
-        rescue ValidationException
-          next
-        end
-        matches += 1 if decoded.length == value.length
-        value = decoded unless decoded.empty?
-      end
-      [value, matches]
-    end
-
-    # Validates and processes the value against the [Array] type.
-    # @param [String] value The value to be mapped against the type.
-    # @param [String] type The possible type of the value.
-    # @param [String] group_name The parameter indicates the group (oneOf|anyOf).
-    # @param [Integer] matches The parameter indicates the number of matches of value against types.
-    def self.map_array_type(value, type, group_name, matches)
-      if value.instance_of? Array
-        decoded = []
-        value.each do |val|
-          type = type.chomp('[]').to_s
-          val = map_types(val, type, group_name: group_name)
-          decoded.append(val) unless type.empty?
-        rescue ValidationException
-          next
-        end
-        matches += 1 if decoded.length == value.length
-        value = decoded unless decoded.empty?
-      end
-      [value, matches]
-    end
-
-    # Validates and processes the value against the type.
-    # @param [String] value The value to be mapped against the type.
-    # @param [String] type The possible type of the value.
-    # @param [String] _group_name The parameter indicates the group (oneOf|anyOf).
-    # @param [Integer] matches The parameter indicates the number of matches of value against types.
-    def self.map_type(value, type, _group_name, matches, sdk_module)
-      if sdk_module.constants.select do |c|
-        sdk_module.const_get(c).to_s == "#{sdk_module}::#{type}"
-      end.empty?
-        value, matches = map_data_type(value, type, matches)
-      else
-        value, matches = map_complex_type(value, type, matches, sdk_module)
-      end
-      [value, matches]
-    end
-
-    # Validates and processes the value against the complex types.
-    # @param [String] value The value to be mapped against the type.
-    # @param [String] type The possible type of the value.
-    # @param [Integer] matches The parameter indicates the number of matches of value against types.
-    def self.map_complex_type(value, type, matches, sdk_module)
-      # TODO: Add a nil check on sdk_module?
-      obj = sdk_module.const_get(type)
-      value = if obj.respond_to? 'from_hash'
-                obj.send('from_hash', value)
-              else
-                obj.constants.find { |k| obj.const_get(k) == value }
-              end
-      matches += 1 unless value.nil?
-      [value, matches]
-    end
-
-    # Validates and processes the value against the data types.
-    # @param [String] value The value to be mapped against the type.
-    # @param [String] element The possible type of the value.
-    # @param [Integer] matches The parameter indicates the number of matches of value against types.
-    def self.map_data_type(value, element, matches)
-      element = element.split('|').map { |x| Object.const_get x }
-      matches += 1 if element.all? { |x| data_types.include?(x) } &&
-                      element.any? { |x| (value.instance_of? x) || (value.class.ancestors.include? x) }
-      [value, matches]
-    end
-
-    # Validates the value against the template(group of types).
-    # @param [String] value The value to be mapped against the type.
-    # @param [String] template The parameter indicates the group of types (oneOf(Integer, String)).
-    def self.validate_types(value, template, sdk_module, should_symbolize)
-      map_types(json_deserialize(value.to_json, should_symbolize), template, sdk_module: sdk_module)
     end
 
     # Get content-type depending on the value

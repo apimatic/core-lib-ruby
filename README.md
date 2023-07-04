@@ -48,6 +48,14 @@ gem 'apimatic_core'
 |------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
 | [`GlobalConfiguration`](lib/apimatic-core/configurations/global_configuration.rb )             | Class holding the global configuration properties to make a successful API Call |
 
+
+## Exceptions
+| Name                                                                                      | Description                                         |
+|-------------------------------------------------------------------------------------------|-----------------------------------------------------|
+| [`OneOfValidationException`](lib/apimatic-core/exceptions/one_of_validation_exception.rb) | Exception thrown in case of OneOf validation errors |
+| [`AnyOfValidationException`](lib/apimatic-core/exceptions/any_of_validation_exception.rb) | Exception thrown in case of AnyOf validation errors |
+
+
 ## Factories
 | Name                                                                          | Description                              |
 |-------------------------------------------------------------------------------|------------------------------------------|
@@ -67,23 +75,28 @@ gem 'apimatic_core'
 | [`EndpointLogger`](lib/apimatic-core/logger/endpoint_logger.rb)   | A class to provide logging for an API call |
 
 ## Types
-| Name                                                                         | Description                                                                   |
-|------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| [`ApiException`](lib/apimatic-core/types/sdk/api_exception.rb)               | Basic exception type for the SDK                                              |
-| [`ValidationException`](lib/apimatic-core/types/sdk/validation_exception.rb) | Exception thrown in case of validation error or failure                       |
-| [`ErrorCase`](lib/apimatic-core/types/error_case.rb)                         | A class to represent Exception types                                          |
-| [`FileWrapper`](lib/apimatic-core/types/sdk/file_wrapper.rb)                 | A wrapper to allow passing in content type for file uploads                   |
-| [`Parameter`](lib/apimatic-core/types/parameter.rb)                          | A class to represent information about a Parameter passed in an endpoint      |
-| [`XmlAttributes`](lib/apimatic-core/types/xml_attributes.rb)                 | A class to represent information about an XML Parameter passed in an endpoint |
+| Name                                                                            | Description                                                                   |
+|---------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [`ApiException`](lib/apimatic-core/types/sdk/api_exception.rb)                  | Basic exception type for the SDK                                              |
+| [`AnyOf`](lib/apimatic-core/types/union_types/any_of.rb)                        | Represents the AnyOf union type                                               |
+| [`OneOf`](lib/apimatic-core/types/union_types/one_of.rb)                        | Represents the OneOf union type                                               |
+| [`LeafType`](lib/apimatic-core/types/union_types/leaf_type.rb)                  | Represents the LeafOf union type                                              |
+| [`UnionTypeContext`](lib/apimatic-core/types/union_types/union_type_context.rb) | Represents the context for a UnionType                                        |
+| [`ValidationException`](lib/apimatic-core/types/sdk/validation_exception.rb)    | Exception thrown in case of validation error or failure                       |
+| [`ErrorCase`](lib/apimatic-core/types/error_case.rb)                            | A class to represent Exception types                                          |
+| [`FileWrapper`](lib/apimatic-core/types/sdk/file_wrapper.rb)                    | A wrapper to allow passing in content type for file uploads                   |
+| [`Parameter`](lib/apimatic-core/types/parameter.rb)                             | A class to represent information about a Parameter passed in an endpoint      |
+| [`XmlAttributes`](lib/apimatic-core/types/xml_attributes.rb)                    | A class to represent information about an XML Parameter passed in an endpoint |
 
 ## Utilities
-| Name                                                                   | Description                                                                          |
-|------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| [`ApiHelper`](lib/apimatic-core/utilities/api_helper.rb)               | A Helper Class with various functions associated with making an API Call             |
-| [`AuthHelper`](lib/apimatic-core/utilities/auth_helper.rb)             | A Helper Class with various functions associated with authentication in API Calls    |
-| [`ComparisonHelper`](lib/apimatic-core/utilities/comparison_helper.rb) | A Helper Class used for the comparison of expected and actual API response           |
-| [`FileHelper`](lib/apimatic-core/utilities/file_helper.rb)             | A Helper Class for files                                                             |
-| [`XmlHelper`](lib/apimatic-core/utilities/xml_helper.rb )              | A Helper class that holds utility methods for xml serialization and deserialization. |
+| Name                                                                   | Description                                                                           |
+|------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`ApiHelper`](lib/apimatic-core/utilities/api_helper.rb)               | A Helper Class with various functions associated with making an API Call              |
+| [`AuthHelper`](lib/apimatic-core/utilities/auth_helper.rb)             | A Helper Class with various functions associated with authentication in API Calls     |
+| [`UnionTypeHelper`](lib/apimatic-core/utilities/union_type_helper.rb)  | A Helper Class with various functions associated with Union type in API Calls         |
+| [`ComparisonHelper`](lib/apimatic-core/utilities/comparison_helper.rb) | A Helper Class used for the comparison of expected and actual API response            |
+| [`FileHelper`](lib/apimatic-core/utilities/file_helper.rb)             | A Helper Class for files                                                              |
+| [`XmlHelper`](lib/apimatic-core/utilities/xml_helper.rb )              | A Helper class that holds utility methods for xml serialization and deserialization.  |
 
 ## Links
 * [apimatic_core_interfaces](https://rubygems.org/gems/apimatic_core_interfaces)

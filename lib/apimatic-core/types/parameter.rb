@@ -9,7 +9,7 @@ module CoreLibrary
       @should_encode = false
       @default_content_type = nil
       @value_convertor = nil
-      @template = nil
+      @validator = nil
     end
 
     # The setter for the parameter key.
@@ -88,34 +88,23 @@ module CoreLibrary
       @default_content_type
     end
 
-    # Template setter in case of oneOf or anyOf.
-    # @param [String] template Template for the parameter.
-    # @return [Parameter] An updated instance of Parameter.
-    def template(template)
-      @template = template
+    # Setter for the validator.
+    # @param validator [callable] The validator function to be set.
+    # @return [Parameter] An updated instance of the Parameter class.
+    def validator(validator)
+      @validator = validator
       self
     end
 
-    # Template getter in case a template is set.
-    # @return [Parameter] Returns template for the parameter.
-    def get_template
-      @template
-    end
-
     # Validates the parameter value to be sent in the request.
-    # @raise [ValueError] The value error if the parameter is required but the value is nil.
+    # @raise [ArgumentError] If the parameter is required but the value is nil.
     def validate
       raise ArgumentError, "Required parameter #{@key} cannot be nil." if @is_required && @value.nil?
-    end
 
-    # Validates the oneOf/anyOf parameter value to be sent in the request.
-    # @param [Module] sdk_module The module configured by the SDK.
-    # @param [Boolean] should_symbolize_hash Whether to symbolize the hash during the deserialization of the value.
-    # @raise [ValidationException] The validation error if value violates the oneOf/anyOf constraints.
-    # rubocop:disable Style/OptionalBooleanParameter
-    def validate_template(sdk_module, should_symbolize_hash = false)
-      ApiHelper.validate_types(@value, @template, sdk_module, should_symbolize_hash) unless @value.nil?
+      return if @validator.nil?
+
+      validated_type = @validator.call(@value)
+      @value_convertor = proc { |value| validated_type.serialize(value) } if validated_type.is_valid
     end
-    # rubocop:enable Style/OptionalBooleanParameter
   end
 end

@@ -17,7 +17,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-          v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
+          v.instance_of?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
       end
       hash[key]
     end
@@ -29,13 +29,13 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-        v.is_a?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
+        v.instance_of?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
       end
     end
 
     # Safely converts a DateTime object into a unix format string.
     # @param [DateTime] date_time The DateTime object.
-    # @return [String] The unix formatted datetime string.
+    # @return [Integer] The unix formatted datetime integer.
     def self.to_unix(date_time)
       date_time.to_time.utc.to_i unless date_time.nil?
     end
@@ -49,7 +49,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-          v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
+          v.instance_of?(DateTime) ? DateTimeHelper.to_unix(v) : v
       end
       hash[key]
     end
@@ -61,7 +61,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-        v.is_a?(DateTime) ? DateTimeHelper.to_unix(v) : v
+        v.instance_of?(DateTime) ? DateTimeHelper.to_unix(v) : v
       end
     end
 
@@ -81,7 +81,7 @@ module CoreLibrary
       hash[key] = {}
       date_time.each do |k, v|
         hash[key][k] =
-          v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
+          v.instance_of?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
       end
       hash[key]
     end
@@ -93,7 +93,7 @@ module CoreLibrary
       return if date_time.nil?
 
       hash[key] = date_time.map do |v|
-        v.is_a?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
+        v.instance_of?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
       end
     end
 
@@ -121,6 +121,53 @@ module CoreLibrary
       else
         DateTime.rfc3339("#{date_time}Z")
       end
+    end
+
+    def self.valid_datetime?(dt_format, dt)
+      case dt_format
+      when DateTimeFormat::HTTP_DATE_TIME
+        return DateTimeHelper.rfc_1123?(dt)
+      when DateTimeFormat::RFC3339_DATE_TIME
+        return DateTimeHelper.rfc_3339?(dt)
+      when DateTimeFormat::UNIX_DATE_TIME
+        return DateTimeHelper.unix_timestamp?(dt)
+      end
+
+      false
+    end
+
+    def self.valid_date?(date_value)
+      if date_value.instance_of?(Date)
+        true
+      elsif date_value.instance_of?(String) && date_value.match?(/^\d{4}-\d{2}-\d{2}$/)
+        DateTime.strptime(date_value, '%Y-%m-%d')
+        true
+      else
+        false
+      end
+    rescue ArgumentError
+      false
+    end
+
+    def self.rfc_1123?(datetime_value)
+      DateTime.strptime(datetime_value, '%a, %d %b %Y %H:%M:%S %Z')
+      true
+    rescue ArgumentError, TypeError
+      false
+    end
+
+    def self.rfc_3339?(datetime_value)
+      DateTime.strptime(datetime_value, '%Y-%m-%dT%H:%M:%S')
+      true
+    rescue ArgumentError, TypeError
+      false
+    end
+
+    def self.unix_timestamp?(timestamp)
+      Time.at(Float(timestamp))
+      true
+    rescue ArgumentError, TypeError
+      false
     end
   end
 end

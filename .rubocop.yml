@@ -49,6 +49,15 @@ Style/FrozenStringLiteralComment:
 Style/RedundantAssignment:
   Enabled: false
 
+Style/OptionalBooleanParameter:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/MultilineTernaryOperator:
+  Enabled: false
+
 AllCops:
   Exclude:
     - './lib/apimatic-core/utilities/comparison_helper.rb'

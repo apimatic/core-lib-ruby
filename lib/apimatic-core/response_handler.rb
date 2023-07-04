@@ -18,7 +18,6 @@ module CoreLibrary
       @is_date_response = false
       @is_response_array = false
       @is_response_void = false
-      @type_group = nil
     end
 
     # Sets deserializer for the response.
@@ -159,22 +158,12 @@ module CoreLibrary
     end
     # rubocop:enable Naming/PredicateName
 
-    # Sets type group for the response.
-    # @param [String] type_group The oneOf/anyOf type group template.
-    # @return [ResponseHandler] An updated instance of ResponseHandler.
-    def type_group(type_group)
-      @type_group = type_group
-      self
-    end
-
     # Main method to handle the response with all the set properties.
     # @param [HttpResponse] response The response received.
     # @param [Hash] global_errors The global errors object.
-    # @param [Module] sdk_module The module of the SDK core library is being used for.
     # @param [Boolean] should_symbolize_hash Flag to symbolize the hash during response deserialization.
     # @return [Object] The deserialized response of the API Call.
-    # rubocop:disable Style/OptionalBooleanParameter
-    def handle(response, global_errors, sdk_module, should_symbolize_hash = false)
+    def handle(response, global_errors, should_symbolize_hash = false)
       @endpoint_logger.info("Validating response for #{@endpoint_name_for_logging}.")
 
       # checking Nullify 404
@@ -189,7 +178,7 @@ module CoreLibrary
       return if @is_response_void
 
       # applying deserializer if configured
-      deserialized_value = apply_deserializer(response, sdk_module, should_symbolize_hash)
+      deserialized_value = apply_deserializer(response, should_symbolize_hash)
 
       # applying api_response if configured
       deserialized_value = apply_api_response(response, deserialized_value)
@@ -199,7 +188,6 @@ module CoreLibrary
 
       deserialized_value
     end
-    # rubocop:enable Style/OptionalBooleanParameter
 
     # Validates the response provided and throws an error against the configured status code.
     # @param [HttpResponse] response The received response.
@@ -224,15 +212,12 @@ module CoreLibrary
     end
 
     # Applies deserializer to the response.
-    # @param sdk_module Module of the SDK using the core library.
     # @param [Boolean] should_symbolize_hash Flag to symbolize the hash during response deserialization.
-    def apply_deserializer(response, sdk_module, should_symbolize_hash)
+    def apply_deserializer(response, should_symbolize_hash)
       return apply_xml_deserializer(response) if @is_xml_response
       return response.raw_body if @deserializer.nil?
 
-      if !@type_group.nil?
-        @deserializer.call(@type_group, response.raw_body, sdk_module, should_symbolize_hash)
-      elsif @datetime_format
+      if @datetime_format
         @deserializer.call(response.raw_body, @datetime_format, @is_response_array, should_symbolize_hash)
       elsif @is_date_response
         @deserializer.call(response.raw_body, @is_response_array, should_symbolize_hash)

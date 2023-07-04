@@ -14,14 +14,12 @@ module CoreLibrary
       @additional_query_params = {}
       @multipart_params = {}
       @body_param = nil
-      @should_wrap_body_param = nil
       @body_serializer = nil
       @auth = nil
       @array_serialization_format = ArraySerializationFormat::INDEXED
       @xml_attributes = nil
       @endpoint_name_for_logging = nil
       @endpoint_logger = nil
-      @template_validation_array = []
     end
 
     # The setter for the server.
@@ -53,7 +51,6 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def template_param(template_param)
       template_param.validate
-      conditional_add_to_template_validation_array(template_param)
       @template_params[template_param.get_key] = {  'value' => template_param.get_value,
                                                     'encode' => template_param.need_to_encode }
       self
@@ -64,7 +61,6 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def header_param(header_param)
       header_param.validate
-      conditional_add_to_template_validation_array(header_param)
       @header_params[header_param.get_key] = header_param.get_value
       self
     end
@@ -74,7 +70,6 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def query_param(query_param)
       query_param.validate
-      conditional_add_to_template_validation_array(query_param)
       @query_params[query_param.get_key] = query_param.get_value
       self
     end
@@ -84,7 +79,6 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def form_param(form_param)
       form_param.validate
-      conditional_add_to_template_validation_array(form_param)
       @form_params[form_param.get_key] = form_param.get_value
       self
     end
@@ -110,7 +104,6 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def multipart_param(multipart_param)
       multipart_param.validate
-      conditional_add_to_template_validation_array(multipart_param)
       @multipart_params[multipart_param.get_key] = get_part(multipart_param)
       self
     end
@@ -120,7 +113,6 @@ module CoreLibrary
     # @return [RequestBuilder] An updated instance of RequestBuilder.
     def body_param(body_param)
       body_param.validate
-      conditional_add_to_template_validation_array(body_param)
       if !body_param.get_key.nil?
         @body_param = {} if @body_param.nil?
         @body_param[body_param.get_key] = body_param.get_value
@@ -184,28 +176,10 @@ module CoreLibrary
       self
     end
 
-    # Add param to the template validation array, in case a template is provided.
-    def conditional_add_to_template_validation_array(parameter)
-      return if parameter.get_template.nil?
-
-      @template_validation_array.push(parameter)
-    end
-
-    # Validates the template for the params provided with a template.
-    def validate_templates
-      return if @template_validation_array.nil? || @template_validation_array.empty?
-
-      @template_validation_array.each do |parameter|
-        parameter.validate_template(@global_configuration.get_sdk_module,
-                                    @global_configuration.should_symbolize_hash)
-      end
-    end
-
     # Builds the Http Request.
     # @param [Hash] endpoint_context The endpoint configuration to be used while executing the request.
     # @return [HttpRequest] An instance of HttpRequest.
     def build(endpoint_context)
-      validate_templates
       _url = process_url
       _request_body = process_body
       _request_headers = process_headers(@global_configuration)
