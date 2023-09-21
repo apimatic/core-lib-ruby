@@ -278,8 +278,6 @@ module CoreLibrary
       elsif _has_body_param && !_has_body_serializer
         return resolve_body_param
       end
-
-      {}
     end
 
     # Processes the part of a multipart request and assign appropriate part value and its content-type.
