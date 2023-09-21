@@ -266,23 +266,19 @@ module CoreLibrary
 
       if _has_xml_attributes
         return process_xml_parameters
-      end
-
-      if _has_form_params || _has_additional_form_params || _has_multipart_param
+      elsif _has_form_params || _has_additional_form_params || _has_multipart_param
         _form_params = @form_params
         _form_params.merge!(@form_params) if _has_form_params
         _form_params.merge!(@multipart_params) if _has_multipart_param
         _form_params.merge!(@additional_form_params) if _has_additional_form_params
         return ApiHelper.form_encode_parameters(_form_params, @array_serialization_format)
-      end
-
-      if _has_body_param && _has_body_serializer
+      elsif _has_body_param && _has_body_serializer
         return @body_serializer.call(resolve_body_param)
-      end
-      
-      if _has_body_param && !_has_body_serializer
+      elsif _has_body_param && !_has_body_serializer
         return resolve_body_param
       end
+
+      nil
     end
 
     # Processes the part of a multipart request and assign appropriate part value and its content-type.
