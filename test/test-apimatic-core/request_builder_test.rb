@@ -115,6 +115,29 @@ class RequestBuilderTest < Minitest::Test
     assert(actual.parameters == "value")
   end
 
+  def test_no_body_request
+    actual = MockHelper.create_basic_request_builder
+                       .path('http://localhost/test/{key}')
+                       .http_method(HttpMethod::GET)
+                       .query_param(MockHelper.new_parameter("query", key: "key"))
+                       .template_param(MockHelper.new_parameter("template", key: "key"))
+                       .header_param(MockHelper.new_parameter("header", key: "key"))
+                       .build({})
+
+    assert_nil(actual.parameters)
+
+    actual = MockHelper.create_basic_request_builder
+                       .path('http://localhost/test/{key}')
+                       .http_method(HttpMethod::GET)
+                       .query_param(MockHelper.new_parameter("query", key: "key"))
+                       .template_param(MockHelper.new_parameter("template", key: "key"))
+                       .header_param(MockHelper.new_parameter("header", key: "key"))
+                       .form_param(MockHelper.new_parameter("form_param", key: "key"))
+                       .build({})
+
+    assert(actual.parameters["key"] == "form_param")
+  end
+
   def test_body_param_file
     file = File::open("README.md", "r")
 
