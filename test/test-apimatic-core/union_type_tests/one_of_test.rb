@@ -133,10 +133,9 @@ class OneOfTest < Minitest::Test
     deserialized_morning = ApiHelper.json_deserialize(_morning_json)
     _one_of = _one_of.validate(deserialized_morning)
     actual_morning = _one_of.deserialize(nil)
-    expected_morning = nil
 
     assert _one_of.is_valid
-    assert_equal(expected_morning, actual_morning, 'Actual did not match the expected.')
+    assert_nil actual_morning
   end
 
   def test_valid_evening_type_one_of

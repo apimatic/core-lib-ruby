@@ -248,10 +248,9 @@ class AnyOfTest < Minitest::Test
     deserialized_morning = ApiHelper.json_deserialize(_morning_json)
     _any_of = _any_of.validate(deserialized_morning)
     actual_morning = _any_of.deserialize(nil)
-    expected_morning = nil
 
     assert _any_of.is_valid
-    assert_equal(expected_morning, actual_morning, 'Actual did not match the expected.')
+    assert_nil actual_morning
   end
 
   def test_valid_morning_type_any_of
@@ -1853,7 +1852,7 @@ class AnyOfTest < Minitest::Test
     actual_morning_dict_of_array = _any_of.deserialize(nil)
 
     assert _any_of.is_valid
-    assert_equal(nil, actual_morning_dict_of_array, 'Actual did not match the expected')
+    assert_nil actual_morning_dict_of_array
   end
 
   def test_deserialize_dict_of_array_type_any_of

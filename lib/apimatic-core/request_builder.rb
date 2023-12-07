@@ -329,7 +329,7 @@ module CoreLibrary
     def apply_auth(auth_managers, http_request)
       is_valid_auth = @auth.with_auth_managers(auth_managers).valid unless @auth.nil?
       @auth.apply(http_request) if is_valid_auth
-      raise InvalidAuthCredential, @auth.error_message if !@auth.nil? && !is_valid_auth
+      raise AuthValidationException, @auth.error_message if !@auth.nil? && !is_valid_auth
     end
   end
 end
