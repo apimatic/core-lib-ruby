@@ -61,7 +61,7 @@ module CoreLibrary
     def validate_dict_case(dict_value)
       return false unless dict_value.instance_of?(Hash)
 
-      dict_value.each do |_key, value|
+      dict_value.each_value do |value|
         is_valid = validate_simple_case(value)
         return false unless is_valid
       end
@@ -72,7 +72,7 @@ module CoreLibrary
     def validate_dict_of_array_case(dict_value)
       return false unless dict_value.instance_of?(Hash)
 
-      dict_value.each do |_key, value|
+      dict_value.each_value do |value|
         is_valid = validate_array_case(value)
         return false unless is_valid
       end

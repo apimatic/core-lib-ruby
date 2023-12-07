@@ -30,11 +30,9 @@ module CoreLibrary
     # @return [Boolean] True if the associated auth is valid, false otherwise.
     def valid
       raise ArgumentError, 'The auth manager entry must not have a nil value.' if @mapped_auth.nil?
-      @is_valid = @mapped_auth.valid
-      unless @is_valid
-        @error_message = @mapped_auth.error_message
-      end
 
+      @is_valid = @mapped_auth.valid
+      @error_message = @mapped_auth.error_message unless @is_valid
       @is_valid
     end
 

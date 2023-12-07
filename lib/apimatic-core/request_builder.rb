@@ -207,8 +207,8 @@ module CoreLibrary
     # @param [String] url The URL of the endpoint.
     # @return [String] The URL with resolved query parameters if any.
     def get_updated_url_with_query_params(url)
-      _has_additional_query_params = (!@additional_query_params.nil? and @additional_query_params.any?)
-      _has_query_params = (!@query_params.nil? and @query_params.any?)
+      _has_additional_query_params = !@additional_query_params.nil? and @additional_query_params.any?
+      _has_query_params = !@query_params.nil? and @query_params.any?
       _query_params = @query_params
       _query_params.merge!(@additional_query_params) if _has_additional_query_params
 
@@ -229,9 +229,9 @@ module CoreLibrary
       _global_headers = global_configuration.get_global_headers
       _additional_headers = global_configuration.get_additional_headers
 
-      _has_global_headers = (!_global_headers.nil? && _global_headers.any?)
-      _has_additional_headers = (!_additional_headers.nil? && _additional_headers.any?)
-      _has_local_headers = (!@header_params.nil? and @header_params.any?)
+      _has_global_headers = !_global_headers.nil? && _global_headers.any?
+      _has_additional_headers = !_additional_headers.nil? && _additional_headers.any?
+      _has_local_headers = !@header_params.nil? and @header_params.any?
 
       if _has_global_headers || _has_additional_headers || _has_local_headers
         @endpoint_logger.info("Preparing headers for #{@endpoint_name_for_logging}.")
@@ -251,9 +251,9 @@ module CoreLibrary
     # Processes the body parameter of the request (including form param, json body or xml body).
     # @return [Object] The body param to be sent in the request.
     def process_body
-      _has_form_params = (!@form_params.nil? && @form_params.any?)
-      _has_additional_form_params = (!@additional_form_params.nil? && @additional_form_params.any?)
-      _has_multipart_param = (!@multipart_params.nil? && @multipart_params.any?)
+      _has_form_params = !@form_params.nil? && @form_params.any?
+      _has_additional_form_params = !@additional_form_params.nil? && @additional_form_params.any?
+      _has_multipart_param = !@multipart_params.nil? && @multipart_params.any?
       _has_body_param = !@body_param.nil?
       _has_body_serializer = !@body_serializer.nil?
       _has_xml_attributes = !@xml_attributes.nil?
