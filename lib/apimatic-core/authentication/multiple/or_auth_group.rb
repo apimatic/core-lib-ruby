@@ -18,11 +18,10 @@ module CoreLibrary
     # @return [Boolean] True if the associated auth is valid, false otherwise.
     def valid
       @mapped_group.each do |participant|
-        if participant.valid
-          @is_valid_group = true
-        else
-          @error_messages.append(participant.error_message)
-        end
+        @is_valid_group = participant.valid
+        return true if @is_valid_group
+
+        @error_messages.append(participant.error_message)
       end
 
       @is_valid_group

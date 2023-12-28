@@ -73,7 +73,7 @@ class EndpointLoggerTest < Minitest::Test
         if msg.is_a? String
           assert_includes(msg, expected_logs[i])
         else
-          assert(msg.class == InvalidAuthCredential)
+          assert(msg.class == AuthValidationException)
         end
         i += 1
       end

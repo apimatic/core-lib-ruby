@@ -77,7 +77,7 @@ class MultipleAuthTest < Minitest::Test
     actual_validity_value = auth.with_auth_managers(auth_managers_mock).valid
     auth.apply(@http_request_mock)
     expected_header_value = {:Authorization => 'Basic dGVzdC0xMjM6MTIzLXRlc3Q='}
-    expected_query_url_value = 'http://localhost/test?Authorization=Bearer+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
+    expected_query_url_value = 'http://localhost/test'
 
     refute_nil @http_request_mock
     refute_nil actual_validity_value

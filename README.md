@@ -50,11 +50,11 @@ gem 'apimatic_core'
 
 
 ## Exceptions
-| Name                                                                                      | Description                                         |
-|-------------------------------------------------------------------------------------------|-----------------------------------------------------|
-| [`OneOfValidationException`](lib/apimatic-core/exceptions/one_of_validation_exception.rb) | Exception thrown in case of OneOf validation errors |
-| [`AnyOfValidationException`](lib/apimatic-core/exceptions/any_of_validation_exception.rb) | Exception thrown in case of AnyOf validation errors |
-
+| Name                                                                                      | Description                                                              |
+|-------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`OneOfValidationException`](lib/apimatic-core/exceptions/one_of_validation_exception.rb) | An exception class for the failed validation of oneOf (union-type) cases |
+| [`AnyOfValidationException`](lib/apimatic-core/exceptions/any_of_validation_exception.rb) | An exception class for the failed validation of anyOf (union-type) cases |
+| [`AuthValidationException`](lib/apimatic-core/exceptions/auth_validation_exception.rb)    | An exception class for the failed validation of authentication schemes   |
 
 ## Factories
 | Name                                                                          | Description                              |

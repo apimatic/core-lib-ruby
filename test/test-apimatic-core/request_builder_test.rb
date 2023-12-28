@@ -212,7 +212,7 @@ class RequestBuilderTest < Minitest::Test
                 .build({})
 
     rescue => exception
-      assert_instance_of InvalidAuthCredential, exception
+      assert_instance_of AuthValidationException, exception
     end
   end
 
