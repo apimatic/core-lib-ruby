@@ -116,7 +116,7 @@ module CoreLibrary
     # @return [DateTime] A DateTime object.
     def self.from_rfc3339(date_time)
       # missing timezone information
-      if date_time.match? /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[-+]\d{2}:\d{2})\z/
+      if date_time.match?(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[-+]\d{2}:\d{2})\z$/)
         DateTime.rfc3339(date_time)
       else
         DateTime.rfc3339("#{date_time}Z")
