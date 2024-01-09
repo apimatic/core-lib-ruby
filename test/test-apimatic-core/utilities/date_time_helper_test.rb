@@ -124,6 +124,15 @@ class DateTimeHelperTest < Minitest::Test
     assert_equal expected_dt, actual_dt
   end
 
+  def test_from_rfc3339_without_timezone
+    dt_in_rfc1123 = '2018-01-01T05:15:30'
+    actual_dt = DateTimeHelper.from_rfc3339(dt_in_rfc1123)
+    expected_dt = DateTime.parse(dt_in_rfc1123)
+
+    refute_nil actual_dt
+    assert_equal expected_dt, actual_dt
+  end
+
   def test_from_rfc3339_with_timezone
     dt_in_rfc1123 = '2018-01-01T05:15:30Z'
     actual_dt = DateTimeHelper.from_rfc3339(dt_in_rfc1123)
