@@ -68,7 +68,12 @@ module CoreLibrary
                                                                        error_message_template)
 
       # Handling response body placeholder
-      response_payload = ApiHelper.json_deserialize(response.raw_body, true)
+      begin
+        response_payload = ApiHelper.json_deserialize(response.raw_body, true) unless response.raw_body.nil?
+      rescue TypeError
+        response_payload = nil
+      end
+
       error_message_template = ApiHelper.resolve_template_placeholders_using_json_pointer(body_placeholders,
                                                                                           response_payload,
                                                                                           error_message_template)
