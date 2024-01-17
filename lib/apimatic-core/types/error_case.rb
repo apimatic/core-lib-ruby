@@ -71,7 +71,8 @@ module CoreLibrary
       begin
         response_payload = ApiHelper.json_deserialize(response.raw_body, true) unless response.raw_body.nil?
       rescue TypeError
-        response_payload = nil
+        # This statement execution means the received response body is not a JSON but a simple string
+        response_payload = response.raw_body
       end
 
       error_message_template = ApiHelper.resolve_template_placeholders_using_json_pointer(body_placeholders,
