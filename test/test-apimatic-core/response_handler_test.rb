@@ -206,6 +206,40 @@ class ResponseHandlerTest < Minitest::Test
     assert_equal expected_reason, exception.to_s
   end
 
+  def test_error_template_message_with_simple_payload
+    response_mock = MockHelper.create_response status_code: 415, headers: { 'accept': 'application/json' },
+                                               raw_body: 'Unexpected response'
+    begin
+      @response_handler.local_error_template(415,
+                                             'error_code => {$statusCode}, header => '\
+                                              '{$response.header.accept}, body => {$response.body}', ApiException)
+                       .handle(response_mock, MockHelper.get_global_errors_with_template_message, TestComponent)
+    rescue => exception
+      assert_instance_of ApiException, exception
+    end
+    refute_nil(exception)
+    expected_reason = 'error_code => 415, header => application/json, '\
+                      'body => Unexpected response'
+    assert_equal expected_reason, exception.to_s
+  end
+
+  def test_error_template_message_with_json_payload
+    response_mock = MockHelper.create_response status_code: 415, headers: { 'accept': 'application/json' },
+                                               raw_body: '{ "property": "Unexpected response" }'
+    begin
+      @response_handler.local_error_template(415,
+                                             'error_code => {$statusCode}, header => '\
+                                              '{$response.header.accept}, body => {$response.body}', ApiException)
+                       .handle(response_mock, MockHelper.get_global_errors_with_template_message, TestComponent)
+    rescue => exception
+      assert_instance_of ApiException, exception
+    end
+    refute_nil(exception)
+    expected_reason = 'error_code => 415, header => application/json, '\
+                      'body => {"property":"Unexpected response"}'
+    assert_equal expected_reason, exception.to_s
+  end
+
   def test_global_error_template_message
     response_body_mock = '{"ServerCode": 5001, "ServerMessage": "Test message from server", "model": '\
                          '{ "field": "Test field", "name": "Test name", "address": "Test address"}}'
