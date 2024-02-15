@@ -52,47 +52,58 @@ module CoreLibrary
         else
           get_member_value(obj[fragment_to_index(fragment)], fragments)
         end
+      else
+        NotFound.new
       end
     end
 
     def get_target_member(obj, fragments, options = {}, &block)
       return yield(obj, {}) if fragments.empty?
 
-      fragment = fragments.shift
       case obj
       when Hash
-        key = fragment_to_key(fragment)
-        obj = if options[:create_missing]
-                obj[key] ||= {}
-              else
-                obj.key?(key) ? obj[key] : NotFound.new
-              end
-
-        get_target_member(obj, fragments, options, &block)
+        get_target_member_if_hash(obj, fragments, options, &block)
       when Array
-        if fragment == WILDCARD
-          if obj.any?
-            targets = obj.map do |i|
-              get_target_member(i || {}, fragments.dup, options) do |t|
-                t
-              end
-            end
-            yield(targets, wildcard: true)
-          else
-            NotFound.new
-          end
-        else
-          index = fragment_to_index(fragment)
-          obj = if options[:create_missing]
-                  obj[index] ||= {}
-                else
-                  index >= obj.size ? NotFound.new : obj[index]
-                end
-
-          get_target_member(obj, fragments, &block)
-        end
+        get_target_member_if_array(obj, fragments, options, &block)
       else
         NotFound.new
+      end
+    end
+
+    def get_target_member_if_hash(obj, fragments, options = {}, &block)
+      fragment = fragments.shift
+      key = fragment_to_key(fragment)
+      obj = if options[:create_missing]
+              obj[key] ||= {}
+            else
+              obj.key?(key) ? obj[key] : NotFound.new
+            end
+
+      get_target_member(obj, fragments, options, &block)
+    end
+
+    def get_target_member_if_array(obj, fragments, options = {}, &block)
+      fragment = fragments.shift
+      if fragment == WILDCARD
+        if obj.any?
+          targets = obj.map do |i|
+            get_target_member(i || {}, fragments.dup, options) do |t|
+              t
+            end
+          end
+          yield(targets, wildcard: true)
+        else
+          NotFound.new
+        end
+      else
+        index = fragment_to_index(fragment)
+        obj = if options[:create_missing]
+                obj[index] ||= {}
+              else
+                index >= obj.size ? NotFound.new : obj[index]
+              end
+
+        get_target_member(obj, fragments, &block)
       end
     end
 
