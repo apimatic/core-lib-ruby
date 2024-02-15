@@ -1,5 +1,4 @@
 require 'erb'
-require 'json-pointer'
 
 module CoreLibrary
   # API utility class involved in executing an API
@@ -469,7 +468,7 @@ module CoreLibrary
         if placeholder.include? '#'
           # pick the 2nd chunk then remove the last character (i.e. `}`) of the string value
           node_pointer = placeholder.split('#')[1].delete_suffix('}')
-          value_pointer = JsonPointer.new(value, node_pointer, symbolize_keys: true)
+          value_pointer = JsonPointerHelper.new(value, node_pointer, symbolize_keys: true)
           extracted_value = json_serialize(value_pointer.value) if value_pointer.exists?
         elsif !value.nil?
           extracted_value = json_serialize(value)
