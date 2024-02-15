@@ -22,8 +22,8 @@ class JsonPointerHelperTest < Minitest::Test
   def test_exists
     # Test cases for #exists? method
     assert_pointer_exists(JsonPointerHelper.new(@hash, '/fire/dirt/0/hello', symbolize_keys: true))
-    assert_pointer_exists(JsonPointerHelper.new(@hash, '/water/~/dirt', symbolize_keys: true), false)
-    assert_pointer_exists(JsonPointerHelper.new(@hash, '/fire/dirt/~/world', symbolize_keys: true), false)
+    assert_pointer_not_exists(JsonPointerHelper.new(@hash, '/water/~/dirt', symbolize_keys: true))
+    assert_pointer_not_exists(JsonPointerHelper.new(@hash, '/fire/dirt/~/world', symbolize_keys: true))
     assert_pointer_exists(JsonPointerHelper.new(@hash, '/fire/water/wind', symbolize_keys: true))
     assert_pointer_not_exists(JsonPointerHelper.new(@hash, '/foo', symbolize_keys: true))
   end
@@ -39,8 +39,8 @@ class JsonPointerHelperTest < Minitest::Test
 
   private
 
-  def assert_pointer_exists(pointer, exists = true)
-    assert_equal exists, pointer.exists?
+  def assert_pointer_exists(pointer)
+    assert_equal true, pointer.exists?
   end
 
   def assert_pointer_not_exists(pointer)
