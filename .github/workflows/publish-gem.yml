@@ -24,6 +24,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Ruby 3.2
         uses: ruby/setup-ruby@v1
         with:
@@ -41,6 +42,7 @@ jobs:
           gem push *.gem
         env:
           GEM_HOST_API_KEY: "${{ secrets.RUBY_GEMS_TOKEN }}"
+
       - name: Create tag
         if: steps.release.outputs.exit_code == 0
         id: tag_version
@@ -49,6 +51,7 @@ jobs:
           github_token: ${{ secrets.TAGS_TOKEN }}
           custom_tag: ${{ github.event.inputs.Version }}
           tag_prefix: ""
+
       - name: Create changelog for the release
         if: steps.release.outputs.exit_code == 0
         uses: ncipollo/release-action@v1
@@ -56,3 +59,12 @@ jobs:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release Version ${{ github.event.inputs.Version }}
           body: ${{ steps.tag_version.outputs.changelog }}
+
+      - name: Send slack notification
+        id: slack
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: 'C012YFE3D6D'
+          slack-message: "core-lib-ruby release has been triggered!"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
