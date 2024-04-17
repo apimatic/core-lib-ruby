@@ -267,7 +267,7 @@ module CoreLibrary
     def self.valid_type?(value, type_callable, is_model_hash = false)
       if value.is_a?(Array)
         value.all? { |item| valid_type?(item, type_callable, is_model_hash) }
-      elsif value.is_a?(Hash) and not is_model_hash
+      elsif value.is_a?(Hash) && !is_model_hash
         value.values.all? { |item| valid_type?(item, type_callable, is_model_hash) }
       else
         !value.nil? && type_callable.call(value)
