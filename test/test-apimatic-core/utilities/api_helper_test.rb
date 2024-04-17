@@ -473,6 +473,20 @@ class ApiHelperTest < Minitest::Test
     assert ApiHelper.valid_type?([1, 2, 3], ->(value) { value.instance_of? Integer })
   end
 
+  def test_valid_type_model
+    _evening_json = '{"startsAt": "15:30", "endsAt": "20:30", "offerDinner": false, "sessionType": "Evening"}'
+    deserialized_evening = ApiHelper.json_deserialize(_evening_json)
+    assert ApiHelper.valid_type?(deserialized_evening,
+      ->(value) { TestComponent::Evening.validate(value) }, true)
+  end
+
+  def test_valid_type_model_array
+    _array_of_evening_json = '[{"startsAt": "15:30", "endsAt": "20:30", "offerDinner": false, "sessionType": "Evening"}, {"startsAt": "15:30", "endsAt": "20:30", "offerDinner": false, "sessionType": "Evening"}]'
+    deserialized_array_of_evening = ApiHelper.json_deserialize(_array_of_evening_json)
+    assert ApiHelper.valid_type?(deserialized_array_of_evening,
+      ->(value) { TestComponent::Evening.validate(value) }, true)
+  end
+
   def test_valid_type_hash
     assert ApiHelper.valid_type?(
       {
