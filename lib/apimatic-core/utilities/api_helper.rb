@@ -267,13 +267,14 @@ module CoreLibrary
     #   structure satisfy the type condition, false otherwise.
     def self.valid_type?(value, type_callable, is_model_hash: false, is_inner_model_hash: false)
       if value.is_a?(Array)
-        value.all? do |item| valid_type?(item, type_callable,
-                                         is_model_hash: is_model_hash,
-                                         is_inner_model_hash: is_inner_model_hash)
+        value.all? do |item|
+          valid_type?(item, type_callable,
+                      is_model_hash: is_model_hash,
+                      is_inner_model_hash: is_inner_model_hash)
         end
       elsif value.is_a?(Hash) && (!is_model_hash || is_inner_model_hash)
-        value.values.all? do |item| valid_type?(item, type_callable,
-                                                is_model_hash: is_model_hash)
+        value.values.all? do |item|
+          valid_type?(item, type_callable, is_model_hash: is_model_hash)
         end
       else
         !value.nil? && type_callable.call(value)
