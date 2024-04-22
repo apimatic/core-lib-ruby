@@ -262,13 +262,19 @@ module CoreLibrary
     # @param [Object] value The value or nested structure to be checked.
     # @param [Proc] type_callable A callable object that defines the type condition.
     # @param [Boolean] is_model_hash A flag to identify the provided value is a model value hash.
+    # @param [Boolean] is_inner_model_hash A flag to identify the provided value is a hash of model value hash.
     # @return [Boolean] Returns true if the value or all values in the
     #   structure satisfy the type condition, false otherwise.
-    def self.valid_type?(value, type_callable, is_model_hash = false)
+    def self.valid_type?(value, type_callable, is_model_hash: false, is_inner_model_hash: false)
       if value.is_a?(Array)
-        value.all? { |item| valid_type?(item, type_callable, is_model_hash) }
-      elsif value.is_a?(Hash) && !is_model_hash
-        value.values.all? { |item| valid_type?(item, type_callable, is_model_hash) }
+        value.all? do |item| valid_type?(item, type_callable,
+                                         is_model_hash: is_model_hash,
+                                         is_inner_model_hash: is_inner_model_hash)
+        end
+      elsif value.is_a?(Hash) && (!is_model_hash || is_inner_model_hash)
+        value.values.all? do |item| valid_type?(item, type_callable,
+                                                is_model_hash: is_model_hash)
+        end
       else
         !value.nil? && type_callable.call(value)
       end
