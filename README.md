@@ -72,7 +72,13 @@ gem 'apimatic_core'
 ## Logger
 | Name                                                              | Description                                |
 |-------------------------------------------------------------------|--------------------------------------------|
-| [`EndpointLogger`](lib/apimatic-core/logger/endpoint_logger.rb)   | A class to provide logging for an API call |
+| [`SdkLogger`](lib/apimatic-core/logger/sdk_logger.rb)   | A class responsible for logging request and response of an api call|
+| [`NilSdkLogger`](lib/apimatic-core/logger/nil_sdk_logger.rb)   | A class responsible for no logging|
+| [`ConsoleLogger`](lib/apimatic-core/logger/default_logger.rb)   | Represents default implementation of logger interface|
+| [`LoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb)   | Represents logging configuration|
+| [`BaseMessageLoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb)   | Represents configuration for logging HTTP messages|
+| [`RequestLoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb)   | Represents request logging configuration.|
+| [`ResponseLoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb)   | Represents response logging configuration.|
 
 ## Types
 | Name                                                                            | Description                                                                   |

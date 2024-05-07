@@ -93,12 +93,9 @@ module TestComponent
                           .exception_type(NestedModelException)}
     end
 
-    def self.create_logger(logger: nil)
-      EndpointLogger.new logger
-    end
-
-    def self.create_client_configuration(http_callback: nil)
-      HttpClientConfiguration.new(http_client: HttpClientMock.new, http_callback: http_callback)
+    def self.create_client_configuration(http_callback: nil, logging_configuration: nil)
+      HttpClientConfiguration.new(http_client: HttpClientMock.new, http_callback: http_callback,
+                                  logging_configuration: logging_configuration)
     end
 
     def self.create_global_config_with_auth(raiseException, http_callback: nil)
@@ -116,8 +113,9 @@ module TestComponent
                          .auth_managers(auth_managers)
     end
 
-    def self.create_global_configurations(http_callback: nil)
-      GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback))
+    def self.create_global_configurations(http_callback: nil, logging_configuration: nil)
+      GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback,
+                                                                                logging_configuration: logging_configuration))
                          .base_uri_executor(method(:get_base_uri))
                          .global_errors(get_global_errors)
     end
@@ -142,7 +140,6 @@ module TestComponent
 
     def self.create_basic_request_builder
       RequestBuilder.new
-                    .endpoint_logger(MockHelper::create_logger)
                     .server(Server::DEFAULT)
                     .path(default_path)
                     .global_configuration(MockHelper.create_global_configurations)
@@ -150,7 +147,6 @@ module TestComponent
 
     def self.create_basic_request_builder_with_global_headers
       RequestBuilder.new
-                    .endpoint_logger(MockHelper::create_logger)
                     .server(Server::DEFAULT)
                     .path(default_path)
                     .global_configuration(MockHelper.create_global_configurations_with_headers)
@@ -158,7 +154,6 @@ module TestComponent
 
     def self.create_basic_request_builder_with_auth(raiseException)
       RequestBuilder.new
-                    .endpoint_logger(MockHelper::create_logger)
                     .server(Server::DEFAULT)
                     .path(default_path)
                     .global_configuration(MockHelper.create_global_config_with_auth(raiseException))
