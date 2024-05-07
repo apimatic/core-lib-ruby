@@ -6,8 +6,6 @@ require_relative '../../../lib/apimatic-core/utilities/logger_helper'
 class LoggerHelperTest < Minitest::Test
   include CoreLibrary
 
-  def setup
-  end
   def test_get_content_type_with_valid_headers
     headers = { CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE }
     assert_equal JSON_CONTENT_TYPE, LoggerHelper.get_content_type(headers)
