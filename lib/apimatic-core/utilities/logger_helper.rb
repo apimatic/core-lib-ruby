@@ -1,6 +1,16 @@
 module CoreLibrary
   # logger helper methods.
-  class LoggerHelper < ApiLogger
+  class LoggerHelper
+    NON_SENSITIVE_HEADERS = %w[
+      accept accept-charset accept-encoding accept-language access-control-allow-origin
+      cache-control connection content-encoding content-language content-length
+      content-location content-md5 content-range content-type date etag expect
+      expires from host if-match if-modified-since if-none-match if-range
+      if-unmodified-since keep-alive last-modified location max-forwards pragma
+      range referer retry-after server trailer transfer-encoding upgrade user-agent
+      vary via warning x-forwarded-for x-requested-with x-powered-by
+    ].map(&:downcase).freeze
+
     def self.get_content_type(headers)
       return '' if headers.nil?
 
@@ -47,20 +57,11 @@ module CoreLibrary
     end
 
     def self.mask_if_sensitive_header(name, value, headers_to_unmask)
-      non_sensitive_headers = %w[
-        accept accept-charset accept-encoding accept-language access-control-allow-origin
-        cache-control connection content-encoding content-language content-length
-        content-location content-md5 content-range content-type date etag expect
-        expires from host if-match if-modified-since if-none-match if-range
-        if-unmodified-since keep-alive last-modified location max-forwards pragma
-        range referer retry-after server trailer transfer-encoding upgrade user-agent
-        vary via warning x-forwarded-for x-requested-with x-powered-by
-      ]
-
       headers_to_unmask ||= []
       headers_to_unmask = headers_to_unmask.map(&:downcase)
+      name_downcase = name.downcase
 
-      non_sensitive_headers.include?(name.downcase) || headers_to_unmask.include?(name.downcase) ?
+      NON_SENSITIVE_HEADERS.include?(name_downcase) || headers_to_unmask.include?(name_downcase) ?
         value : '**Redacted**'
     end
   end

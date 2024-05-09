@@ -1,7 +1,5 @@
 require 'minitest/autorun'
 require 'apimatic_core'
-require_relative '../utilities/constants'
-require_relative '../../../lib/apimatic-core/utilities/logger_helper'
 
 class LoggerHelperTest < Minitest::Test
   include CoreLibrary

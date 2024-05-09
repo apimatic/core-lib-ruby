@@ -49,6 +49,7 @@ require_relative 'apimatic-core/utilities/auth_helper'
 require_relative 'apimatic-core/utilities/union_type_helper'
 require_relative 'apimatic-core/utilities/json_pointer_helper'
 require_relative 'apimatic-core/utilities/logger_helper'
+require_relative 'apimatic-core/utilities/constants'
 
 require_relative 'apimatic-core/authentication/header_auth'
 require_relative 'apimatic-core/authentication/query_auth'

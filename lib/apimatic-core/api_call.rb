@@ -80,7 +80,6 @@ module CoreLibrary
 
     # Registers request and response with the provided http_callback
     # @param [Callable] callable The callable to be called for registering into the HttpCallback instance.
-    # @param [String] log_message The message to be logged if HttpCallback is set.
     def update_http_callback(callable)
       callable.call
     end

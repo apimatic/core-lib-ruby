@@ -28,12 +28,11 @@ class ConsoleLogger < Logger
     end
   end
 
-  def format_log_message(severity, datetime, _progname, msg)
-    "#{{
-      timestamp: datetime.strftime('%Y-%m-%dT%H:%M:%S.%6N'),
-      level: severity.ljust(5),
-      msg: msg
-    }}\n"
+  def format_log_message(severity, _datetime, _progname, msg)
+    "#{
+       severity.ljust(5) +
+       msg
+     }\n"
   end
 
   def message_with_params(message, params)
