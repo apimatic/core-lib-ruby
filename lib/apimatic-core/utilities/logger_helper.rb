@@ -14,13 +14,13 @@ module CoreLibrary
     def self.get_content_type(headers)
       return '' if headers.nil?
 
-      headers.find { |key, _| key.downcase == 'content-type' }&.last || ''
+      headers.find { |key, _| key.downcase == CONTENT_TYPE_HEADER }&.last || ''
     end
 
     def self.get_content_length(headers)
       return '' if headers.nil?
 
-      headers.find { |key, _| key.downcase == 'content-length' }&.last || ''
+      headers.find { |key, _| key.downcase == CONTENT_LENGTH_HEADER }&.last || ''
     end
 
     def self.extract_headers_to_log(headers_to_include, headers_to_exclude, headers_to_unmask, headers)

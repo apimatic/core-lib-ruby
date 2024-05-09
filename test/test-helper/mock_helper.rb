@@ -134,6 +134,20 @@ module TestComponent
                          .additional_headers({ "additionalHeader": "value" })
     end
 
+    def self.create_logging_configuration(logger: nil, log_level: nil, request_logging_config: nil, response_logging_config: nil, mask_sensitive_headers: nil)
+      request_logging_config = request_logging_config || MockHelper.create_request_logging_configuration()
+      response_logging_config = response_logging_config || MockHelper.create_response_logging_configuration()
+      ApiLoggingConfiguration.new(logger, log_level, request_logging_config, response_logging_config, mask_sensitive_headers)
+    end
+
+    def self.create_request_logging_configuration(log_body: nil, log_headers: nil, headers_to_exclude: nil, headers_to_include: nil, headers_to_unmask: nil, include_query_in_path: nil)
+      ApiRequestLoggingConfiguration.new(log_body, log_headers, headers_to_exclude, headers_to_include, headers_to_unmask, include_query_in_path)
+    end
+
+    def self.create_response_logging_configuration(log_body: nil, log_headers: nil, headers_to_exclude: nil, headers_to_include: nil, headers_to_unmask: nil)
+      ApiResponseLoggingConfiguration.new(log_body, log_headers, headers_to_exclude, headers_to_include, headers_to_unmask)
+    end
+
     def self.get_base_uri(server = Server::DEFAULT)
       ENVIRONMENTS[Environment::TESTING][server]
     end

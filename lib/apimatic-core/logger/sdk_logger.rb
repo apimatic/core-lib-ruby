@@ -13,10 +13,10 @@ module CoreLibrary
       content_type_header = LoggerHelper.get_content_type(request.headers)
       url = @log_request.include_query_in_path ? request.query_url : request.query_url.split('?').first
 
-      @logger.log(@log_level, 'Request {method} {url} {content_type}', {
-                    'method' => request.http_method,
-                    'url' => url,
-                    'content_type' => content_type_header
+      @logger.log(@log_level, "Request {#{METHOD}} {#{URL}} {#{CONTENT_TYPE_HEADER}}", {
+                    METHOD => request.http_method,
+                    URL => url,
+                    CONTENT_TYPE_HEADER => content_type_header
                   })
 
       apply_log_request_options(request)
@@ -26,10 +26,10 @@ module CoreLibrary
       content_type_header = LoggerHelper.get_content_type(response.headers)
       content_length_header = LoggerHelper.get_content_length(response.headers)
 
-      @logger.log(@log_level, 'Response {status_code} {content_length} {content_type}', {
-                    status_code: response.status_code,
-                    content_length: content_length_header,
-                    content_type: content_type_header
+      @logger.log(@log_level, "Response {#{STATUS_CODE}} {#{CONTENT_LENGTH_HEADER}} {#{CONTENT_TYPE_HEADER}}", {
+                    STATUS_CODE => response.status_code,
+                    CONTENT_LENGTH_HEADER => content_length_header,
+                    CONTENT_TYPE_HEADER => content_type_header
                   })
 
       apply_log_response_options(response)

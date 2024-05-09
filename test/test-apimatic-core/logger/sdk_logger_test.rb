@@ -4,6 +4,7 @@ require 'logger'
 require_relative '../../test-helper/mock_helper'
 require_relative '../../test-helper/models/test_logger'
 require_relative '../../test-helper/http/http_callback_mock'
+require_relative '../test_helper'
 
 class SdkLoggerTest < Minitest::Test
   include CoreLibrary, TestComponent
@@ -39,8 +40,8 @@ class SdkLoggerTest < Minitest::Test
       @basic_response_log
     ]
     logger = TestLogger.new
-    logger_config = ApiLoggingConfiguration.new(
-      logger: logger,
+    logger_config = MockHelper.create_logging_configuration(
+      logger: logger
     )
     sdk_logger = SdkLogger.new(logger_config)
     sdk_logger.log_request(@request)
@@ -60,10 +61,10 @@ class SdkLoggerTest < Minitest::Test
     ]
      
     logger = TestLogger.new
-    logger_config = ApiLoggingConfiguration.new(
+    logger_config = MockHelper.create_logging_configuration(
       logger: logger,
       log_level: ::Logger::DEBUG
-      )
+    )
     sdk_logger = SdkLogger.new(logger_config)
     sdk_logger.log_request(@request)
     sdk_logger.log_response(@response)
@@ -81,9 +82,9 @@ class SdkLoggerTest < Minitest::Test
     ]
      
     logger = TestLogger.new
-    logger_config = ApiLoggingConfiguration.new(
+    logger_config = MockHelper.create_logging_configuration(
       logger: logger,
-      request_logging_config: ApiRequestLoggingConfiguration.new(
+      request_logging_config: MockHelper.create_request_logging_configuration(
         include_query_in_path: true,
       )
     )
@@ -104,9 +105,9 @@ class SdkLoggerTest < Minitest::Test
     ]
      
     logger = TestLogger.new
-    logger_config = ApiLoggingConfiguration.new(
+    logger_config = MockHelper.create_logging_configuration(
       logger: logger,
-      request_logging_config: ApiRequestLoggingConfiguration.new(
+      request_logging_config: MockHelper.create_request_logging_configuration(
         log_body: true,
       )
     )
@@ -127,11 +128,11 @@ class SdkLoggerTest < Minitest::Test
     ]
      
     logger = TestLogger.new
-    logger_config = ApiLoggingConfiguration.new(
+    logger_config = MockHelper.create_logging_configuration(
       logger: logger,
       log_level: ::Logger::INFO,
-      request_logging_config: ApiRequestLoggingConfiguration.new(
-        log_headers: true,
+      request_logging_config: MockHelper.create_request_logging_configuration(
+      log_headers: true,
       )
     )
     sdk_logger = SdkLogger.new(logger_config)
@@ -151,10 +152,10 @@ class SdkLoggerTest < Minitest::Test
     ]
      
     logger = TestLogger.new
-    logger_config = ApiLoggingConfiguration.new(
+    logger_config = MockHelper.create_logging_configuration(
       logger: logger,
       log_level: ::Logger::INFO,
-      response_logging_config: ApiResponseLoggingConfiguration.new(
+      response_logging_config: MockHelper.create_response_logging_configuration(
         log_body: true
       )
     )
@@ -175,10 +176,10 @@ class SdkLoggerTest < Minitest::Test
     ]
      
     logger = TestLogger.new
-    logger_config = ApiLoggingConfiguration.new(
+    logger_config = MockHelper.create_logging_configuration(
       logger: logger,
       log_level: ::Logger::INFO,
-      response_logging_config: ApiResponseLoggingConfiguration.new(
+      response_logging_config: MockHelper.create_response_logging_configuration(
         log_headers: true
       )
     )
@@ -198,9 +199,9 @@ class SdkLoggerTest < Minitest::Test
       'info: Response 200  '
     ]
     logger = TestLogger.new
-    logger_config = ApiLoggingConfiguration.new(
+    logger_config = MockHelper.create_logging_configuration(
       logger: logger,
-      )
+    )
     api_call = ApiCall.new(MockHelper::create_global_configurations(logging_configuration: logger_config))
                       .request(@request_builder)
                       .response(@response_handler)

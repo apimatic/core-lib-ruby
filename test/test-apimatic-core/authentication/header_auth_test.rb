@@ -1,6 +1,7 @@
 require 'minitest/autorun'
 require 'apimatic_core'
 require_relative '../../test-helper/mock_helper'
+require_relative '../test_helper'
 
 class HeaderAuthTest < Minitest::Test
   include CoreLibrary, TestComponent

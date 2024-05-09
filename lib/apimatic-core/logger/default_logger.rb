@@ -36,7 +36,7 @@ class ConsoleLogger < Logger
   end
 
   def message_with_params(message, params)
-    message.gsub(/\{(\w+)\}/) do |match|
+    message.gsub(/\{([\w-]+)\}/) do |match|
       key = match[1..-2]
       params[key.to_sym] || params[key.to_s]
     end

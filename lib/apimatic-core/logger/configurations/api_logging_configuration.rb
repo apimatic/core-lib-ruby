@@ -11,17 +11,17 @@ module CoreLibrary
     # @param response_logging_config [ApiResponseLoggingConfiguration] Options for logging HTTP responses.
     # @param mask_sensitive_headers [Boolean] Indicates whether sensitive headers should be masked in logged messages.
     def initialize(
-      logger: nil,
-      log_level: nil,
-      request_logging_config: nil,
-      response_logging_config: nil,
-      mask_sensitive_headers: nil
+      logger,
+      log_level,
+      request_logging_config,
+      response_logging_config,
+      mask_sensitive_headers
     )
       @logger = logger || ConsoleLogger.new
       @log_level = log_level || ::Logger::INFO
-      @request_logging_config = request_logging_config || ApiRequestLoggingConfiguration.new
-      @response_logging_config = response_logging_config || ApiResponseLoggingConfiguration.new
-      @mask_sensitive_headers = mask_sensitive_headers || true
+      @request_logging_config = request_logging_config
+      @response_logging_config = response_logging_config
+      @mask_sensitive_headers = mask_sensitive_headers
     end
   end
 
@@ -38,14 +38,14 @@ module CoreLibrary
     # @param headers_to_unmask [Array<String>] Array of headers which values are non-sensitive to display in logging.
     #   Default is an empty array.
     def initialize(
-      log_body: nil,
-      log_headers: nil,
-      headers_to_exclude: nil,
-      headers_to_include: nil,
-      headers_to_unmask: nil
+      log_body,
+      log_headers,
+      headers_to_exclude,
+      headers_to_include,
+      headers_to_unmask
     )
-      @log_body = log_body || false
-      @log_headers = log_headers || false
+      @log_body = log_body
+      @log_headers = log_headers
       @headers_to_exclude = headers_to_exclude || []
       @headers_to_include = headers_to_include || []
       @headers_to_unmask = headers_to_unmask || []
@@ -65,21 +65,21 @@ module CoreLibrary
     # @param headers_to_unmask [Array<String>] Array of headers which values are non-sensitive to display in logging.
     #   Default is an empty array.
     def initialize(
-      log_body: nil,
-      log_headers: nil,
-      headers_to_exclude: nil,
-      headers_to_include: nil,
-      headers_to_unmask: nil,
-      include_query_in_path: nil
+      log_body,
+      log_headers,
+      headers_to_exclude,
+      headers_to_include,
+      headers_to_unmask,
+      include_query_in_path
     )
       super(
-        log_body: log_body,
-        log_headers: log_headers,
-        headers_to_exclude: headers_to_exclude,
-        headers_to_include: headers_to_include,
-        headers_to_unmask: headers_to_unmask
+        log_body,
+        log_headers,
+        headers_to_exclude,
+        headers_to_include,
+        headers_to_unmask
       )
-      @include_query_in_path = include_query_in_path || false
+      @include_query_in_path = include_query_in_path
     end
   end
 
@@ -93,20 +93,5 @@ module CoreLibrary
     # @param headers_to_include [Array<String>] Array of headers to be displayed in logging. Default is an empty array.
     # @param headers_to_unmask [Array<String>] Array of headers which values are non-sensitive to display in logging.
     #   Default is an empty array.
-    def initialize(
-      log_body: nil,
-      log_headers: nil,
-      headers_to_exclude: nil,
-      headers_to_include: nil,
-      headers_to_unmask: nil
-    )
-      super(
-        log_body: log_body,
-        log_headers: log_headers,
-        headers_to_exclude: headers_to_exclude,
-        headers_to_include: headers_to_include,
-        headers_to_unmask: headers_to_unmask
-      )
-    end
   end
 end
