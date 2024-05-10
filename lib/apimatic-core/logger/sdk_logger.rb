@@ -39,9 +39,7 @@ module CoreLibrary
 
     def apply_log_request_options(request)
       headers_to_log = LoggerHelper.extract_headers_to_log(
-        @log_request.headers_to_include,
-        @log_request.headers_to_exclude,
-        @log_request.headers_to_unmask,
+        @log_request,
         request.headers
       )
 
@@ -60,9 +58,7 @@ module CoreLibrary
 
     def apply_log_response_options(response)
       headers_to_log = LoggerHelper.extract_headers_to_log(
-        @log_response.headers_to_include,
-        @log_response.headers_to_exclude,
-        @log_response.headers_to_unmask,
+        @log_response,
         response.headers
       )
 

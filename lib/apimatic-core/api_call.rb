@@ -86,7 +86,7 @@ module CoreLibrary
 
     def initialize_api_logger(logging_config)
       @logger = if logging_config.nil?
-                  NilSdkLogger.new(logging_config)
+                  NilSdkLogger.new
                 else
                   SdkLogger.new(logging_config)
                 end

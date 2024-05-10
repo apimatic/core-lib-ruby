@@ -1,8 +1,6 @@
 module CoreLibrary
   # This class is nil implementation of ApiLogger.
   class NilSdkLogger < ApiLogger
-    def initialize(logging_config); end
-
     # Logs the details of an HTTP request.
     # @param request [HttpRequest] The HTTP request to log.
     def log_request(request)

@@ -23,27 +23,41 @@ module CoreLibrary
       headers.find { |key, _| key.downcase == CONTENT_LENGTH_HEADER }&.last || ''
     end
 
-    def self.extract_headers_to_log(headers_to_include, headers_to_exclude, headers_to_unmask, headers)
+    def self.extract_headers_to_log(http_object, headers)
       return headers if headers.nil?
 
-      filtered_headers = {}
+      filtered_headers = if http_object.headers_to_include.any?
+                           include_headers(headers, http_object.headers_to_include)
+                         elsif http_object.headers_to_exclude.any?
+                           exclude_headers(headers, http_object.headers_to_exclude)
+                         else
+                           headers
+                         end
 
-      if headers_to_include.any?
-        headers_to_include.each do |name|
-          key = headers.keys.find { |header_key| header_key.downcase == name.downcase }
-          filtered_headers[key] = headers[key] if headers[key]
-        end
-      elsif headers_to_exclude.any?
-        headers.each do |key, val|
-          filtered_headers[key] = val unless headers_to_exclude.any? do |excluded_name|
-                                               excluded_name.downcase == key.downcase
-                                             end
-        end
-      else
-        filtered_headers = headers
+      mask_sensitive_headers(filtered_headers, http_object.headers_to_unmask)
+    end
+
+    def self.include_headers(headers, headers_to_include)
+      included_headers = {}
+
+      headers_to_include.each do |name|
+        key = headers.keys.find { |header_key| header_key.downcase == name.downcase }
+        included_headers[key] = headers[key] if headers[key]
       end
 
-      mask_sensitive_headers(filtered_headers, headers_to_unmask)
+      included_headers
+    end
+
+    def self.exclude_headers(headers, headers_to_exclude)
+      excluded_headers = {}
+
+      headers.each do |key, val|
+        excluded_headers[key] = val unless headers_to_exclude.any? do |excluded_name|
+          excluded_name.downcase == key.downcase
+        end
+      end
+
+      excluded_headers
     end
 
     def self.mask_sensitive_headers(headers, headers_to_unmask)
