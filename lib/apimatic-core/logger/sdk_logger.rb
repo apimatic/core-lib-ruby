@@ -4,14 +4,14 @@ module CoreLibrary
     def initialize(logging_config)
       @log_level = logging_config.log_level
       @logger = logging_config.logger
-      @log_request = logging_config.request_logging_config
-      @log_response = logging_config.response_logging_config
+      @request_logging_config = logging_config.request_logging_config
+      @response_logging_config = logging_config.response_logging_config
       @mask_sensitive_headers = logging_config.mask_sensitive_headers
     end
 
     def log_request(request)
       content_type_header = LoggerHelper.get_content_type(request.headers)
-      url = @log_request.include_query_in_path ? request.query_url : request.query_url.split('?').first
+      url = @request_logging_config.include_query_in_path ? request.query_url : request.query_url.split('?').first
 
       @logger.log(@log_level, "Request {#{METHOD}} {#{URL}} {#{CONTENT_TYPE_HEADER}}", {
                     METHOD => request.http_method,
@@ -39,17 +39,17 @@ module CoreLibrary
 
     def apply_log_request_options(request)
       headers_to_log = LoggerHelper.extract_headers_to_log(
-        @log_request,
+        @request_logging_config,
         request.headers
       )
 
-      if @log_request.log_headers
+      if @request_logging_config.log_headers
         @logger.log(@log_level, 'Request headers {headers}', {
                       headers: headers_to_log
                     })
       end
 
-      return unless @log_request.log_body
+      return unless @request_logging_config.log_body
 
       @logger.log(@log_level, 'Request body {body}', {
                     body: request.parameters
@@ -58,17 +58,17 @@ module CoreLibrary
 
     def apply_log_response_options(response)
       headers_to_log = LoggerHelper.extract_headers_to_log(
-        @log_response,
+        @response_logging_config,
         response.headers
       )
 
-      if @log_response.log_headers
+      if @response_logging_config.log_headers
         @logger.log(@log_level, 'Response headers {headers}', {
                       headers: headers_to_log
                     })
       end
 
-      return unless @log_response.log_body
+      return unless @response_logging_config.log_body
 
       @logger.log(@log_level, 'Response body {body}', {
                     body: response.raw_body

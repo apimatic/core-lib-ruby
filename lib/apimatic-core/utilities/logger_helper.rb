@@ -23,18 +23,18 @@ module CoreLibrary
       headers.find { |key, _| key.downcase == CONTENT_LENGTH_HEADER }&.last || ''
     end
 
-    def self.extract_headers_to_log(http_object, headers)
+    def self.extract_headers_to_log(http_logging_config, headers)
       return headers if headers.nil?
 
-      filtered_headers = if http_object.headers_to_include.any?
-                           include_headers(headers, http_object.headers_to_include)
-                         elsif http_object.headers_to_exclude.any?
-                           exclude_headers(headers, http_object.headers_to_exclude)
+      filtered_headers = if http_logging_config.headers_to_include.any?
+                           include_headers(headers, http_logging_config.headers_to_include)
+                         elsif http_logging_config.headers_to_exclude.any?
+                           exclude_headers(headers, http_logging_config.headers_to_exclude)
                          else
                            headers
                          end
 
-      mask_sensitive_headers(filtered_headers, http_object.headers_to_unmask)
+      mask_sensitive_headers(filtered_headers, http_logging_config.headers_to_unmask)
     end
 
     def self.include_headers(headers, headers_to_include)
