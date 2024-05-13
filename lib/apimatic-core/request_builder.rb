@@ -18,8 +18,6 @@ module CoreLibrary
       @auth = nil
       @array_serialization_format = ArraySerializationFormat::INDEXED
       @xml_attributes = nil
-      @endpoint_name_for_logging = nil
-      @endpoint_logger = nil
     end
 
     # The setter for the server.
@@ -154,22 +152,6 @@ module CoreLibrary
       self
     end
 
-    # The setter for the name of the endpoint controller method to used while logging an endpoint call.
-    # @param [String] endpoint_name_for_logging The name of the endpoint controller method to used while logging.
-    # @return [RequestBuilder] An updated instance of RequestBuilder.
-    def endpoint_name_for_logging(endpoint_name_for_logging)
-      @endpoint_name_for_logging = endpoint_name_for_logging
-      self
-    end
-
-    # The setter for the name of the endpoint controller method to used while logging an endpoint call.
-    # @param [EndpointLogger] endpoint_logger The name of the endpoint controller method to used while logging.
-    # @return [RequestBuilder] An updated instance of RequestBuilder.
-    def endpoint_logger(endpoint_logger)
-      @endpoint_logger = endpoint_logger
-      self
-    end
-
     # Sets global configuration object for the request builder.
     def global_configuration(global_configuration)
       @global_configuration = global_configuration
@@ -195,7 +177,6 @@ module CoreLibrary
     # Processes and resolves the endpoint URL.
     # @return [String] The processed URL.
     def process_url
-      @endpoint_logger.info("Preparing query URL for #{@endpoint_name_for_logging}.")
       _base_url = @global_configuration.get_base_uri_executor.call(@server)
       _updated_url_with_template_params = ApiHelper.append_url_with_template_parameters(@path, @template_params)
       _url = _base_url + _updated_url_with_template_params
@@ -233,10 +214,6 @@ module CoreLibrary
       _has_additional_headers = !_additional_headers.nil? && _additional_headers.any?
       _has_local_headers = !@header_params.nil? and @header_params.any?
 
-      if _has_global_headers || _has_additional_headers || _has_local_headers
-        @endpoint_logger.info("Preparing headers for #{@endpoint_name_for_logging}.")
-      end
-
       _request_headers.merge!(_global_headers) if _has_global_headers
       _request_headers.merge!(_additional_headers) if _has_additional_headers
 
@@ -257,12 +234,6 @@ module CoreLibrary
       _has_body_param = !@body_param.nil?
       _has_body_serializer = !@body_serializer.nil?
       _has_xml_attributes = !@xml_attributes.nil?
-
-      if _has_form_params || _has_additional_form_params
-        @endpoint_logger.info("Preparing form parameters for #{@endpoint_name_for_logging}.")
-      elsif _has_body_param
-        @endpoint_logger.info("Preparing body parameters for #{@endpoint_name_for_logging}.")
-      end
 
       if _has_xml_attributes
         return process_xml_parameters

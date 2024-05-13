@@ -93,12 +93,9 @@ module TestComponent
                           .exception_type(NestedModelException)}
     end
 
-    def self.create_logger(logger: nil)
-      EndpointLogger.new logger
-    end
-
-    def self.create_client_configuration(http_callback: nil)
-      HttpClientConfiguration.new(http_client: HttpClientMock.new, http_callback: http_callback)
+    def self.create_client_configuration(http_callback: nil, logging_configuration: nil)
+      HttpClientConfiguration.new(http_client: HttpClientMock.new, http_callback: http_callback,
+                                  logging_configuration: logging_configuration)
     end
 
     def self.create_global_config_with_auth(raiseException, http_callback: nil)
@@ -116,8 +113,9 @@ module TestComponent
                          .auth_managers(auth_managers)
     end
 
-    def self.create_global_configurations(http_callback: nil)
-      GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback))
+    def self.create_global_configurations(http_callback: nil, logging_configuration: nil)
+      GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback,
+                                                                                logging_configuration: logging_configuration))
                          .base_uri_executor(method(:get_base_uri))
                          .global_errors(get_global_errors)
     end
@@ -136,13 +134,26 @@ module TestComponent
                          .additional_headers({ "additionalHeader": "value" })
     end
 
+    def self.create_logging_configuration(logger: nil, log_level: nil, request_logging_config: nil, response_logging_config: nil, mask_sensitive_headers: nil)
+      request_logging_config = request_logging_config || MockHelper.create_request_logging_configuration()
+      response_logging_config = response_logging_config || MockHelper.create_response_logging_configuration()
+      ApiLoggingConfiguration.new(logger, log_level, request_logging_config, response_logging_config, mask_sensitive_headers)
+    end
+
+    def self.create_request_logging_configuration(log_body: nil, log_headers: nil, headers_to_exclude: nil, headers_to_include: nil, headers_to_unmask: nil, include_query_in_path: nil)
+      ApiRequestLoggingConfiguration.new(log_body, log_headers, headers_to_exclude, headers_to_include, headers_to_unmask, include_query_in_path)
+    end
+
+    def self.create_response_logging_configuration(log_body: nil, log_headers: nil, headers_to_exclude: nil, headers_to_include: nil, headers_to_unmask: nil)
+      ApiResponseLoggingConfiguration.new(log_body, log_headers, headers_to_exclude, headers_to_include, headers_to_unmask)
+    end
+
     def self.get_base_uri(server = Server::DEFAULT)
       ENVIRONMENTS[Environment::TESTING][server]
     end
 
     def self.create_basic_request_builder
       RequestBuilder.new
-                    .endpoint_logger(MockHelper::create_logger)
                     .server(Server::DEFAULT)
                     .path(default_path)
                     .global_configuration(MockHelper.create_global_configurations)
@@ -150,7 +161,6 @@ module TestComponent
 
     def self.create_basic_request_builder_with_global_headers
       RequestBuilder.new
-                    .endpoint_logger(MockHelper::create_logger)
                     .server(Server::DEFAULT)
                     .path(default_path)
                     .global_configuration(MockHelper.create_global_configurations_with_headers)
@@ -158,7 +168,6 @@ module TestComponent
 
     def self.create_basic_request_builder_with_auth(raiseException)
       RequestBuilder.new
-                    .endpoint_logger(MockHelper::create_logger)
                     .server(Server::DEFAULT)
                     .path(default_path)
                     .global_configuration(MockHelper.create_global_config_with_auth(raiseException))

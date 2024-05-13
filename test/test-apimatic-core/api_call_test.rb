@@ -15,7 +15,6 @@ class ApiCallTest < Minitest::Test
                                                             .value('application/json'))
     @response_handler = ResponseHandler.new
                                        .is_nullify404(true)
-                                       .endpoint_logger(MockHelper.create_logger)
                                        .deserializer(ApiHelper.method(:custom_type_deserializer))
                                        .deserialize_into(Validate.method(:from_hash))
   end
@@ -26,7 +25,6 @@ class ApiCallTest < Minitest::Test
 
   def test_end_to_end_with_uninitialized_client
     api_call = ApiCall.new(MockHelper::create_global_configurations_without_client)
-                      .endpoint_name_for_logging('api_call_tests')
                       .request(@request_builder)
                       .response(@response_handler)
     assert_raises ArgumentError do
@@ -37,7 +35,6 @@ class ApiCallTest < Minitest::Test
   def test_end_to_end_with_http_callback_enabled
     response_catcher = HttpCallbackMock.new
     api_call = ApiCall.new(MockHelper::create_global_configurations(http_callback: response_catcher))
-                      .endpoint_name_for_logging('api_call_tests')
                       .request(@request_builder)
                       .response(@response_handler)
                       .endpoint_context('retry', true)
@@ -56,7 +53,6 @@ class ApiCallTest < Minitest::Test
   def test_end_to_end_success_case
     api_call = ApiCall.new(MockHelper::create_global_configurations)
                       .new_builder
-                      .endpoint_name_for_logging('api_call_tests')
                       .request(@request_builder)
                       .response(@response_handler)
     actual_response = api_call.execute
@@ -67,4 +63,5 @@ class ApiCallTest < Minitest::Test
     assert_equal expected_response.field, actual_response.field
     assert_equal expected_response.name, actual_response.name
   end
+
 end

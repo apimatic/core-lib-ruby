@@ -1,12 +1,13 @@
 require 'minitest/autorun'
 require 'apimatic_core'
 require_relative '../../test-helper/mock_helper'
+require_relative '../test_helper'
 
 class QueryAuthTest < Minitest::Test
   include CoreLibrary, TestComponent
 
   def setup
-    @header_auth = QueryAuth.new({'Authorization' => 'MyDuMmYtOkEn'})
+    @header_auth = QueryAuth.new({'Authorization' => TEST_TOKEN})
     @http_request_mock = MockHelper.create_request query_url: 'http://localhost/test'
   end
 
@@ -23,7 +24,7 @@ class QueryAuthTest < Minitest::Test
 
   def test_apply_auth
     @header_auth.apply(@http_request_mock)
-    expected_query_url_value = 'http://localhost/test?Authorization=MyDuMmYtOkEn'
+    expected_query_url_value = "http://localhost/test?Authorization=#{TEST_TOKEN}"
 
     refute_nil @http_request_mock
     refute_nil @http_request_mock.query_url

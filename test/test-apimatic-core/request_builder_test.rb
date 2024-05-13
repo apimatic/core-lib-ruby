@@ -286,18 +286,6 @@ class RequestBuilderTest < Minitest::Test
     assert_includes(actual.query_url, MockHelper.test_server)
   end
 
-  def test_logger
-    test_logger = TestLogger.new
-    MockHelper.create_basic_request_builder
-              .endpoint_logger(MockHelper.create_logger(logger: test_logger))
-              .endpoint_name_for_logging("TestLogger")
-              .build({})
-
-    refute_nil(test_logger.logged_messages)
-
-    assert_includes(test_logger.logged_messages[0], "Preparing query URL for TestLogger.")
-  end
-
   def test_global_and_additional_headers
     actual = MockHelper.create_basic_request_builder_with_global_headers
                        .build({})

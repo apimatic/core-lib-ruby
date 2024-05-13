@@ -1,12 +1,13 @@
 require 'minitest/autorun'
 require 'apimatic_core'
 require_relative '../../test-helper/mock_helper'
+require_relative '../test_helper'
 
 class HeaderAuthTest < Minitest::Test
   include CoreLibrary, TestComponent
 
   def setup
-    @header_auth = HeaderAuth.new({'Authorization' => 'MyDuMmYtOkEn'})
+    @header_auth = HeaderAuth.new({'Authorization' => TEST_TOKEN})
     @http_request_mock = MockHelper.create_request
   end
 
@@ -23,7 +24,7 @@ class HeaderAuthTest < Minitest::Test
 
   def test_apply_auth
     @header_auth.apply(@http_request_mock)
-    expected_header_value = {'Authorization' => 'MyDuMmYtOkEn'}
+    expected_header_value = {'Authorization' => TEST_TOKEN}
 
     refute_nil @http_request_mock
     refute_nil @http_request_mock.headers

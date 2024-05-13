@@ -19,8 +19,6 @@ class ResponseHandlerTest < Minitest::Test
   def setup
     @response_handler = ResponseHandler.new
                                        .is_nullify404(true)
-                                       .endpoint_logger(MockHelper.create_logger)
-                                       .endpoint_name_for_logging('response_handler_tests')
   end
 
   def teardown

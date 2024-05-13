@@ -1,7 +1,7 @@
 module CoreLibrary
   # Configuration for an HttpClient.
   class HttpClientConfiguration < ClientConfiguration
-    attr_reader :http_client, :http_callback
+    attr_reader :http_client, :http_callback, :logging_configuration
 
     # Initializes a new instance of HttpClientConfiguration.
     # @param connection Connection information
@@ -20,7 +20,8 @@ module CoreLibrary
       connection: nil, adapter: :net_http_persistent, timeout: 60,
       max_retries: 0, retry_interval: 1, backoff_factor: 2,
       retry_statuses: [408, 413, 429, 500, 502, 503, 504, 521, 522, 524],
-      retry_methods: %i[get put], cache: false, verify: true, http_callback: nil, http_client: nil
+      retry_methods: %i[get put], cache: false, verify: true, http_callback: nil, http_client: nil,
+      logging_configuration: nil
     )
       @response_factory = HttpResponseFactory.new
       @connection = connection
@@ -35,6 +36,7 @@ module CoreLibrary
       @verify = verify
       @cache = cache
       @http_client = http_client
+      @logging_configuration = logging_configuration
     end
 
     # Setter for http_client.

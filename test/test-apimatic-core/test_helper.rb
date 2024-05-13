@@ -7,3 +7,7 @@ SimpleCov.start do
   add_filter 'test'
   enable_coverage :branch
 end
+
+# test constants
+TEST_TOKEN = 'MyDuMmYtOkEn'.freeze
+JSON_CONTENT_TYPE = 'application/json'.freeze

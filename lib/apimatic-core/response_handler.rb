@@ -12,8 +12,6 @@ module CoreLibrary
       @datetime_format = nil
       @is_xml_response = false
       @xml_attribute = nil
-      @endpoint_name_for_logging = nil
-      @endpoint_logger = nil
       @is_primitive_response = false
       @is_date_response = false
       @is_response_array = false
@@ -84,22 +82,6 @@ module CoreLibrary
       self
     end
 
-    # Sets the endpoint_name_for_logging property.
-    # @param [String] endpoint_name_for_logging The endpoint method name to be used while logging.
-    # @return [ResponseHandler] An updated instance of ResponseHandler.
-    def endpoint_name_for_logging(endpoint_name_for_logging)
-      @endpoint_name_for_logging = endpoint_name_for_logging
-      self
-    end
-
-    # Sets endpoint logger to be used.
-    # @param [EndpointLogger] endpoint_logger The logger to be used for logging API call steps.
-    # @return [ResponseHandler] An updated instance of ResponseHandler.
-    def endpoint_logger(endpoint_logger)
-      @endpoint_logger = endpoint_logger
-      self
-    end
-
     # Sets the is_primitive_response property.
     # @param [Boolean] is_primitive_response Flag if the response is of primitive type.
     # @return [ResponseHandler] An updated instance of ResponseHandler.
@@ -164,13 +146,8 @@ module CoreLibrary
     # @param [Boolean] should_symbolize_hash Flag to symbolize the hash during response deserialization.
     # @return [Object] The deserialized response of the API Call.
     def handle(response, global_errors, should_symbolize_hash = false)
-      @endpoint_logger.info("Validating response for #{@endpoint_name_for_logging}.")
-
       # checking Nullify 404
-      if response.status_code == 404 && @is_nullify404
-        @endpoint_logger.info("Status code 404 received for #{@endpoint_name_for_logging}. Returning None.")
-        return nil
-      end
+      return nil if response.status_code == 404 && @is_nullify404
 
       # validating response if configured
       validate(response, global_errors)
