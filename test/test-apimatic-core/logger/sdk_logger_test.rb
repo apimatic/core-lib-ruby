@@ -126,7 +126,7 @@ class SdkLoggerTest < Minitest::Test
       @basic_request_log,
       'info: Request headers {"authorization"=>"**Redacted**", "content-length"=>"449", "content-type"=>"application/json"}',
     ]
-     
+
     logger = TestLogger.new
     logger_config = MockHelper.create_logging_configuration(
       logger: logger,
@@ -138,12 +138,17 @@ class SdkLoggerTest < Minitest::Test
     sdk_logger = SdkLogger.new(logger_config)
     sdk_logger.log_request(@request)
     logged_messages = logger.logged_messages
-
     i = 0
     expected_logs.each do |msg|
       assert_includes(msg, logged_messages[i])
       i += 1
     end
+    expected_request_headers = {
+      'authorization' => 'Bearer EAAAEFZ2r-rqsEBBB0s2rh210e18mspf4dzga',
+      CONTENT_LENGTH_HEADER => '449',
+      CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE
+    }
+    assert_equal(expected_request_headers, @request.headers)
   end
   def test_log_response_body
     expected_logs = [
@@ -192,6 +197,12 @@ class SdkLoggerTest < Minitest::Test
       assert_includes(msg, logged_messages[i])
       i += 1
     end
+    expected_response_headers = {
+      'set-cookies' => 'some value',
+      CONTENT_LENGTH_HEADER => '449',
+      CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE
+    }
+    assert_equal(expected_response_headers, @response.headers)
   end
   def test_end_to_end_with_logger_enabled
     expected_logs = [

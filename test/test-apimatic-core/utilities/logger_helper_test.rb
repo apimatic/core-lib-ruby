@@ -41,7 +41,8 @@ class LoggerHelperTest < Minitest::Test
       headers_to_include: [CONTENT_TYPE_HEADER],
       headers_to_exclude: [],
     )
-    assert_equal({ CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE }, LoggerHelper.extract_headers_to_log(http_object, headers))
+    assert_equal({ CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE },
+                 LoggerHelper.extract_headers_to_log(http_object, false, headers))
   end
 
   def test_extract_headers_to_log__with_include_list_and_empty_headers
@@ -49,7 +50,8 @@ class LoggerHelperTest < Minitest::Test
                     headers_to_include: [CONTENT_TYPE_HEADER],
                     headers_to_unmask: []
                   )
-    assert_equal({}, LoggerHelper.extract_headers_to_log(http_object, {}))
+    assert_equal({}, LoggerHelper.extract_headers_to_log(http_object, false,
+                                                         {}))
   end
 
   def test_extract_headers_to_log_with_exclude_list
@@ -58,7 +60,8 @@ class LoggerHelperTest < Minitest::Test
       headers_to_exclude: ['Authorization'],
       headers_to_include: []
     )
-    assert_equal({ CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE }, LoggerHelper.extract_headers_to_log(http_object, headers))
+    assert_equal({ CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE },
+                 LoggerHelper.extract_headers_to_log(http_object, false, headers))
   end
 
   def test_extract_headers_to_log_with_unmask_list
@@ -68,7 +71,8 @@ class LoggerHelperTest < Minitest::Test
       headers_to_exclude: [],
       headers_to_include: []
     )
-    assert_equal({ 'Authorization' => TEST_TOKEN }, LoggerHelper.extract_headers_to_log(http_object, headers))
+    assert_equal({ 'Authorization' => TEST_TOKEN },
+                 LoggerHelper.extract_headers_to_log(http_object, false, headers))
   end
 
   def test_extract_headers_to_log_with_nil_headers
@@ -76,7 +80,7 @@ class LoggerHelperTest < Minitest::Test
       headers_to_exclude: [],
       headers_to_include: []
     )
-    assert_nil LoggerHelper.extract_headers_to_log(http_object, nil)
+    assert_nil LoggerHelper.extract_headers_to_log(http_object, false, nil)
   end
 
   def test_extract_headers_to_log_with_empty_headers
@@ -84,23 +88,42 @@ class LoggerHelperTest < Minitest::Test
       headers_to_exclude: [],
       headers_to_include: []
     )
-    assert_equal({}, LoggerHelper.extract_headers_to_log(http_object,{}))
+    assert_equal({}, LoggerHelper.extract_headers_to_log(http_object, false,
+                                                         {}))
   end
 
-  def test_mask_sensitive_headers_with_sensitive_header
-    headers = { 'Authorization' => TEST_TOKEN }
+  def test_masking_sensitive_headers_with_global_mask_sensitive_header_flag_disabled
+    headers = { 'Authorization' => TEST_TOKEN, 'XYZ' => 'Testing' }
+    assert_equal({ 'Authorization' => TEST_TOKEN, 'XYZ' => 'Testing' },
+                 LoggerHelper.apply_masking_to_sensitive_headers(
+                   headers, false, []))
+  end
+
+  def test_masking_sensitive_headers_with_global_mask_sensitive_header_flag_enabled
+    headers = { 'Authorization' => TEST_TOKEN, 'XYZ' => 'Testing' }
+    assert_equal({ 'Authorization' => '**Redacted**', 'XYZ' => '**Redacted**' },
+                 LoggerHelper.apply_masking_to_sensitive_headers(
+                   headers, true, []))
+  end
+
+  def test_masking_sensitive_headers_with_sensitive_header
+    headers = { 'Authorization' => TEST_TOKEN, 'XYZ' => 'Testing' }
     headers_to_unmask = ['Authorization']
-    assert_equal({ 'Authorization' => TEST_TOKEN }, LoggerHelper.mask_sensitive_headers(headers, headers_to_unmask))
+    assert_equal({ 'Authorization' => TEST_TOKEN, 'XYZ' => '**Redacted**' },
+                 LoggerHelper.apply_masking_to_sensitive_headers(
+                   headers, true, headers_to_unmask))
   end
 
-  def test_mask_sensitive_headers_with_non_sensitive_header
+  def test_masking_sensitive_headers_with_non_sensitive_header
     headers = { CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE }
     headers_to_unmask = ['Authorization']
-    assert_equal({ CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE }, LoggerHelper.mask_sensitive_headers(headers, headers_to_unmask))
+    assert_equal({ CONTENT_TYPE_HEADER => JSON_CONTENT_TYPE },
+                 LoggerHelper.apply_masking_to_sensitive_headers(
+                   headers, false, headers_to_unmask))
   end
 
-  def test_mask_sensitive_headers_with_nil_headers
-    assert_nil LoggerHelper.mask_sensitive_headers(nil, nil)
+  def test_masking_sensitive_headers_with_nil_headers
+    assert_nil LoggerHelper.apply_masking_to_sensitive_headers(nil, false, nil)
   end
 
   def test_mask_if_sensitive_header_with_nil_headers_to_unmask
