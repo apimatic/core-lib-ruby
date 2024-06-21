@@ -4,4 +4,5 @@ module CoreLibrary
   METHOD = 'method'.freeze
   URL = 'url'.freeze
   STATUS_CODE = 'status_code'.freeze
+  REDACTED = '**Redacted**'.freeze
 end

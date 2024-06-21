@@ -134,7 +134,7 @@ module TestComponent
                          .additional_headers({ "additionalHeader": "value" })
     end
 
-    def self.create_logging_configuration(logger: nil, log_level: nil, request_logging_config: nil, response_logging_config: nil, mask_sensitive_headers: nil)
+    def self.create_logging_configuration(logger: nil, log_level: nil, request_logging_config: nil, response_logging_config: nil, mask_sensitive_headers: true)
       request_logging_config = request_logging_config || MockHelper.create_request_logging_configuration()
       response_logging_config = response_logging_config || MockHelper.create_response_logging_configuration()
       ApiLoggingConfiguration.new(logger, log_level, request_logging_config, response_logging_config, mask_sensitive_headers)

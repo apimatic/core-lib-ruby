@@ -23,7 +23,7 @@ module CoreLibrary
       headers.find { |key, _| key.downcase == CONTENT_LENGTH_HEADER }&.last || ''
     end
 
-    def self.extract_headers_to_log(http_logging_config, headers)
+    def self.extract_headers_to_log(http_logging_config, mask_sensitive_headers, headers)
       return headers if headers.nil?
 
       filtered_headers = if http_logging_config.headers_to_include.any?
@@ -34,7 +34,8 @@ module CoreLibrary
                            headers
                          end
 
-      mask_sensitive_headers(filtered_headers, http_logging_config.headers_to_unmask)
+      apply_masking_to_sensitive_headers(filtered_headers, mask_sensitive_headers,
+                                         http_logging_config.headers_to_unmask)
     end
 
     def self.include_headers(headers, headers_to_include)
@@ -60,14 +61,16 @@ module CoreLibrary
       excluded_headers
     end
 
-    def self.mask_sensitive_headers(headers, headers_to_unmask)
-      return headers unless @mask_sensitive_headers || !headers.nil?
+    def self.apply_masking_to_sensitive_headers(headers, mask_sensitive_headers, headers_to_unmask)
+      return headers unless mask_sensitive_headers
+      return headers if headers.nil?
 
+      masked_headers = {}
       headers.each do |key, val|
-        headers[key] = mask_if_sensitive_header(key, val, headers_to_unmask)
+        masked_headers[key] = mask_if_sensitive_header(key, val, headers_to_unmask)
       end
 
-      headers
+      masked_headers
     end
 
     def self.mask_if_sensitive_header(name, value, headers_to_unmask)
@@ -76,7 +79,7 @@ module CoreLibrary
       name_downcase = name.downcase
 
       NON_SENSITIVE_HEADERS.include?(name_downcase) || headers_to_unmask.include?(name_downcase) ?
-        value : '**Redacted**'
+        value : REDACTED
     end
   end
 end
