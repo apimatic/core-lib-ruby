@@ -63,7 +63,8 @@ module CoreLibrary
 
     def self.apply_masking_to_sensitive_headers(headers, mask_sensitive_headers, headers_to_unmask)
       return headers unless mask_sensitive_headers
-      return headers unless !headers.nil?
+      return headers if headers.nil?
+
       masked_headers = {}
       headers.each do |key, val|
         masked_headers[key] = mask_if_sensitive_header(key, val, headers_to_unmask)
