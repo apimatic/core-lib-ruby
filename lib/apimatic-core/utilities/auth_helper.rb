@@ -16,6 +16,7 @@ module CoreLibrary
 
     # Checks if OAuth token has expired.
     # @param [int] token_expiry The expiring of a token.
+    # @param [int|Optional] clock_skew_time A buffer to the calculated expiry.
     # @return [Boolean] true if token has expired, false otherwise.
     def self.token_expired?(token_expiry, clock_skew_time = nil)
       raise ArgumentError, 'Token expiry can not be nil.' if token_expiry.nil?

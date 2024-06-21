@@ -77,6 +77,15 @@ class AuthHelperTest < Minitest::Test
     assert_equal expected_value, actual_value
   end
 
+  def test_token_not_expired_with_negative_clock_skew
+    token_expiry = Time.now().utc.to_i + 3600
+    actual_value = AuthHelper.token_expired?(token_expiry, -3600)
+    expected_value = false
+
+    refute_nil actual_value
+    assert_equal expected_value, actual_value
+  end
+
   def test_get_token_expiry
     current_timestamp = Time.now().utc.to_i
     expires_in = 3600
