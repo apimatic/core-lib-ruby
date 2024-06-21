@@ -101,7 +101,7 @@ class LoggerHelperTest < Minitest::Test
 
   def test_masking_sensitive_headers_with_global_mask_sensitive_header_flag_enabled
     headers = { 'Authorization' => TEST_TOKEN, 'XYZ' => 'Testing' }
-    assert_equal({ 'Authorization' => '**Redacted**', 'XYZ' => '**Redacted**' },
+    assert_equal({ 'Authorization' => REDACTED, 'XYZ' => REDACTED },
                  LoggerHelper.apply_masking_to_sensitive_headers(
                    headers, true, []))
   end
@@ -109,7 +109,7 @@ class LoggerHelperTest < Minitest::Test
   def test_masking_sensitive_headers_with_sensitive_header
     headers = { 'Authorization' => TEST_TOKEN, 'XYZ' => 'Testing' }
     headers_to_unmask = ['Authorization']
-    assert_equal({ 'Authorization' => TEST_TOKEN, 'XYZ' => '**Redacted**' },
+    assert_equal({ 'Authorization' => TEST_TOKEN, 'XYZ' => REDACTED },
                  LoggerHelper.apply_masking_to_sensitive_headers(
                    headers, true, headers_to_unmask))
   end
@@ -127,11 +127,11 @@ class LoggerHelperTest < Minitest::Test
   end
 
   def test_mask_if_sensitive_header_with_nil_headers_to_unmask
-    assert_equal '**Redacted**', LoggerHelper.mask_if_sensitive_header('Authorization', TEST_TOKEN, nil)
+    assert_equal REDACTED, LoggerHelper.mask_if_sensitive_header('Authorization', TEST_TOKEN, nil)
   end
 
   def test_sensitive_header_with_empty_headers_to_unmask
-    assert_equal '**Redacted**', LoggerHelper.mask_if_sensitive_header('Authorization', TEST_TOKEN, [])
+    assert_equal REDACTED, LoggerHelper.mask_if_sensitive_header('Authorization', TEST_TOKEN, [])
   end
 
   def test_sensitive_header_with_non_empty_headers_to_unmask

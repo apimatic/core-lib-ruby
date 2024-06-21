@@ -124,7 +124,7 @@ class SdkLoggerTest < Minitest::Test
   def test_log_req_headers
     expected_logs = [
       @basic_request_log,
-      'info: Request headers {"authorization"=>"**Redacted**", "content-length"=>"449", "content-type"=>"application/json"}',
+      "info: Request headers {\"authorization\"=>\"#{REDACTED}\", \"content-length\"=>\"449\", \"content-type\"=>\"application/json\"}",
     ]
 
     logger = TestLogger.new
@@ -177,7 +177,7 @@ class SdkLoggerTest < Minitest::Test
   def test_log_response_headers
     expected_logs = [
       @basic_response_log,
-      'info: Response headers {"set-cookies"=>"**Redacted**", "content-length"=>"449", "content-type"=>"application/json"}',
+      "info: Response headers {\"set-cookies\"=>\"#{REDACTED}\", \"content-length\"=>\"449\", \"content-type\"=>\"application/json\"}",
     ]
      
     logger = TestLogger.new

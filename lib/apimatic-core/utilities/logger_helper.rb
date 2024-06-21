@@ -79,7 +79,7 @@ module CoreLibrary
       name_downcase = name.downcase
 
       NON_SENSITIVE_HEADERS.include?(name_downcase) || headers_to_unmask.include?(name_downcase) ?
-        value : '**Redacted**'
+        value : REDACTED
     end
   end
 end
