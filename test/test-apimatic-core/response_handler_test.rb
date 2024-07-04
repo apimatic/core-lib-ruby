@@ -321,6 +321,46 @@ class ResponseHandlerTest < Minitest::Test
     assert_equal expected_response, actual_response
   end
 
+  def test_empty_response_body
+    response_body_mock = ''
+    response_mock = MockHelper.create_response status_code: 200,
+                                               raw_body: response_body_mock
+    actual_response = @response_handler.deserializer(ApiHelper.method(:deserialize_primitive_types))
+                                       .is_primitive_response(true)
+                                       .deserialize_into(proc do |response_body|
+                                         response_body.to_i
+                                       end)
+                                       .handle(response_mock, MockHelper.get_global_errors)
+
+    assert_nil actual_response
+
+    actual_response = @response_handler
+                        .deserializer(ApiHelper.method(:custom_type_deserializer))
+                        .deserialize_into(Validate.method(:from_hash))
+                        .handle(response_mock, MockHelper.get_global_errors)
+
+    assert_nil actual_response
+
+    response_body_mock = '    '
+    response_mock = MockHelper.create_response status_code: 200,
+                                               raw_body: response_body_mock
+    actual_response = @response_handler.deserializer(ApiHelper.method(:deserialize_primitive_types))
+                                       .is_primitive_response(true)
+                                       .deserialize_into(proc do |response_body|
+                                         response_body.to_i
+                                       end)
+                                       .handle(response_mock, MockHelper.get_global_errors)
+
+    assert_nil actual_response
+
+    actual_response = @response_handler
+                        .deserializer(ApiHelper.method(:custom_type_deserializer))
+                        .deserialize_into(Validate.method(:from_hash))
+                        .handle(response_mock, MockHelper.get_global_errors)
+
+    assert_nil actual_response
+  end
+
   def test_primitive_response_body_oaf
     response_body_mock = '"Sunday"'
     response_mock = MockHelper.create_response status_code: 200,
@@ -439,6 +479,30 @@ class ResponseHandlerTest < Minitest::Test
     assert_equal expected_response.data.to_s, actual_response.data.to_s
     assert_equal expected_response.body.to_s, actual_response.body.to_s
     assert_equal expected_response.cursor, actual_response.cursor
+
+    response_body_mock = ''
+    response_mock = MockHelper.create_response status_code: 200,
+                                               raw_body: response_body_mock
+    actual_response = @response_handler
+                        .deserializer(ApiHelper.method(:json_deserialize))
+                        .is_api_response(true)
+                        .convertor(SdkApiResponseWithCustomFields.method(:create))
+                        .handle(response_mock, MockHelper.get_global_errors, true)
+    expected_response = SdkApiResponseWithCustomFields.new(response_mock,
+                                                           data: nil,
+                                                           errors: nil)
+
+    refute_nil(actual_response)
+
+    assert_instance_of SdkApiResponseWithCustomFields, actual_response
+    assert_nil actual_response.errors
+    assert !actual_response.error?
+    assert actual_response.success?
+    assert_equal expected_response.status_code, actual_response.status_code
+    assert_equal expected_response.raw_body, actual_response.raw_body
+    assert_nil actual_response.data
+    assert_nil actual_response.body
+    assert_nil actual_response.cursor
   end
 
   def test_converted_sdk_api_response
@@ -463,6 +527,28 @@ class ResponseHandlerTest < Minitest::Test
     assert_equal expected_response.status_code, actual_response.status_code
     assert_equal expected_response.raw_body, actual_response.raw_body
     assert_equal expected_response.data, actual_response.data
+
+    response_body_mock = '    '
+    response_mock = MockHelper.create_response status_code: 200,
+                                               raw_body: response_body_mock
+    actual_response = @response_handler
+                        .deserializer(ApiHelper.method(:json_deserialize))
+                        .is_api_response(true)
+                        .convertor(SdkApiResponse.method(:create))
+                        .handle(response_mock, MockHelper.get_global_errors)
+    expected_response = SdkApiResponse.new(response_mock,
+                                           data: nil,
+                                           errors: nil)
+
+    refute_nil(actual_response)
+
+    assert_instance_of SdkApiResponse, actual_response
+    assert !actual_response.error?
+    assert actual_response.success?
+    assert_nil actual_response.errors
+    assert_equal expected_response.status_code, actual_response.status_code
+    assert_equal expected_response.raw_body, actual_response.raw_body
+    assert_nil actual_response.data
   end
 
   def test_converted_sdk_api_response_errors

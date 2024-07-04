@@ -191,6 +191,8 @@ module CoreLibrary
     # Applies deserializer to the response.
     # @param [Boolean] should_symbolize_hash Flag to symbolize the hash during response deserialization.
     def apply_deserializer(response, should_symbolize_hash)
+      return if response.raw_body.nil? or response.raw_body.to_s.strip.empty?
+
       return apply_xml_deserializer(response) if @is_xml_response
       return response.raw_body if @deserializer.nil?
 
