@@ -16,6 +16,7 @@ module CoreLibrary
       @is_date_response = false
       @is_response_array = false
       @is_response_void = false
+      @is_nullable_response = false
     end
 
     # Sets deserializer for the response.
@@ -138,6 +139,14 @@ module CoreLibrary
       @is_response_void = is_response_void
       self
     end
+
+    # Sets the is_nullable_response property.
+    # @param [Boolean] is_nullable_response Flag to return early in case of empty response payload.
+    # @return [ResponseHandler] An updated instance of ResponseHandler.
+    def is_nullable_response(is_nullable_response)
+      @is_nullable_response = is_nullable_response
+      self
+    end
     # rubocop:enable Naming/PredicateName
 
     # Main method to handle the response with all the set properties.
@@ -191,7 +200,7 @@ module CoreLibrary
     # Applies deserializer to the response.
     # @param [Boolean] should_symbolize_hash Flag to symbolize the hash during response deserialization.
     def apply_deserializer(response, should_symbolize_hash)
-      return if response.raw_body.nil? || response.raw_body.to_s.strip.empty?
+      return if @is_nullable_response && (response.raw_body.nil? || response.raw_body.to_s.strip.empty?)
 
       return apply_xml_deserializer(response) if @is_xml_response
       return response.raw_body if @deserializer.nil?

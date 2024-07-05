@@ -331,8 +331,10 @@ class ResponseHandlerTest < Minitest::Test
                                          response_body.to_i
                                        end)
                                        .handle(response_mock, MockHelper.get_global_errors)
+    expected_response = 0
 
-    assert_nil actual_response
+    refute_nil actual_response
+    assert_equal expected_response, actual_response
 
     actual_response = @response_handler
                         .deserializer(ApiHelper.method(:custom_type_deserializer))
@@ -351,9 +353,54 @@ class ResponseHandlerTest < Minitest::Test
                                        end)
                                        .handle(response_mock, MockHelper.get_global_errors)
 
+    refute_nil actual_response
+    assert_equal expected_response, actual_response
+
+    actual_response = @response_handler
+                        .deserializer(ApiHelper.method(:custom_type_deserializer))
+                        .deserialize_into(Validate.method(:from_hash))
+                        .handle(response_mock, MockHelper.get_global_errors)
+
+    assert_nil actual_response
+  end
+
+  def test_empty_response_body_with_nullable_response_flag
+    response_body_mock = ''
+    response_mock = MockHelper.create_response status_code: 200,
+                                               raw_body: response_body_mock
+    actual_response = @response_handler.deserializer(ApiHelper.method(:deserialize_primitive_types))
+                                       .is_primitive_response(true)
+                                       .is_nullable_response(true)
+                                       .deserialize_into(proc do |response_body|
+                                         response_body.to_i
+                                       end)
+                                       .handle(response_mock, MockHelper.get_global_errors)
+
     assert_nil actual_response
 
     actual_response = @response_handler
+                        .is_nullable_response(true)
+                        .deserializer(ApiHelper.method(:custom_type_deserializer))
+                        .deserialize_into(Validate.method(:from_hash))
+                        .handle(response_mock, MockHelper.get_global_errors)
+
+    assert_nil actual_response
+
+    response_body_mock = '    '
+    response_mock = MockHelper.create_response status_code: 200,
+                                               raw_body: response_body_mock
+    actual_response = @response_handler.deserializer(ApiHelper.method(:deserialize_primitive_types))
+                                       .is_nullable_response(true)
+                                       .is_primitive_response(true)
+                                       .deserialize_into(proc do |response_body|
+                                         response_body.to_i
+                                       end)
+                                       .handle(response_mock, MockHelper.get_global_errors)
+
+    assert_nil actual_response
+
+    actual_response = @response_handler
+                        .is_nullable_response(true)
                         .deserializer(ApiHelper.method(:custom_type_deserializer))
                         .deserialize_into(Validate.method(:from_hash))
                         .handle(response_mock, MockHelper.get_global_errors)
