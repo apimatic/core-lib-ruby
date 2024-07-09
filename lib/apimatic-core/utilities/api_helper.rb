@@ -290,7 +290,7 @@ module CoreLibrary
     # @return [Hash, Array, nil] The parsed JSON object, or nil if the input string is nil.
     # @raise [TypeError] if the server responds with invalid JSON and primitive type parsing is not allowed.
     def self.json_deserialize(json, should_symbolize = false, allow_primitive_type_parsing = false)
-      return if json.nil?
+      return if json.nil? || json.to_s.strip.empty?
 
       begin
         JSON.parse(json, symbolize_names: should_symbolize)

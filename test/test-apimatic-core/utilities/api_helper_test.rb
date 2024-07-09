@@ -236,16 +236,18 @@ class ApiHelperTest < Minitest::Test
   end
 
   def test_json_deserialize
-    assert_nil(ApiHelper.json_deserialize(nil, false))
+    assert_nil(ApiHelper.json_deserialize(nil, ))
+    assert_nil(ApiHelper.json_deserialize('', ))
+    assert_nil(ApiHelper.json_deserialize('    ', ))
     assert_equal(ApiHelper.json_deserialize(
       '{"name":"Jone","age":23,"address":"H # 531, S # 20","uid":"1234","birthday":"2016-03-13",'\
-'"birthtime":"2016-03-13T12:52:32.123Z"}',
+        '"birthtime":"2016-03-13T12:52:32.123Z"}',
       false),
                  { "name" => "Jone", "age" => 23, "address" => "H # 531, S # 20", "uid" => "1234",
                    "birthday" => "2016-03-13", "birthtime" => "2016-03-13T12:52:32.123Z" })
     assert_equal(ApiHelper.json_deserialize(
       '{"name":"Jone","age":23,"address":"H # 531, S # 20","uid":"1234",'\
-'"birthday":"2016-03-13","birthtime":"2016-03-13T12:52:32.123Z"}',
+        '"birthday":"2016-03-13","birthtime":"2016-03-13T12:52:32.123Z"}',
       true),
                  { :name => "Jone", :age => 23, :address => "H # 531, S # 20", :uid => "1234",
                    :birthday => "2016-03-13", :birthtime => "2016-03-13T12:52:32.123Z" })
