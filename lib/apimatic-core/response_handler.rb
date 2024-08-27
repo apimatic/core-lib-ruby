@@ -161,7 +161,7 @@ module CoreLibrary
       # validating response if configured
       validate(response, global_errors)
 
-      return if @is_response_void
+      return if @is_response_void && !@is_api_response
 
       # applying deserializer if configured
       deserialized_value = apply_deserializer(response, should_symbolize_hash)

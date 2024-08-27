@@ -293,6 +293,16 @@ class ResponseHandlerTest < Minitest::Test
     assert_nil(actual_response)
   end
 
+
+  def test_void_response_with_api_response
+    response_mock = MockHelper.create_response status_code: 200
+    actual_response = @response_handler.is_response_void(true).is_api_response(true)
+                                       .handle(response_mock, MockHelper.get_global_errors)
+
+    refute_nil(actual_response)
+    assert_equal(200, actual_response.status_code)
+  end
+
   def test_no_deserializer_configured_case
     response_body_mock = 'This is simple response.'
     response_mock = MockHelper.create_response status_code: 200,
