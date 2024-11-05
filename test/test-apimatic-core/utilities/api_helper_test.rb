@@ -602,6 +602,36 @@ class ApiHelperTest < Minitest::Test
     ]
     assert_equal(expected, actual, 'Actual did not match the expected.')
   end
+
+  def test_get_additional_properties_success
+    test_cases = [
+      { dictionary: {}, expected_result: {}, unboxing_func: ->(x) { x.to_i }, is_dict: false },
+      { dictionary: { "a" => 1, "b" => 2 }, expected_result: { "a" => 1, "b" => 2 }, unboxing_func: ->(x) { x.to_i }, is_dict: false },
+      { dictionary: { "a" => "1", "b" => "2" }, expected_result: { "a" => "1", "b" => "2" }, unboxing_func: ->(x) { x.to_s }, is_dict: false },
+      { dictionary: { "a" => "Test 1", "b" => "Test 2" }, expected_result: {}, unboxing_func: ->(x) { x.to_i }, is_dict: false },
+      { dictionary: { "a" => [1, 2], "b" => [3, 4] }, expected_result: { "a" => [1, 2], "b" => [3, 4] }, unboxing_func: ->(x) { x.to_i }, is_dict: false },
+      { dictionary: { "a" => { "x" => 1, "y" => 2 }, "b" => { "x" => 3, "y" => 4 } }, expected_result: { "a" => { "x" => 1, "y" => 2 }, "b" => { "x" => 3, "y" => 4 } }, unboxing_func: ->(x) { x.to_i }, is_dict: true }
+    ]
+  
+    test_cases.each do |case_data|
+      actual_result = ApiHelper.get_additional_properties(case_data[:dictionary], case_data[:unboxing_func])
+      assert_equal(case_data[:expected_result], actual_result)
+    end
+  end
+  
+  def test_get_additional_properties_exception
+    test_cases = [
+      { dictionary: { "a" => nil }, unboxing_func: Proc.new { |x| x } },
+      { dictionary: { "a" => ->(x) { x } }, unboxing_func: Proc.new { |x| x }}
+    ]
+  
+    test_cases.each do |case_data|
+      actual_result = ApiHelper.get_additional_properties(case_data[:dictionary])
+      expected_result = {}
+      assert_equal(expected_result, actual_result)
+    end
+  end
+  
 end
 
 

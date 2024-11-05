@@ -442,6 +442,24 @@ module CoreLibrary
       val
     end
 
+    # Extracts additional properties from the hash.
+    # @param [Hash] hash The hash to extract additional properties from.
+    # @param [Proc] unboxing_function The deserializer to apply to each item in the hash.
+    # @return [Hash] A hash containing the additional properties and their values.
+    def get_additional_properties(hash, unboxing_function)
+      additional_properties = {}
+      
+      hash.each do |key, value|
+        begin
+          additional_properties[key] = unboxing_function.call(value)
+        rescue StandardError
+          # Ignore exceptions and continue
+        end
+      end
+    
+      additional_properties
+    end
+    
     # Get content-type depending on the value
     # @param [Object] value The value for which the content-type is resolved.
     def self.get_content_type(value)
