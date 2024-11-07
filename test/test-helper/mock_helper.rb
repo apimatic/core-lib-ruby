@@ -22,6 +22,13 @@ require_relative 'models/orbit'
 require_relative 'models/non_scalar_model'
 require_relative 'models/car'
 require_relative 'models/noon'
+require_relative 'models/model_with_additional_properties_of_model_array_type'
+require_relative 'models/model_with_additional_properties_of_model_dict_type'
+require_relative 'models/model_with_additional_properties_of_model_type'
+require_relative 'models/model_with_additional_properties_of_primitive_array_type'
+require_relative 'models/model_with_additional_properties_of_primitive_dict_type'
+require_relative 'models/model_with_additional_properties_of_primitive_type'
+require_relative 'models/model_with_additional_properties_of_type_combinator_primitive_type'
 
 module TestComponent
   # An enum for SDK environments.
@@ -191,6 +198,46 @@ module TestComponent
     def self.get_attributes_elements_model_with_datetime
       AttributesAndElements.new('string-attr', 2, 'string-element',
                                 DateTimeHelper.from_unix(1484719381))
+    end
+
+    def self.get_model_with_additional_properties_of_primitive_type
+      model_with_additional_properties_of_primitive_type = ModelWithAdditionalPropertiesOfPrimitiveType.new("test@gmail.com", { 'email' => 10.55 })
+      return model_with_additional_properties_of_primitive_type
+    end
+
+    def self.get_model_with_additional_properties_of_primitive_type_success
+      model_with_additional_properties_of_primitive_type = ModelWithAdditionalPropertiesOfPrimitiveType.new("test@gmail.com", { 'prop' => 20 })
+      return model_with_additional_properties_of_primitive_type
+    end
+
+    def self.get_model_with_additional_properties_of_primitive_array_type
+      model_with_additional_properties_of_primitive_array_type = ModelWithAdditionalPropertiesOfPrimitiveArrayType.new('test@gmail.com', { 'prop' => [20, 30] })
+      return model_with_additional_properties_of_primitive_array_type
+    end
+
+    def self.get_model_with_additional_properties_of_primitive_dict_type
+      model_with_additional_properties_of_primitive_dict_type = ModelWithAdditionalPropertiesOfPrimitiveDictType.new("test@gmail.com", { 'prop' => { 'inner prop 1' => 20, 'inner prop 2' => 30 } })
+      return model_with_additional_properties_of_primitive_dict_type
+    end
+
+    def self.get_model_with_additional_properties_of_model_type
+      model_with_additional_properties_of_model_type = ModelWithAdditionalPropertiesOfModelType.new("test@gmail.com", "prop1": {"starts_at": "8:00", "ends_at": "10:00", "offer_dinner": true, "session_type": "Evening"})
+      return model_with_additional_properties_of_model_type
+    end
+
+    def self.get_model_with_additional_properties_of_model_array_type
+      model_with_additional_properties_of_model_array_type = ModelWithAdditionalPropertiesOfModelArrayType.new("test@gmail.com", "prop1": [{"starts_at": "8:00", "ends_at": "10:00", "offer_dinner": true, "session_type": "Evening"}, {"starts_at": "8:00", "ends_at": "10:00", "offer_dinner": true, "session_type": "Evening"}])
+      return model_with_additional_properties_of_model_array_type
+    end
+
+    def self.get_model_with_additional_properties_of_model_dict_type
+      model_with_additional_properties_of_model_dict_type = ModelWithAdditionalPropertiesOfModelDictType.new("test@gmail.com", "prop1": {"inner_prop1": {"starts_at": "8:00", "ends_at": "10:00", "offer_dinner": true, "session_type": "Evening"}, "inner_prop2": {"starts_at": "8:00", "ends_at": "10:00", "offer_dinner": true, "session_type": "Evening"}})
+      return model_with_additional_properties_of_model_dict_type
+    end
+
+    def self.get_model_with_additional_properties_of_type_combinator_primitive_type
+      model_with_additional_properties_of_type_combinator_primitive_type = ModelWithAdditionalPropertiesOfTypeCombinatorPrimitiveType.new("test@gmail.com",{ 'prop' => 10.55 })
+      return model_with_additional_properties_of_type_combinator_primitive_type
     end
   end
 end

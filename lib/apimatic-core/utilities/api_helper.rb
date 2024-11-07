@@ -446,15 +446,17 @@ module CoreLibrary
     # @param [Hash] hash The hash to extract additional properties from.
     # @param [Proc] unboxing_function The deserializer to apply to each item in the hash.
     # @return [Hash] A hash containing the additional properties and their values.
-    def self.get_additional_properties(hash, unboxing_function)
+    def self.get_additional_properties(hash, unboxing_function, as_array: false,
+                                       as_dict: false)
       additional_properties = {}
 
-      # Iterate over each key-value pair in the input hash
+      # Iterate over each key-value pair in the input hash+
       hash.each do |key, value|
         # If the value is a complex structure (Hash or Array), we apply apply_unboxing_function.
-        additional_properties[key] = if value.is_a?(Hash) || value.is_a?(Array)
+        additional_properties[key] = if as_array || as_dict
                                        # Call apply_unboxing_function recursively if the value is a hash or array
-                                       apply_unboxing_function(value, unboxing_function, as_dict: value.is_a?(Hash))
+                                       apply_unboxing_function(value, unboxing_function, as_array: as_array,
+                                                                                         as_dict: as_dict)
                                      else
                                        # Apply the unboxing function directly for simple values
                                        unboxing_function.call(value)
@@ -468,11 +470,11 @@ module CoreLibrary
       additional_properties
     end
 
-    def self.apply_unboxing_function(obj, unboxing_function, as_dict: false)
+    def self.apply_unboxing_function(obj, unboxing_function, as_array: false, as_dict: false)
       if as_dict && obj.is_a?(Hash)
         # If `obj` is a Hash and `as_dict` is true, apply the unboxing function to each value in the hash.
         obj.transform_values { |v| apply_unboxing_function(v, unboxing_function, as_dict: true) }
-      elsif obj.is_a?(Array)
+      elsif as_array && obj.is_a?(Array)
         # If `obj` is an Array, apply the unboxing function to each element.
         obj.map { |element| unboxing_function.call(element) }
       else
