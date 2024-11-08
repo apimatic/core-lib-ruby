@@ -1,11 +1,10 @@
 require_relative '../models/base_model'
 
 module TestComponent
-  class ModelWithAdditionalPropertiesOfPrimitiveType < TestComponent::BaseModel
+  class ModelWithAdditionalPropertiesOfPrimitiveType < BaseModel
     SKIP = Object.new
     private_constant :SKIP
 
-    # TODO: Write general description for this method
     # @return [String]
     attr_accessor :email
 
