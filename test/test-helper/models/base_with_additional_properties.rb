@@ -41,10 +41,11 @@ module TestComponent
     end
 
     private
-
+    # rubocop:disable Lint/UnusedMethodArgument
     def self.get_additional_properties_from_hash(new_hash)
-      # This is a stub method and should be overridden in each subclass.
+      # Placeholder to be implemented by subclasses
       raise NotImplementedError, 'Subclasses must define this method'
     end
+    # rubocop:enable Lint/UnusedMethodArgument
   end
 end

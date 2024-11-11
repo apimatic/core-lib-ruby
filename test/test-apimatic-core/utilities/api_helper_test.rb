@@ -5,6 +5,7 @@ require_relative '../../test-helper/mock_helper'
 require_relative '../../test-helper/models/person'
 require_relative '../../test-helper/models/morning'
 require_relative '../../../lib/apimatic-core/utilities/file_helper'
+require_relative '../test_helper'
 require 'faraday'
 
 class ApiHelperTest < Minitest::Test
@@ -313,29 +314,31 @@ class ApiHelperTest < Minitest::Test
 
   end
 
-  def test_form_encoding_with_additional_props
-    key = "form_param"
+  def test_form_encode_with_additional_properties
+    key = FORM_PARAM_KEY
     test_cases = [
       [TestComponent::MockHelper.get_model_with_additional_properties_of_primitive_type_success,
-       { 'form_param[email]' => 'test@gmail.com', 'form_param[prop]' => 20 }],
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop]" => 20 }],
       [TestComponent::MockHelper.get_model_with_additional_properties_of_primitive_array_type,
-       { 'form_param[email]' => 'test@gmail.com', 'form_param[prop][0]' => 20, 'form_param[prop][1]' => 30 }],
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop][0]" => 20, "#{FORM_PARAM_KEY}[prop][1]" => 30 }],
       [TestComponent::MockHelper.get_model_with_additional_properties_of_primitive_dict_type,
-       { 'form_param[email]' => 'test@gmail.com', 'form_param[prop][inner prop 1]' => 20, 'form_param[prop][inner prop 2]' => 30 }],
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop][inner prop 1]" => 20, "#{FORM_PARAM_KEY}[prop][inner prop 2]" => 30 }],
       [TestComponent::MockHelper.get_model_with_additional_properties_of_model_type,
-       { 'form_param[email]' => 'test@gmail.com', "form_param[prop1][starts_at]"=>"8:00", "form_param[prop1][ends_at]"=>"10:00", "form_param[prop1][offer_dinner]"=> true, "form_param[prop1][session_type]"=>"Evening"}],
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop1][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][ends_at]" => "10:00",
+         "#{FORM_PARAM_KEY}[prop1][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][session_type]" => "Evening" }],
       [TestComponent::MockHelper.get_model_with_additional_properties_of_model_array_type,
-       { 'form_param[email]' => 'test@gmail.com',
-         "form_param[prop1][0][starts_at]"=>"8:00", "form_param[prop1][0][ends_at]"=>"10:00", "form_param[prop1][0][offer_dinner]"=>true, "form_param[prop1][0][session_type]"=>"Evening",
-         "form_param[prop1][1][starts_at]"=>"8:00", "form_param[prop1][1][ends_at]"=>"10:00", "form_param[prop1][1][offer_dinner]"=>true, "form_param[prop1][1][session_type]"=>"Evening"}],
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}",
+         "#{FORM_PARAM_KEY}[prop1][0][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][0][ends_at]" => "10:00", "#{FORM_PARAM_KEY}[prop1][0][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][0][session_type]" => "Evening",
+         "#{FORM_PARAM_KEY}[prop1][1][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][1][ends_at]" => "10:00", "#{FORM_PARAM_KEY}[prop1][1][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][1][session_type]" => "Evening" }],
       [TestComponent::MockHelper.get_model_with_additional_properties_of_model_dict_type,
-      {"form_param[email]"=>"test@gmail.com",
-       "form_param[prop1][inner_prop1][starts_at]"=>"8:00", "form_param[prop1][inner_prop1][ends_at]"=>"10:00", "form_param[prop1][inner_prop1][offer_dinner]"=>true, "form_param[prop1][inner_prop1][session_type]"=>"Evening",
-       "form_param[prop1][inner_prop2][starts_at]"=>"8:00", "form_param[prop1][inner_prop2][ends_at]"=>"10:00", "form_param[prop1][inner_prop2][offer_dinner]"=>true, "form_param[prop1][inner_prop2][session_type]"=>"Evening"}],
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}",
+         "#{FORM_PARAM_KEY}[prop1][inner_prop1][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][inner_prop1][ends_at]" => "10:00", "#{FORM_PARAM_KEY}[prop1][inner_prop1][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][inner_prop1][session_type]" => "Evening",
+         "#{FORM_PARAM_KEY}[prop1][inner_prop2][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][inner_prop2][ends_at]" => "10:00", "#{FORM_PARAM_KEY}[prop1][inner_prop2][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][inner_prop2][session_type]" => "Evening" }],
       [TestComponent::MockHelper.get_model_with_additional_properties_of_type_combinator_primitive_type,
-       { 'form_param[email]' => 'test@gmail.com', 'form_param[prop]' => 10.55 }]
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop]" => 10.55 }]
     ]
 
+    # Iterate through each test case
     test_cases.each do |input_value, expected_form_params|
       assert_equal(ApiHelper.form_encode(input_value, key, formatting: ArraySerializationFormat::INDEXED),
                    expected_form_params)
