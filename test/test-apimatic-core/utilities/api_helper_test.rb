@@ -710,16 +710,15 @@ class ApiHelperTest < Minitest::Test
       { dictionary: { "a" => 1, "b" => 2 }, expected_result: { "a" => 1, "b" => 2 }, unboxing_func: Proc.new { |x| Integer(x) }},
       { dictionary: { "a" => "1", "b" => "2" }, expected_result: { "a" => "1", "b" => "2" }, unboxing_func: Proc.new { |x| x.to_s }},
       { dictionary: { "a" => "Test 1", "b" => "Test 2" }, expected_result: {}, unboxing_func: Proc.new { |x| Integer(x) }},
-      { dictionary: { "a" => [1, 2], "b" => [3, 4] }, expected_result: { "a" => [1, 2], "b" => [3, 4] }, unboxing_func: Proc.new { |x| Integer(x) }, as_array: true},
-      { dictionary: { "a" => { "x" => 1, "y" => 2 }, "b" => { "x" => 3, "y" => 4 } }, expected_result: { "a" => { "x" => 1, "y" => 2 }, "b" => { "x" => 3, "y" => 4 } }, unboxing_func: Proc.new { |x| Integer(x) }, as_array: false, as_dict: true}
+      { dictionary: { "a" => [1, 2], "b" => [3, 4] }, expected_result: { "a" => [1, 2], "b" => [3, 4] }, unboxing_func: Proc.new { |x| Integer(x) }, is_array: true},
+      { dictionary: { "a" => { "x" => 1, "y" => 2 }, "b" => { "x" => 3, "y" => 4 } }, expected_result: { "a" => { "x" => 1, "y" => 2 }, "b" => { "x" => 3, "y" => 4 } }, unboxing_func: Proc.new { |x| Integer(x) }, is_array: false, is_dict: true}
     ]
   
     test_cases.each do |case_data|
-      actual_result = ApiHelper.get_additional_properties(case_data[:dictionary], case_data[:unboxing_func], as_array: case_data[:as_array], as_dict: case_data[:as_dict])
+      actual_result = ApiHelper.get_additional_properties(case_data[:dictionary], case_data[:unboxing_func], is_array: case_data[:is_array], is_dict: case_data[:is_dict])
       assert_equal(case_data[:expected_result], actual_result)
     end
   end
-  
   
   def test_get_additional_properties_exception
     test_cases = [
@@ -734,6 +733,51 @@ class ApiHelperTest < Minitest::Test
     end
   end
   
+  def test_apply_unboxing_function
+    test_cases = [
+      # Test case 1: Simple object
+      { value: 5, unboxing_func: Proc.new { |x| x * 2 }, is_array: false, is_dict: false, 
+        is_array_of_map: false, is_map_of_array: false, dimension_count: 0, expected: 10 },
+  
+      # Test case 2: Array
+      { value: [1, 2, 3], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, is_dict: false,
+        is_array_of_map: false, is_map_of_array: false, dimension_count: 0, expected: [2, 4, 6] },
+  
+      # Test case 3: Dictionary
+      { value: { "a" => 1, "b" => 2 }, unboxing_func: Proc.new { |x| x * 2 }, is_array: false, 
+        is_dict: true, is_array_of_map: false, is_map_of_array: false, dimension_count: 0, expected: { "a" => 2, "b" => 4 } },
+  
+      # Test case 4: Array of maps
+      { value: [{ "a" => 1 }, { "b" => 2 }], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, 
+        is_dict: false, is_array_of_map: true, is_map_of_array: false, dimension_count: 0, expected: [{ "a" => 2 }, { "b" => 4 }] },
+  
+      # Test case 5: Map of arrays
+      { value: { "a" => [1, 2], "b" => [3, 4] }, unboxing_func: Proc.new { |x| x * 2 }, is_array: false, 
+        is_dict: true, is_array_of_map: false, is_map_of_array: true, dimension_count: 0, expected: { "a" => [2, 4], "b" => [6, 8] } },
+  
+      # Test case 6: Multi-dimensional array
+      { value: [[1], [2, 3], [4]], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, 
+        is_dict: false, is_array_of_map: false, is_map_of_array: false, dimension_count: 2, expected: [[2], [4, 6], [8]] },
+  
+      # Test case 7: Array of arrays
+      { value: [[1, 2], [3, 4]], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, 
+        is_dict: false, is_array_of_map: false, is_map_of_array: false, dimension_count: 2, expected: [[2, 4], [6, 8]] },
+  
+      # Test case 8: Array of arrays of arrays
+      { value: [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, 
+        is_dict: false, is_array_of_map: false, is_map_of_array: false, dimension_count: 3, expected: [[[2, 4], [6, 8]], [[10, 12], [14, 16]]] }
+    ]
+  
+    test_cases.each do |test_case|
+      result = ApiHelper.apply_unboxing_function(test_case[:value],
+                                            test_case[:unboxing_func],
+                                            is_array: test_case[:is_array],
+                                            is_dict: test_case[:is_dict],
+                                            is_array_of_map: test_case[:is_array_of_map],
+                                            is_map_of_array: test_case[:is_map_of_array],
+                                            dimension_count: test_case[:dimension_count])
+      
+      assert_equal test_case[:expected], result
+    end
+  end
 end
-
-

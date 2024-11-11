@@ -1,52 +1,16 @@
-require_relative '../models/base_model'
+require_relative '../models/base_with_additional_properties'
 
 module TestComponent
-  class ModelWithAdditionalPropertiesOfPrimitiveDictType < BaseModel
-    SKIP = Object.new
-    private_constant :SKIP
+  class ModelWithAdditionalPropertiesOfPrimitiveDictType < BaseWithAdditionalProperties
+    private
 
-    # @return [String]
-    attr_accessor :email
-
-    # A mapping from model property names to API property names.
-    def self.names
-      @_hash = {} if @_hash.nil?
-      @_hash['email'] = 'email'
-      @_hash
-    end
-
-    # An array for optional fields
-    def self.optionals
-      []
-    end
-
-    # An array for nullable fields
-    def self.nullables
-      []
-    end
-
-    def initialize(email = nil, additional_properties = nil)
-      additional_properties = {} if additional_properties.nil?
-
-      @email = email
-      @additional_properties = additional_properties
-    end
-
-    # Creates an instance of the object from a hash.
-    def self.from_hash(hash)
-      return nil unless hash
-
-      # Extract variables from the hash.
-      email = hash.key?('email') ? hash['email'] : nil
-
-      # Create a new hash for additional properties, removing known properties.
-      new_hash = hash.reject { |key, _| self.names.key?(key) }
-
-      additional_properties = CoreLibrary::APIHelper.get_additional_properties(
-        new_hash, Proc.new { |x| Integer(x) }, as_array: false, as_dict: true)
-
-      # Create object from extracted values.
-      ModelWithAdditionalPropertiesOfPrimitiveDictType.new(email, additional_properties)
+    def self.get_additional_properties_from_hash(new_hash)
+      CoreLibrary::APIHelper.get_additional_properties(
+        new_hash,
+        Proc.new { |x| Integer(x) },
+        as_array: false,
+        as_dict: true
+      )
     end
   end
 end
