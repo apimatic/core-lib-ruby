@@ -5,6 +5,7 @@ require_relative '../../test-helper/mock_helper'
 require_relative '../../test-helper/models/person'
 require_relative '../../test-helper/models/morning'
 require_relative '../../../lib/apimatic-core/utilities/file_helper'
+require_relative '../test_helper'
 require 'faraday'
 
 class ApiHelperTest < Minitest::Test
@@ -313,6 +314,37 @@ class ApiHelperTest < Minitest::Test
 
   end
 
+  def test_form_encode_with_additional_properties
+    key = FORM_PARAM_KEY
+    test_cases = [
+      [TestComponent::MockHelper.get_model_with_additional_properties_of_primitive_type_success,
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop]" => 20 }],
+      [TestComponent::MockHelper.get_model_with_additional_properties_of_primitive_array_type,
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop][0]" => 20, "#{FORM_PARAM_KEY}[prop][1]" => 30 }],
+      [TestComponent::MockHelper.get_model_with_additional_properties_of_primitive_dict_type,
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop][inner prop 1]" => 20, "#{FORM_PARAM_KEY}[prop][inner prop 2]" => 30 }],
+      [TestComponent::MockHelper.get_model_with_additional_properties_of_model_type,
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop1][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][ends_at]" => "10:00",
+         "#{FORM_PARAM_KEY}[prop1][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][session_type]" => "Evening" }],
+      [TestComponent::MockHelper.get_model_with_additional_properties_of_model_array_type,
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}",
+         "#{FORM_PARAM_KEY}[prop1][0][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][0][ends_at]" => "10:00", "#{FORM_PARAM_KEY}[prop1][0][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][0][session_type]" => "Evening",
+         "#{FORM_PARAM_KEY}[prop1][1][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][1][ends_at]" => "10:00", "#{FORM_PARAM_KEY}[prop1][1][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][1][session_type]" => "Evening" }],
+      [TestComponent::MockHelper.get_model_with_additional_properties_of_model_dict_type,
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}",
+         "#{FORM_PARAM_KEY}[prop1][inner_prop1][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][inner_prop1][ends_at]" => "10:00", "#{FORM_PARAM_KEY}[prop1][inner_prop1][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][inner_prop1][session_type]" => "Evening",
+         "#{FORM_PARAM_KEY}[prop1][inner_prop2][starts_at]" => "8:00", "#{FORM_PARAM_KEY}[prop1][inner_prop2][ends_at]" => "10:00", "#{FORM_PARAM_KEY}[prop1][inner_prop2][offer_dinner]" => true, "#{FORM_PARAM_KEY}[prop1][inner_prop2][session_type]" => "Evening" }],
+      [TestComponent::MockHelper.get_model_with_additional_properties_of_type_combinator_primitive_type,
+       { "#{FORM_PARAM_KEY}[email]" => "#{TEST_EMAIL}", "#{FORM_PARAM_KEY}[prop]" => 10.55 }]
+    ]
+
+    # Iterate through each test case
+    test_cases.each do |input_value, expected_form_params|
+      assert_equal(ApiHelper.form_encode(input_value, key, formatting: ArraySerializationFormat::INDEXED),
+                   expected_form_params)
+    end
+  end
+
   def test_custom_merge
     assert_equal(ApiHelper.custom_merge({ "number1" => 1, "string1" => ["a", "b", "d"], "same" => "c" },
                                         { "number2" => 1, "string2" => ["d", "e"], "same" => "c" }),
@@ -359,7 +391,27 @@ class ApiHelperTest < Minitest::Test
 "\"birthtime\":\"2016-03-13T12:52:32+00:00\",\"name\":\"Jone\",\"uid\":\"1234\",\"personType\":\"Per\"}"
     )
     assert_equal(ApiHelper.json_serialize(123), "123")
+  end
 
+  def test_json_serialize_with_exception
+    test_cases = [
+      [
+        TestComponent::MockHelper.get_model_with_additional_properties_of_primitive_type,
+        "An additional property key, 'email' conflicts with one of the model's properties"
+      ]
+    ]
+
+    test_cases.each do |input_value, expected_validation_message|
+      assert_raises(StandardError) do
+        ApiHelper.json_serialize(input_value)
+      end
+
+      begin
+        ApiHelper.json_serialize(input_value)
+      rescue StandardError => e
+        assert_equal expected_validation_message, e.message
+      end
+    end
   end
 
   def test_update_user_agent_value_with_parameters
@@ -523,6 +575,59 @@ class ApiHelperTest < Minitest::Test
                                  is_model_hash: true, is_inner_model_hash: true)
   end
 
+  def test_json_deserialize
+    test_cases = [
+      ['{"email":"test","prop1":1,"prop2":2,"prop3":"invalid type"}',
+       TestComponent::ModelWithAdditionalPropertiesOfPrimitiveType, false,
+       '{"email":"test","prop1":1,"prop2":2}'],
+      
+      ['{"email":"test","prop1":[1,2,3],"prop2":[1,2,3],"prop3":"invalid type"}',
+       TestComponent::ModelWithAdditionalPropertiesOfPrimitiveArrayType, false,
+       '{"email":"test","prop1":[1,2,3],"prop2":[1,2,3]}'],
+      
+      ['{"email":"test","prop1":{"inner_prop1":1,"inner_prop2":2},"prop2":{"inner_prop1":1,"inner_prop2":2},"prop3":"invalid type"}',
+       TestComponent::ModelWithAdditionalPropertiesOfPrimitiveDictType, false,
+       '{"email":"test","prop1":{"inner_prop1":1,"inner_prop2":2},"prop2":{"inner_prop1":1,"inner_prop2":2}}'],
+      
+       ['{"email":"test","prop1":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},"prop3":"invalid type"}',
+       TestComponent::ModelWithAdditionalPropertiesOfModelType, false,
+       '{"email":"test","prop1":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}'],
+      
+      ['{"email":"test","prop":[{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}]}',
+       TestComponent::ModelWithAdditionalPropertiesOfModelArrayType, false,
+       '{"email":"test","prop":[{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}]}'],
+      
+      ['{"email":"test","prop":{"inner prop 1":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},"inner prop 2":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}}',
+       TestComponent::ModelWithAdditionalPropertiesOfModelDictType, false,
+       '{"email":"test","prop":{"inner prop 1":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},"inner prop 2":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}}'],
+     
+      ['{"email":"test","prop":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}',
+       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitiveType, false,
+       '{"email":"test","prop":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}'],
+       ['{"email":"test","prop":"100.65"}',
+       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitiveType, false,
+       '{"email":"test","prop":"100.65"}'],
+       ['{"email":"test","prop":"some string"}',
+       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitiveType, false,
+       '{"email":"test","prop":"some string"}'],
+       ['{"email":"test","prop":100.65}',
+       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitiveType, false,
+       '{"email":"test"}'],
+    ]
+
+    # Iterate through each test case
+    test_cases.each do |input_json_value, model_class, as_dict, expected_value|
+      deserialized_value = model_class.from_hash(
+        ApiHelper.json_deserialize(input_json_value, as_dict)
+      )
+
+      serialized_value = ApiHelper.json_serialize(deserialized_value)
+
+      # Assert that the serialized value matches the expected value
+      assert_equal expected_value, serialized_value
+    end   
+  end
+
   def test_valid_type_hash
     assert ApiHelper.valid_type?(
       {
@@ -602,6 +707,81 @@ class ApiHelperTest < Minitest::Test
     ]
     assert_equal(expected, actual, 'Actual did not match the expected.')
   end
+  
+  def test_get_additional_properties_success
+    test_cases = [
+      { dictionary: {}, expected_result: {}, unboxing_func: Proc.new { |x| Integer(x) }},
+      { dictionary: { "a" => 1, "b" => 2 }, expected_result: { "a" => 1, "b" => 2 }, unboxing_func: Proc.new { |x| Integer(x) }},
+      { dictionary: { "a" => "1", "b" => "2" }, expected_result: { "a" => "1", "b" => "2" }, unboxing_func: Proc.new { |x| x.to_s }},
+      { dictionary: { "a" => "Test 1", "b" => "Test 2" }, expected_result: {}, unboxing_func: Proc.new { |x| Integer(x) }},
+      { dictionary: { "a" => [1, 2], "b" => [3, 4] }, expected_result: { "a" => [1, 2], "b" => [3, 4] }, unboxing_func: Proc.new { |x| Integer(x) }, is_array: true},
+      { dictionary: { "a" => { "x" => 1, "y" => 2 }, "b" => { "x" => 3, "y" => 4 } }, expected_result: { "a" => { "x" => 1, "y" => 2 }, "b" => { "x" => 3, "y" => 4 } }, unboxing_func: Proc.new { |x| Integer(x) }, is_array: false, is_dict: true}
+    ]
+  
+    test_cases.each do |case_data|
+      actual_result = ApiHelper.get_additional_properties(case_data[:dictionary], case_data[:unboxing_func], is_array: case_data[:is_array], is_dict: case_data[:is_dict])
+      assert_equal(case_data[:expected_result], actual_result)
+    end
+  end
+  
+  def test_get_additional_properties_exception
+    test_cases = [
+      { dictionary: { "a" => nil }, unboxing_func: Proc.new { |x| Integer(x) } },
+      { dictionary: { "a" => Proc.new { |x| x } }, unboxing_func: Proc.new { |x| Integer(x)}}
+    ]
+  
+    test_cases.each do |case_data|
+      actual_result = ApiHelper.get_additional_properties(case_data[:dictionary], case_data[:unboxing_func])
+      expected_result = {}
+      assert_equal(expected_result, actual_result)
+    end
+  end
+  
+  def test_apply_unboxing_function
+    test_cases = [
+      # Test case 1: Simple object
+      { value: 5, unboxing_func: Proc.new { |x| x * 2 }, is_array: false, is_dict: false, 
+        is_array_of_map: false, is_map_of_array: false, dimension_count: 0, expected: 10 },
+  
+      # Test case 2: Array
+      { value: [1, 2, 3], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, is_dict: false,
+        is_array_of_map: false, is_map_of_array: false, dimension_count: 0, expected: [2, 4, 6] },
+  
+      # Test case 3: Dictionary
+      { value: { "a" => 1, "b" => 2 }, unboxing_func: Proc.new { |x| x * 2 }, is_array: false, 
+        is_dict: true, is_array_of_map: false, is_map_of_array: false, dimension_count: 0, expected: { "a" => 2, "b" => 4 } },
+  
+      # Test case 4: Array of maps
+      { value: [{ "a" => 1 }, { "b" => 2 }], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, 
+        is_dict: false, is_array_of_map: true, is_map_of_array: false, dimension_count: 0, expected: [{ "a" => 2 }, { "b" => 4 }] },
+  
+      # Test case 5: Map of arrays
+      { value: { "a" => [1, 2], "b" => [3, 4] }, unboxing_func: Proc.new { |x| x * 2 }, is_array: false, 
+        is_dict: true, is_array_of_map: false, is_map_of_array: true, dimension_count: 0, expected: { "a" => [2, 4], "b" => [6, 8] } },
+  
+      # Test case 6: Multi-dimensional array
+      { value: [[1], [2, 3], [4]], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, 
+        is_dict: false, is_array_of_map: false, is_map_of_array: false, dimension_count: 2, expected: [[2], [4, 6], [8]] },
+  
+      # Test case 7: Array of arrays
+      { value: [[1, 2], [3, 4]], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, 
+        is_dict: false, is_array_of_map: false, is_map_of_array: false, dimension_count: 2, expected: [[2, 4], [6, 8]] },
+  
+      # Test case 8: Array of arrays of arrays
+      { value: [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], unboxing_func: Proc.new { |x| x * 2 }, is_array: true, 
+        is_dict: false, is_array_of_map: false, is_map_of_array: false, dimension_count: 3, expected: [[[2, 4], [6, 8]], [[10, 12], [14, 16]]] }
+    ]
+  
+    test_cases.each do |test_case|
+      result = ApiHelper.apply_unboxing_function(test_case[:value],
+                                            test_case[:unboxing_func],
+                                            is_array: test_case[:is_array],
+                                            is_dict: test_case[:is_dict],
+                                            is_array_of_map: test_case[:is_array_of_map],
+                                            is_map_of_array: test_case[:is_map_of_array],
+                                            dimension_count: test_case[:dimension_count])
+      
+      assert_equal test_case[:expected], result
+    end
+  end
 end
-
-

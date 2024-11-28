@@ -442,6 +442,73 @@ module CoreLibrary
       val
     end
 
+    # Apply unboxing_function to additional properties from hash.
+    # @param [Hash] hash The hash to extract additional properties from.
+    # @param [Proc] unboxing_function The deserializer to apply to each item in the hash.
+    # @return [Hash] A hash containing the additional properties and their values.
+    def self.get_additional_properties(hash, unboxing_function, is_array: false, is_dict: false, is_array_of_map: false,
+                                       is_map_of_array: false, dimension_count: 1)
+      additional_properties = {}
+
+      # Iterate over each key-value pair in the input hash
+      hash.each do |key, value|
+        # Prepare arguments for apply_unboxing_function
+        args = {
+          is_array: is_array,
+          is_dict: is_dict,
+          is_array_of_map: is_array_of_map,
+          is_map_of_array: is_map_of_array,
+          dimension_count: dimension_count
+        }
+
+        # If the value is a complex structure (Hash or Array), apply apply_unboxing_function
+        additional_properties[key] = if is_array || is_dict
+                                       apply_unboxing_function(value, unboxing_function, **args)
+                                     else
+                                       # Apply the unboxing function directly for simple values
+                                       unboxing_function.call(value)
+                                     end
+      rescue StandardError
+        # Ignore the exception and continue processing
+      end
+
+      additional_properties
+    end
+
+    def self.apply_unboxing_function(obj, unboxing_function, is_array: false, is_dict: false, is_array_of_map: false,
+                                     is_map_of_array: false, dimension_count: 1)
+      if is_dict
+        if is_map_of_array
+          # Handle case where the object is a map of arrays (Hash with array values)
+          obj.transform_values do |v|
+            apply_unboxing_function(v, unboxing_function, is_array: true, dimension_count: dimension_count)
+          end
+        else
+          # Handle regular Hash (map) case
+          obj.transform_values { |v| unboxing_function.call(v) }
+        end
+      elsif is_array
+        if is_array_of_map
+          # Handle case where the object is an array of maps (Array of Hashes)
+          obj.map do |element|
+            apply_unboxing_function(element, unboxing_function, is_dict: true, dimension_count: dimension_count)
+          end
+        elsif dimension_count > 1
+          # Handle multi-dimensional array
+          obj.map do |element|
+            apply_unboxing_function(element, unboxing_function, is_array: true,
+                                                                dimension_count: dimension_count - 1)
+          end
+        else
+          # Handle regular Array case
+          obj.map { |element| unboxing_function.call(element) }
+        end
+      else
+        # Handle base case where the object is neither Array nor Hash
+        unboxing_function.call(obj)
+      end
+    end
+
     # Get content-type depending on the value
     # @param [Object] value The value for which the content-type is resolved.
     def self.get_content_type(value)

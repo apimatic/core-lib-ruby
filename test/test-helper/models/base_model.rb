@@ -12,39 +12,65 @@ module TestComponent
       instance_variables.each do |name|
         value = instance_variable_get(name)
         name = name[1..]
-        key = self.class.names.key?(name) ? self.class.names[name] : name
+        if name == 'additional_properties'
+          additional_properties = process_additional_properties(value, self.class.names)
+          hash.merge!(additional_properties)
+        else
+          key = self.class.names.key?(name) ? self.class.names[name] : name
 
-        optional_fields = self.class.optionals
-        nullable_fields = self.class.nullables
-        if value.nil?
-          next unless nullable_fields.include?(name)
+          optional_fields = self.class.optionals
+          nullable_fields = self.class.nullables
+          if value.nil?
+            next unless nullable_fields.include?(name)
 
-          if !optional_fields.include?(name) && !nullable_fields.include?(name)
-            raise ArgumentError,
-                  "`#{name}` cannot be nil in `#{self.class}`. Please specify a valid value."
+            if !optional_fields.include?(name) && !nullable_fields.include?(name)
+              raise ArgumentError,
+                    "`#{name}` cannot be nil in `#{self.class}`. Please specify a valid value."
+            end
           end
-        end
 
-        hash[key] = nil
-        unless value.nil?
-          if respond_to?("to_#{name}")
-            if (value.instance_of? Array) || (value.instance_of? Hash)
-              params = [hash, key]
-              hash[key] = send("to_#{name}", *params)
+          hash[key] = nil
+          unless value.nil?
+            if respond_to?("to_#{name}")
+              if (value.instance_of? Array) || (value.instance_of? Hash)
+                params = [hash, key]
+                hash[key] = send("to_#{name}", *params)
+              else
+                hash[key] = send("to_#{name}")
+              end
+            elsif value.instance_of? Array
+              hash[key] = value.map { |v| v.is_a?(BaseModel) ? v.to_hash : v }
+            elsif value.instance_of? Hash
+              hash[key] = {}
+              value.each do |k, v|
+                hash[key][k] = v.is_a?(BaseModel) ? v.to_hash : v
+              end
             else
-              hash[key] = send("to_#{name}")
+              hash[key] = value.is_a?(BaseModel) ? value.to_hash : value
             end
-          elsif value.instance_of? Array
-            hash[key] = value.map { |v| v.is_a?(BaseModel) ? v.to_hash : v }
-          elsif value.instance_of? Hash
-            hash[key] = {}
-            value.each do |k, v|
-              hash[key][k] = v.is_a?(BaseModel) ? v.to_hash : v
-            end
-          else
-            hash[key] = value.is_a?(BaseModel) ? value.to_hash : value
           end
         end
+      end
+      hash
+    end
+
+    def process_additional_properties(additional_properties, existing_prop_names)
+      hash = {}
+      additional_properties.each do |name, value|
+        if existing_prop_names.key?(name)
+          raise ArgumentError, "An additional property key, '#{name}' conflicts with one of the model's properties"
+        end
+
+        if value.is_a?(Array)
+          hash[name] = value.map { |item| item.is_a?(BaseModel) ? item.to_hash : item }
+        elsif value.is_a?(Hash)
+          hash[name] = {}
+          value.each do |k, v|
+            hash[name][k] = v.is_a?(BaseModel) ? v.to_hash : v
+          end
+        else
+          hash[name] = value.is_a?(BaseModel) ? value.to_hash : value
+        end      
       end
       hash
     end

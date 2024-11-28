@@ -11,3 +11,5 @@ end
 # test constants
 TEST_TOKEN = 'MyDuMmYtOkEn'.freeze
 JSON_CONTENT_TYPE = 'application/json'.freeze
+FORM_PARAM_KEY = 'form_param'.freeze
+TEST_EMAIL = 'test@gmail.com'
