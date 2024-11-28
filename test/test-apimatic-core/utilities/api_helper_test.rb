@@ -575,52 +575,53 @@ class ApiHelperTest < Minitest::Test
                                  is_model_hash: true, is_inner_model_hash: true)
   end
 
-  def json_deserialize
+  def test_json_deserialize
     test_cases = [
-      ['{"email": "test", "prop1": 1, "prop2": 2, "prop3": "invalid type"}',
+      ['{"email":"test","prop1":1,"prop2":2,"prop3":"invalid type"}',
        TestComponent::ModelWithAdditionalPropertiesOfPrimitiveType, false,
-       '{"email": "test", "prop1": 1, "prop2": 2}'],
+       '{"email":"test","prop1":1,"prop2":2}'],
       
-      ['{"email": "test", "prop1": [1, 2, 3], "prop2": [1, 2, 3], "prop3": "invalid type"}',
+      ['{"email":"test","prop1":[1,2,3],"prop2":[1,2,3],"prop3":"invalid type"}',
        TestComponent::ModelWithAdditionalPropertiesOfPrimitiveArrayType, false,
-       '{"email": "test", "prop1": [1, 2, 3], "prop2": [1, 2, 3]}'],
+       '{"email":"test","prop1":[1,2,3],"prop2":[1,2,3]}'],
       
-      ['{"email": "test", "prop1": {"inner_prop1": 1, "inner_prop2": 2}, "prop2": {"inner_prop1": 1, "inner_prop2": 2}, "prop3": "invalid type"}',
+      ['{"email":"test","prop1":{"inner_prop1":1,"inner_prop2":2},"prop2":{"inner_prop1":1,"inner_prop2":2},"prop3":"invalid type"}',
        TestComponent::ModelWithAdditionalPropertiesOfPrimitiveDictType, false,
-       '{"email": "test", "prop1": {"inner_prop1": 1, "inner_prop2": 2}, "prop2": {"inner_prop1": 1, "inner_prop2": 2}}'],
+       '{"email":"test","prop1":{"inner_prop1":1,"inner_prop2":2},"prop2":{"inner_prop1":1,"inner_prop2":2}}'],
       
-      ['{"email": "test", "prop1": {"id": 1, "weight": 50, "type": "Lion"}, "prop3": "invalid type"}',
+       ['{"email":"test","prop1":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},"prop3":"invalid type"}',
        TestComponent::ModelWithAdditionalPropertiesOfModelType, false,
-       '{"email": "test", "prop1": {"id": 1, "weight": 50, "type": "Lion"}}'],
+       '{"email":"test","prop1":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}'],
       
-      ['{"email": "test", "prop": [{"id": 1, "weight": 50, "type": "Lion"}, {"id": 2, "weight": 100, "type": "Lion"}]}',
+      ['{"email":"test","prop":[{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}]}',
        TestComponent::ModelWithAdditionalPropertiesOfModelArrayType, false,
-       '{"email": "test", "prop": [{"id": 1, "weight": 50, "type": "Lion"}, {"id": 2, "weight": 100, "type": "Lion"}]}'],
+       '{"email":"test","prop":[{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}]}'],
       
-      ['{"email": "test", "prop": {"inner prop 1": {"id": 1, "weight": 50, "type": "Lion"}, "inner prop 2": {"id": 2, "weight": 100, "type": "Lion"}}}',
+      ['{"email":"test","prop":{"inner prop 1":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},"inner prop 2":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}}',
        TestComponent::ModelWithAdditionalPropertiesOfModelDictType, false,
-       '{"email": "test", "prop": {"inner prop 1": {"id": 1, "weight": 50, "type": "Lion"}, "inner prop 2": {"id": 2, "weight": 100, "type": "Lion"}}}'],
-      
-      ['{"email": "test", "prop": true}',
-       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitive, false,
-       '{"email": "test", "prop": true}'],
-      
-      ['{"email": "test", "prop": 100.65}',
-       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitive, false,
-       '{"email": "test", "prop": 100.65}'],
-      
-      ['{"email": "test", "prop": "100.65"}',
-       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitive, false,
-       '{"email": "test"}']
+       '{"email":"test","prop":{"inner prop 1":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"},"inner prop 2":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}}'],
+     
+      ['{"email":"test","prop":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}',
+       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitiveType, false,
+       '{"email":"test","prop":{"startsAt":"15:30","endsAt":"20:30","offerDinner":false,"sessionType":"Evening"}}'],
+       ['{"email":"test","prop":"100.65"}',
+       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitiveType, false,
+       '{"email":"test","prop":"100.65"}'],
+       ['{"email":"test","prop":"some string"}',
+       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitiveType, false,
+       '{"email":"test","prop":"some string"}'],
+       ['{"email":"test","prop":100.65}',
+       TestComponent::ModelWithAdditionalPropertiesOfTypeCombinatorPrimitiveType, false,
+       '{"email":"test"}'],
     ]
 
     # Iterate through each test case
     test_cases.each do |input_json_value, model_class, as_dict, expected_value|
       deserialized_value = model_class.from_hash(
-        APIHelper.json_deserialize(input_json_value, as_dict)
+        ApiHelper.json_deserialize(input_json_value, as_dict)
       )
 
-      serialized_value = APIHelper.json_serialize(deserialized_value)
+      serialized_value = ApiHelper.json_serialize(deserialized_value)
 
       # Assert that the serialized value matches the expected value
       assert_equal expected_value, serialized_value
@@ -706,7 +707,7 @@ class ApiHelperTest < Minitest::Test
     ]
     assert_equal(expected, actual, 'Actual did not match the expected.')
   end
-
+  
   def test_get_additional_properties_success
     test_cases = [
       { dictionary: {}, expected_result: {}, unboxing_func: Proc.new { |x| Integer(x) }},

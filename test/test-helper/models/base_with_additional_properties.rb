@@ -34,10 +34,8 @@ module TestComponent
 
       email = hash['email']
       new_hash = hash.reject { |key, _| self.names.key?(key) }
-
-      additional_properties = get_additional_properties_from_hash(new_hash)
-
-      new(self, email, additional_properties)
+      additional_properties = self.get_additional_properties_from_hash(new_hash)
+      new(email, additional_properties)
     end
 
     private

@@ -5,10 +5,10 @@ module TestComponent
     private
 
     def self.get_additional_properties_from_hash(new_hash)
-      CoreLibrary::APIHelper.get_additional_properties(
+      CoreLibrary::ApiHelper.get_additional_properties(
         new_hash,
         Proc.new { |x| Integer(x) },
-        as_array: true
+        is_array: true
       )
     end
   end
