@@ -5,8 +5,8 @@
 
 version: 2
 updates:
-  - package-ecosystem: "rubygems"
-    directory: "/"
+  - package-ecosystem: "bundler"
+    directory: "/rubygems-server"
     schedule:
       interval: "monthly"
     labels:
