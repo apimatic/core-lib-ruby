@@ -1,6 +1,9 @@
 module CoreLibrary
   # This class is responsible for logging request and response info.
   class SdkLogger < ApiLogger
+    extend T::Sig
+
+    sig { params(logging_config: ApiLoggingConfiguration).void }
     def initialize(logging_config)
       @log_level = logging_config.log_level
       @logger = logging_config.logger
@@ -9,6 +12,7 @@ module CoreLibrary
       @mask_sensitive_headers = logging_config.mask_sensitive_headers
     end
 
+    sig { params(request: HttpRequest).void }
     def log_request(request)
       content_type_header = LoggerHelper.get_content_type(request.headers)
       url = @request_logging_config.include_query_in_path ? request.query_url : request.query_url.split('?').first
@@ -23,6 +27,7 @@ module CoreLibrary
       apply_log_request_options(request)
     end
 
+    sig { params(response: HttpResponse).void }
     def log_response(response)
       content_type_header = LoggerHelper.get_content_type(response.headers)
       content_length_header = LoggerHelper.get_content_length(response.headers)
@@ -39,6 +44,7 @@ module CoreLibrary
 
     private
 
+    sig { params(request: HttpRequest).void }
     def apply_log_request_options(request)
       headers_to_log = LoggerHelper.extract_headers_to_log(
         @request_logging_config,
@@ -57,6 +63,7 @@ module CoreLibrary
                   { body: request.parameters })
     end
 
+    sig { params(response: HttpResponse).void }
     def apply_log_response_options(response)
       headers_to_log = LoggerHelper.extract_headers_to_log(
         @response_logging_config,

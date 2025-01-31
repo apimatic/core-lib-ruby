@@ -1,6 +1,19 @@
+# typed: strict
+
 module CoreLibrary
   # Factory to create an instance of HttpResponse
   class HttpResponseFactory < ResponseFactory
+    extend T::Sig
+
+    sig {
+      params(
+        _status_code: Integer,
+        _reason_phrase: String,
+        _headers: T::Hash[String, T.untyped],
+        _raw_body: String,
+        _request: HttpRequest
+      ).returns(HttpResponse)
+    }
     # The factory method for creating HttpResponse type.
     # @param [Integer] _status_code The status code returned by the server.
     # @param [String] _reason_phrase The reason phrase returned by the server.
@@ -12,3 +25,4 @@ module CoreLibrary
     end
   end
 end
+

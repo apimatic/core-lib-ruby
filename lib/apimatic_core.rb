@@ -4,6 +4,7 @@ require 'certifi'
 require 'apimatic_core_interfaces'
 require 'cgi'
 require 'logger'
+require 'sorbet-runtime'
 
 require_relative 'apimatic-core/request_builder'
 require_relative 'apimatic-core/response_handler'

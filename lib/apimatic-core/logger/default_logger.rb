@@ -1,6 +1,10 @@
-# Represents a logger implementation that logs messages to the console.
+# typed: strict
+
 class ConsoleLogger < Logger
+  extend T::Sig
+
   # Initializes a new instance of DefaultLogger.
+  sig { void }
   def initialize
     @logger = ::Logger.new($stdout)
     @logger.formatter = method(:format_log_message)
@@ -10,6 +14,13 @@ class ConsoleLogger < Logger
   # @param level [Symbol] The log level of the message.
   # @param message [String] The message to log.
   # @param params [Hash] Additional parameters to include in the log message.
+  sig do
+    params(
+      level: T.any(Symbol, Integer),
+      message: String,
+      params: T.nilable(T::Hash[Symbol, T.untyped])
+    ).void
+  end
   def log(level, message, params = {})
     formatted_message = message_with_params(message, params)
     case level
@@ -28,13 +39,15 @@ class ConsoleLogger < Logger
     end
   end
 
+  sig { params(severity: String, _datetime: T.nilable(Time), _progname: T.nilable(String), msg: String).returns(String) }
   def format_log_message(severity, _datetime, _progname, msg)
     "#{
-       severity.ljust(5) +
-       msg
-     }\n"
+      severity.ljust(5) +
+        msg
+    }\n"
   end
 
+  sig { params(message: String, params: T.nilable(T::Hash[String, T.untyped])).returns(String) }
   def message_with_params(message, params)
     message.gsub(/\{([\w-]+)\}/) do |match|
       key = match[1..-2]

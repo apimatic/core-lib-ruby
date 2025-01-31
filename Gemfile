@@ -5,3 +5,5 @@ group :test do
 end
 
 gemspec
+
+gem "sorbet-runtime", "~> 0.5.11780"

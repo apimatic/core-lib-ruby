@@ -1,28 +1,34 @@
+# typed: strict
 module CoreLibrary
   # This class is the builder of the http request for an API call.
   class RequestBuilder
+    extend T::Sig
+
     # Creates an instance of RequestBuilder.
+    sig { void }
     def initialize
-      @server = nil
-      @path = nil
-      @http_method = nil
-      @template_params = {}
-      @header_params = {}
-      @query_params = {}
-      @form_params = {}
-      @additional_form_params = {}
-      @additional_query_params = {}
-      @multipart_params = {}
-      @body_param = nil
-      @body_serializer = nil
-      @auth = nil
-      @array_serialization_format = ArraySerializationFormat::INDEXED
-      @xml_attributes = nil
+      @server = T.let(nil, T.nilable(String))
+      @path = T.let(nil, T.nilable(String))
+      @http_method = T.let(nil, T.nilable(HttpMethod))
+      @template_params = T.let({}, T::Hash[String, Object])
+      @header_params = T.let({}, T::Hash[String, Object])
+      @query_params = T.let({}, T::Hash[String, Object])
+      @form_params = T.let({}, T::Hash[String, Object])
+      @additional_form_params = T.let({}, T::Hash[String, Object])
+      @additional_query_params = T.let({}, T::Hash[String, Object])
+      @multipart_params = T.let({}, T::Hash[String, Object])
+      @body_param = T.let(nil, T.nilable(T::Hash[String, Object]))
+      @body_serializer = T.let(nil, T.nilable(T.proc.params(arg: T.untyped).returns(T.nilable(String))))
+      @auth = T.let(nil, T.nilable(Authentication))
+      @array_serialization_format = T.let(ArraySerializationFormat::INDEXED, ArraySerializationFormat)
+      @xml_attributes = T.let(nil, T.nilable(XmlAttribute))
+      @global_configuration = T.let(nil, T.nilable(GlobalConfiguration))
     end
 
     # The setter for the server.
     # @param [string] server The server to use for the API call.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(server: String).returns(RequestBuilder) }
     def server(server)
       @server = server
       self
@@ -31,6 +37,7 @@ module CoreLibrary
     # The setter for the URI of the endpoint.
     # @param [string] path The URI of the endpoint.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(path: String).returns(RequestBuilder) }
     def path(path)
       @path = path
       self
@@ -39,6 +46,7 @@ module CoreLibrary
     # The setter for the http method of the request.
     # @param [HttpMethod] http_method The http method of the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(http_method: HttpMethod).returns(RequestBuilder) }
     def http_method(http_method)
       @http_method = http_method
       self
@@ -47,6 +55,7 @@ module CoreLibrary
     # The setter for the template parameter of the request.
     # @param [Parameter] template_param The template parameter of the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(template_param: Parameter).returns(RequestBuilder) }
     def template_param(template_param)
       template_param.validate
       @template_params[template_param.get_key] = {  'value' => template_param.get_value,
@@ -57,6 +66,7 @@ module CoreLibrary
     # The setter for the header parameter to be sent in the request.
     # @param [Parameter] header_param The header parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(header_param: Parameter).returns(RequestBuilder) }
     def header_param(header_param)
       header_param.validate
       @header_params[header_param.get_key] = header_param.get_value
@@ -66,6 +76,7 @@ module CoreLibrary
     # The setter for the query parameter to be sent in the request.
     # @param [Parameter] query_param The query parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(query_param: Parameter).returns(RequestBuilder) }
     def query_param(query_param)
       query_param.validate
       @query_params[query_param.get_key] = query_param.get_value
@@ -75,6 +86,7 @@ module CoreLibrary
     # The setter for the form parameter to be sent in the request.
     # @param [Parameter] form_param The form parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(form_param: Parameter).returns(RequestBuilder) }
     def form_param(form_param)
       form_param.validate
       @form_params[form_param.get_key] = form_param.get_value
@@ -84,6 +96,7 @@ module CoreLibrary
     # The setter for the additional form parameter to be sent in the request.
     # @param [Hash] additional_form_params The additional form parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(additional_form_params: T::Hash[String, T.untyped]).returns(RequestBuilder) }
     def additional_form_params(additional_form_params)
       @additional_form_params = additional_form_params
       self
@@ -92,6 +105,7 @@ module CoreLibrary
     # The setter for the additional query parameter to be sent in the request.
     # @param [Hash] additional_query_params The additional query parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(additional_form_params: T::Hash[String, T.untyped]).returns(RequestBuilder) }
     def additional_query_params(additional_query_params)
       @additional_query_params = additional_query_params
       self
@@ -100,6 +114,7 @@ module CoreLibrary
     # The setter for the multipart parameter to be sent in the request.
     # @param [Parameter] multipart_param The multipart parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(multipart_param: Parameter).returns(RequestBuilder) }
     def multipart_param(multipart_param)
       multipart_param.validate
       @multipart_params[multipart_param.get_key] = get_part(multipart_param)
@@ -109,6 +124,7 @@ module CoreLibrary
     # The setter for the body parameter to be sent in the request.
     # @param [Parameter] body_param The body parameter to be sent in the request.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(body_param: Parameter).returns(RequestBuilder) }
     def body_param(body_param)
       body_param.validate
       if !body_param.get_key.nil?
@@ -123,6 +139,7 @@ module CoreLibrary
     # The setter for the callable of serializing the body.
     # @param [Callable] body_serializer The callable for serializing the body.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(body_serializer: T.proc.params(param: T.untyped).returns(T.nilable(String))).returns(RequestBuilder) }
     def body_serializer(body_serializer)
       @body_serializer = body_serializer
       self
@@ -131,6 +148,7 @@ module CoreLibrary
     # The setter for the auth to be used for the request.
     # @param [Authentication] auth The instance of single or multiple auths.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(auth: Authentication).returns(RequestBuilder) }
     def auth(auth)
       @auth = auth
       self
@@ -139,20 +157,25 @@ module CoreLibrary
     # The setter for the serialization format to be used for arrays in query or form parameters of the request.
     # @param [ArraySerializationFormat] array_serialization_format The serialization format to be used for arrays.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(array_serialization_format: ArraySerializationFormat).returns(RequestBuilder) }
     def array_serialization_format(array_serialization_format)
       @array_serialization_format = array_serialization_format
       self
     end
 
     # The setter for the xml attributes to used while serialization of the xml body.
-    # @param [XmlAttribute] xml_attributes The xml attribute to used while serialization of the xml body.
+    # @param [XmlAttributes] xml_attributes The xml attribute to used while serialization of the xml body.
     # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(xml_attributes: XmlAttributes).returns(RequestBuilder) }
     def xml_attributes(xml_attributes)
       @xml_attributes = xml_attributes
       self
     end
 
-    # Sets global configuration object for the request builder.
+    # Sets the global configuration object for the request builder.
+    # @param [GlobalConfiguration] global_configuration The global configuration object.
+    # @return [RequestBuilder] An updated instance of RequestBuilder.
+    sig { params(global_configuration: GlobalConfiguration).returns(RequestBuilder) }
     def global_configuration(global_configuration)
       @global_configuration = global_configuration
       self
@@ -161,6 +184,7 @@ module CoreLibrary
     # Builds the Http Request.
     # @param [Hash] endpoint_context The endpoint configuration to be used while executing the request.
     # @return [HttpRequest] An instance of HttpRequest.
+    sig { params(endpoint_context: T::Hash[String, Object]).returns(HttpRequest) }
     def build(endpoint_context)
       _url = process_url
       _request_body = process_body
@@ -176,6 +200,7 @@ module CoreLibrary
 
     # Processes and resolves the endpoint URL.
     # @return [String] The processed URL.
+    sig { returns(String) }
     def process_url
       _base_url = @global_configuration.get_base_uri_executor.call(@server)
       _updated_url_with_template_params = ApiHelper.append_url_with_template_parameters(@path, @template_params)
@@ -187,6 +212,7 @@ module CoreLibrary
     # Returns the URL with resolved query parameters if any.
     # @param [String] url The URL of the endpoint.
     # @return [String] The URL with resolved query parameters if any.
+    sig { params(url: String).returns(String) }
     def get_updated_url_with_query_params(url)
       _has_additional_query_params = !@additional_query_params.nil? and @additional_query_params.any?
       _has_query_params = !@query_params.nil? and @query_params.any?
@@ -205,6 +231,7 @@ module CoreLibrary
     # Processes all request headers (including local, global and additional).
     # @param [GlobalConfiguration] global_configuration The global configuration to be used while processing the URL.
     # @return [Hash] The processed request headers to be sent in the request.
+    sig { params(global_configuration: GlobalConfiguration).returns(Hash[String, String]) }
     def process_headers(global_configuration)
       _request_headers = {}
       _global_headers = global_configuration.get_global_headers
@@ -227,6 +254,7 @@ module CoreLibrary
 
     # Processes the body parameter of the request (including form param, json body or xml body).
     # @return [Object] The body param to be sent in the request.
+    sig { returns(T.nilable(Object)) }
     def process_body
       _has_form_params = !@form_params.nil? && @form_params.any?
       _has_additional_form_params = !@additional_form_params.nil? && @additional_form_params.any?
@@ -255,6 +283,7 @@ module CoreLibrary
     # Processes the part of a multipart request and assign appropriate part value and its content-type.
     # @param [Parameter] multipart_param The multipart parameter to be sent in the request.
     # @return [UploadIO] The translated Faraday's UploadIO instance.
+    sig { params(multipart_param: Parameter).returns(Faraday::UploadIO) }
     def get_part(multipart_param)
       param_value = multipart_param.get_value
       if param_value.is_a? FileWrapper
@@ -268,8 +297,8 @@ module CoreLibrary
     end
 
     # Processes the XML body parameter.
-
     # @return [String] The serialized xml body.
+    sig { returns(String) }
     def process_xml_parameters
       unless @xml_attributes.get_array_item_name.nil?
         return @body_serializer.call(@xml_attributes.get_root_element_name,
@@ -282,10 +311,11 @@ module CoreLibrary
 
     # Resolves the body parameter to appropriate type.
     # @return [Hash] The resolved body parameter as per the type.
+    sig { returns(T.nilable(T::Hash[String, Object])) }
     def resolve_body_param
       if !@body_param.nil? && @body_param.is_a?(FileWrapper)
         @header_params['content-type'] = @body_param.content_type if !@body_param.file.nil? &&
-                                                                     !@body_param.content_type.nil?
+          !@body_param.content_type.nil?
         @header_params['content-length'] = @body_param.file.size.to_s
         return @body_param.file
       elsif !@body_param.nil? && @body_param.is_a?(File)
@@ -297,6 +327,7 @@ module CoreLibrary
     # Applies the configured auth onto the http request.
     # @param [Hash] auth_managers The hash of auth managers.
     # @param [HttpRequest] http_request The HTTP request on which the auth is to be applied.
+    sig { params(auth_managers: T::Hash[String, Authentication], http_request: HttpRequest).void }
     def apply_auth(auth_managers, http_request)
       is_valid_auth = @auth.with_auth_managers(auth_managers).valid unless @auth.nil?
       @auth.apply(http_request) if is_valid_auth
@@ -304,3 +335,5 @@ module CoreLibrary
     end
   end
 end
+
+
