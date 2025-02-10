@@ -50,7 +50,7 @@ body:
       description: |
         examples:
           - **OS**: Ubuntu 20.04
-          - **Language version**: PHP 8.2 (`php -v`)
+          - **Language version**: Ruby 3.4 (`ruby -v`)
           - **SDK Name**: PayPal (If you are using this library as a dependency, please name the parent SDK)
       value: |
         - **OS**:
