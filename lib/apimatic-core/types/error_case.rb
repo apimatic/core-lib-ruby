@@ -1,7 +1,10 @@
+# typed: true
 module CoreLibrary
   # This data class represents the expected errors to be handled after the API call.
   class ErrorCase
-    # Initializes a new instance of ErrorCase.
+    extend T::Sig  # For Sorbet signature support
+
+    sig { void }
     def initialize
       @error_message = nil
       @error_message_template = nil
@@ -11,6 +14,7 @@ module CoreLibrary
     # The setter for the description of the error message.
     # @param [String] error_message The error message.
     # @return [ErrorCase] An updated instance of ErrorCase.
+    sig { params(error_message: T.nilable(String)).returns(ErrorCase) }
     def error_message(error_message)
       @error_message = error_message
       self
@@ -19,6 +23,7 @@ module CoreLibrary
     # The setter for the description of the error message.
     # @param [String] error_message_template The error message template.
     # @return [ErrorCase] An updated instance of ErrorCase.
+    sig { params(error_message_template: T.nilable(String)).returns(ErrorCase) }
     def error_message_template(error_message_template)
       @error_message_template = error_message_template
       self
@@ -27,6 +32,7 @@ module CoreLibrary
     # The setter for the type of the exception to be thrown.
     # @param [Object] exception_type The type of the exception to be thrown.
     # @return [ErrorCase] An updated instance of ErrorCase.
+    sig { params(exception_type: Class).returns(ErrorCase) }
     def exception_type(exception_type)
       @exception_type = exception_type
       self
@@ -36,6 +42,7 @@ module CoreLibrary
     # and error template message. Error message template has the higher precedence over an error message.
     # @param response The received http response.
     # @return [String] The resolved exception message.
+    sig { params(response: HttpResponse).returns(T.nilable(String)) }
     def get_error_message(response)
       return _get_resolved_error_message_template(response) unless @error_message_template.nil?
 
@@ -44,6 +51,7 @@ module CoreLibrary
 
     # Raises the exception for the current error case type.
     # @param response The received response.
+    sig { params(response: HttpResponse).void }
     def raise_exception(response)
       raise @exception_type.new get_error_message(response), response
     end
@@ -51,6 +59,7 @@ module CoreLibrary
     # Updates all placeholders in the given message template with provided value.
     # @param response The received http response.
     # @return [String] The resolved template message.
+    sig { params(response: HttpResponse).returns(T.nilable(String)) }
     def _get_resolved_error_message_template(response)
       placeholders = @error_message_template.scan(/{\$.*?\}/)
 

@@ -10,9 +10,9 @@ module CoreLibrary
     sig { params(global_configuration: GlobalConfiguration).void }
     def initialize(global_configuration)
       @global_configuration = global_configuration
-      @request_builder = RequestBuilder.new
-      @response_handler = ResponseHandler.new
-      @endpoint_context = {}
+      @request_builder = T.let(RequestBuilder.new, CoreLibrary::RequestBuilder)
+      @response_handler = T.let(ResponseHandler.new, CoreLibrary::ResponseHandler)
+      @endpoint_context = T.let({}, T::Hash[T.untyped, T.untyped])
       initialize_api_logger(@global_configuration.client_configuration.logging_configuration)
     end
 
@@ -28,7 +28,7 @@ module CoreLibrary
     # @return [ApiCall] An updated instance of ApiCall.
     sig { params(request_builder: RequestBuilder).returns(ApiCall) }
     def request(request_builder)
-      @request_builder = request_builder
+      @request_builder = T.let(request_builder, T.nilable(CoreLibrary::RequestBuilder))
       self
     end
 
@@ -37,7 +37,7 @@ module CoreLibrary
     # @return [ApiCall] An updated instance of ApiCall.
     sig { params(response_handler: ResponseHandler).returns(ApiCall) }
     def response(response_handler)
-      @response_handler = response_handler
+      @response_handler = T.let(response_handler, T.nilable(CoreLibrary::ResponseHandler))
       self
     end
 
@@ -60,21 +60,21 @@ module CoreLibrary
       raise ArgumentError, 'An HTTP client instance is required to execute an Api call.' if _client_configuration.http_client.nil?
 
       _http_request = @request_builder.global_configuration(@global_configuration).build(@endpoint_context)
-      @logger.log_request(_http_request)
+      T.must(@logger).log_request(_http_request)
 
       _http_callback = _client_configuration.http_callback
       unless _http_callback.nil?
         update_http_callback(proc do
-          _http_callback&.on_before_request(_http_request)
+          _http_callback.on_before_request(_http_request)
         end)
       end
 
-      _http_response = _client_configuration.http_client.execute(_http_request)
-      @logger.log_response(_http_response)
+      _http_response = T.must(_client_configuration.http_client).execute(_http_request)
+      T.must(@logger).log_response(_http_response)
 
       unless _http_callback.nil?
         update_http_callback(proc do
-          _http_callback&.on_after_response(_http_response)
+          _http_callback.on_after_response(_http_response)
         end)
       end
 
@@ -94,7 +94,7 @@ module CoreLibrary
 
     # Initializes the logger for API calls.
     # @param [LoggingConfiguration, nil] logging_config The logging configuration to initialize the logger.
-    sig { params(logging_config: T.nilable(LoggingConfiguration)).void }
+    sig { params(logging_config: T.nilable(CoreLibrary::ApiLoggingConfiguration)).void }
     def initialize_api_logger(logging_config)
       @logger = T.let(if logging_config.nil?
                         T.let(NilSdkLogger.new, NilSdkLogger)
@@ -108,6 +108,6 @@ module CoreLibrary
     # Returns the logger instance used for API calls.
     # @return [NilSdkLogger, SdkLogger] The logger instance.
     sig { returns(T.any(NilSdkLogger, SdkLogger)) }
-    attr_reader :logger
+    attr_reader :T.must(log)
   end
 end

@@ -1,6 +1,10 @@
+# typed: true
 module CoreLibrary
   # Represents the AnyOf union type in the core library
   class AnyOf < UnionType
+    extend T::Sig
+
+    sig { params(union_types: T::Array[UnionType], union_type_context: UnionTypeContext).void }
     # Initializes a new instance of AnyOf
     # @param union_types [Array] The array of nested union types
     # @param union_type_context [UnionTypeContext] The context for the union type
@@ -9,6 +13,7 @@ module CoreLibrary
       @collection_cases = nil
     end
 
+    sig { params(value: Object).returns(AnyOf) }
     # Validates a value against the AnyOf union type
     # @param value [Object] The value to validate
     # @return [AnyOf] The validated AnyOf object
@@ -41,6 +46,7 @@ module CoreLibrary
       self
     end
 
+    sig { params(value: Object).returns(T.nilable(Object)) }
     # Serializes a given value.
     # @param value [Object] The value to be serialized.
     # @return [Object, nil] The serialized representation of the value, or nil if the value is nil.
@@ -55,6 +61,7 @@ module CoreLibrary
       )
     end
 
+    sig { params(value: Object, should_symbolize: T::Boolean).returns(T.nilable(Object)) }
     # Deserializes a value based on the AnyOf union type
     # @param value [Object] The value to deserialize
     # @param should_symbolize [Boolean] Indicates whether the deserialized value should be symbolized.
@@ -68,6 +75,7 @@ module CoreLibrary
 
     private
 
+    sig { params(value: T.untyped, context: UnionTypeContext).void }
     # Validates a value against the appropriate case of the AnyOf union type
     # @param value [Object] The value to validate
     # @param context [UnionTypeContext] The context for the union type

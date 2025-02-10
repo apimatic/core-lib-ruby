@@ -6,7 +6,7 @@ class ConsoleLogger < Logger
   # Initializes a new instance of DefaultLogger.
   sig { void }
   def initialize
-    @logger = ::Logger.new($stdout)
+    @logger = T.let(::Logger.new($stdout), Logger)
     @logger.formatter = method(:format_log_message)
   end
 
@@ -51,7 +51,7 @@ class ConsoleLogger < Logger
   def message_with_params(message, params)
     message.gsub(/\{([\w-]+)\}/) do |match|
       key = match[1..-2]
-      params[key.to_sym] || params[key.to_s]
+      T.must(params)[T.must(key).to_sym] || T.must(params)[key.to_s]
     end
   end
 end

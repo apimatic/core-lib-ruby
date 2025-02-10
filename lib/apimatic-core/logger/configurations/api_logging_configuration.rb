@@ -5,10 +5,10 @@ module CoreLibrary
   class ApiLoggingConfiguration
     extend T::Sig
 
-    sig { returns(LoggerInterface) }
+    sig { returns(CoreLibrary::Logger) }
     attr_reader :logger
 
-    sig { returns(LogLevel) }
+    sig { returns(Integer) }
     attr_reader :log_level
 
     sig { returns(T.nilable(ApiRequestLoggingConfiguration)) }
@@ -29,8 +29,8 @@ module CoreLibrary
     # @param mask_sensitive_headers [Boolean] Indicates whether sensitive headers should be masked in logged messages.
     sig do
       params(
-        logger: T.nilable(LoggerInterface),
-        log_level: T.nilable(LogLevel),
+        logger: T.nilable(Logger),
+        log_level: T.nilable(Integer),
         request_logging_config: T.nilable(ApiRequestLoggingConfiguration),
         response_logging_config: T.nilable(ApiResponseLoggingConfiguration),
         mask_sensitive_headers: T::Boolean
@@ -96,9 +96,9 @@ module CoreLibrary
     )
       @log_body = log_body
       @log_headers = log_headers
-      @headers_to_exclude = headers_to_exclude || []
-      @headers_to_include = headers_to_include || []
-      @headers_to_unmask = headers_to_unmask || []
+      @headers_to_exclude = T.let(headers_to_exclude || [], T::Array[String])
+      @headers_to_include = T.let(headers_to_include || [], T::Array[String])
+      @headers_to_unmask = T.let(headers_to_unmask || [], T::Array[String])
     end
   end
 

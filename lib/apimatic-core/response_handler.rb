@@ -273,13 +273,13 @@ module CoreLibrary
       error_case&.raise_exception(response)
 
       # Handling error case when configured as explicit error codes range
-      default_range_entry = error_cases&.filter do |error_code, _|
+      default_range_entry = error_cases.filter do |error_code, _|
         error_code.match?("^#{actual_status_code[0]}XX$")
       end
 
-      default_range_error_case = default_range_entry&.map { |_, error_case_instance| error_case_instance }
+      default_range_error_case = default_range_entry.map { |_, error_case_instance| error_case_instance }
 
-      default_range_error_case[0].raise_exception(response) unless
+      T.must(default_range_error_case[0]).raise_exception(response) unless
         default_range_error_case.nil? || default_range_error_case.empty?
 
       # Handling default error case if configured

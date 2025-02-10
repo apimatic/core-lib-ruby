@@ -1,7 +1,10 @@
+# typed: true
 module CoreLibrary
   # This data class represents the parameter to be sent in the request.
   class Parameter
-    # Initializes a new instance of Parameter.
+    extend T::Sig  # For Sorbet signature support
+
+    sig { void }
     def initialize
       @key = nil
       @value = nil
@@ -15,6 +18,7 @@ module CoreLibrary
     # The setter for the parameter key.
     # @param [String] key The parameter key to send.
     # @return [Parameter] An updated instance of Parameter.
+    sig { params(key: T.nilable(String)).returns(Parameter) }
     def key(key)
       @key = key
       self
@@ -22,6 +26,7 @@ module CoreLibrary
 
     # The getter for the parameter key.
     # @return [String] The parameter key to send.
+    sig { returns(T.nilable(String)) }
     def get_key
       @key
     end
@@ -29,6 +34,7 @@ module CoreLibrary
     # The setter for the parameter value.
     # @param [Object] value The parameter value to send.
     # @return [Parameter] An updated instance of Parameter.
+    sig { params(value: Object).returns(Parameter) }
     def value(value)
       @value = value
       self
@@ -36,6 +42,7 @@ module CoreLibrary
 
     # The getter for the parameter's actual/converted value where applicable.
     # @return [Object] The parameter value to send.
+    sig { returns(T.nilable(Object)) }
     def get_value
       return @value_convertor.call(@value) unless @value_convertor.nil?
 
@@ -46,6 +53,7 @@ module CoreLibrary
     # @param [Boolean] is_required true if the parameter is required otherwise false, by default the value is false.
     # @return [Parameter] An updated instance of Parameter.
     # rubocop:disable Naming/PredicateName
+    sig { params(is_required: T::Boolean).returns(Parameter) }
     def is_required(is_required)
       @is_required = is_required
       self
@@ -55,6 +63,7 @@ module CoreLibrary
     # The setter for the flag if the parameter value is to be encoded.
     # @param [Boolean] should_encode true if the parameter value is to be encoded otherwise false, default is false.
     # @return [Parameter] An updated instance of Parameter.
+    sig { params(should_encode: T::Boolean).returns(Parameter) }
     def should_encode(should_encode)
       @should_encode = should_encode
       self
@@ -63,6 +72,7 @@ module CoreLibrary
     # The setter for the function of converting value for form params.
     # @param [Callable] value_convertor The function to execute for conversion.
     # @return [Parameter] An updated instance of Parameter.
+    sig { params(value_convertor: T.nilable(Proc)).returns(Parameter) }
     def value_convertor(value_convertor)
       @value_convertor = value_convertor
       self
@@ -70,6 +80,7 @@ module CoreLibrary
 
     # The getter for the flag if the parameter value is to be encoded.
     # @return [Boolean] true if the parameter value is to be encoded otherwise false, by default the value is false.
+    sig { returns(T::Boolean) }
     def need_to_encode
       @should_encode
     end
@@ -77,6 +88,7 @@ module CoreLibrary
     # The setter for the default content type of the multipart request.
     # @param [String] default_content_type The content type to be used, applicable for multipart request parameters.
     # @return [Parameter] An updated instance of Parameter.
+    sig { params(default_content_type: T.nilable(String)).returns(Parameter) }
     def default_content_type(default_content_type)
       @default_content_type = default_content_type
       self
@@ -84,6 +96,7 @@ module CoreLibrary
 
     # The getter for the default content type of the multipart request.
     # @return [String] The default content type to be used applicable for multipart request parameters.
+    sig { returns(T.nilable(String)) }
     def get_default_content_type
       @default_content_type
     end
@@ -91,6 +104,7 @@ module CoreLibrary
     # Setter for the validator.
     # @param validator [callable] The validator function to be set.
     # @return [Parameter] An updated instance of the Parameter class.
+    sig { params(validator: T.nilable(Proc)).returns(Parameter) }
     def validator(validator)
       @validator = validator
       self
@@ -98,6 +112,7 @@ module CoreLibrary
 
     # Validates the parameter value to be sent in the request.
     # @raise [ArgumentError] If the parameter is required but the value is nil.
+    sig { void }
     def validate
       raise ArgumentError, "Required parameter #{@key} cannot be nil." if @is_required && @value.nil?
 

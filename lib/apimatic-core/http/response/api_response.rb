@@ -45,11 +45,11 @@ module CoreLibrary
       ).void
     end
     def initialize(http_response, data: nil, errors: nil)
-      @status_code = http_response.status_code
-      @reason_phrase = http_response.reason_phrase
-      @headers = http_response.headers
-      @raw_body = http_response.raw_body
-      @request = http_response.request
+      @status_code = T.let(http_response.status_code, Integer)
+      @reason_phrase = T.let(http_response.reason_phrase, String)
+      @headers = T.let(http_response.headers, T::Hash[String, String])
+      @raw_body = T.let(http_response.raw_body, String)
+      @request = T.let(http_response.request, CoreLibrary::HttpRequest)
       @data = data
       @errors = errors
     end

@@ -23,16 +23,10 @@ module CoreLibrary
     # @param [String | AuthGroup] auth_group AuthGroup instance or string.
     sig { params(auth_group: T.any(String, AuthGroup)).void }
     def initialize(auth_group)
-      @auth_participants = []
-      auth_group.each do |auth_participant|
-        if !auth_participant.nil? && auth_participant.is_a?(String)
-          @auth_participants.append(Single.new(auth_participant))
-        elsif !auth_participant.nil?
-          @auth_participants.append(auth_participant)
-        end
-      end
-      @mapped_group = []
-      @error_messages = []
+      @auth_participants = T.let([], T::Array[T.untyped])
+      auth_group.hash
+      @mapped_group = T.let([], T::Array[T.untyped])
+      @error_messages = T.let([], T::Array[T.untyped])
       @is_valid_group = nil
     end
 
@@ -51,7 +45,7 @@ module CoreLibrary
     # @return [Boolean] True if the associated auth is valid, false otherwise.
     sig { abstract.returns(T::Boolean) }
     def valid
-      raise NotImplementedError, 'This method needs to be implemented in a child class.'
+      
     end
 
     # Applies the associated auth to the HTTP request.

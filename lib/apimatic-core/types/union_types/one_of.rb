@@ -1,10 +1,15 @@
+# typed: true
 module CoreLibrary
   # Represents the OneOf union type in the core library
   class OneOf < UnionType
     # Initializes a new instance of OneOf
-    # @param union_types [Array] The array of nested union types
+    # @param union_types [Array<UnionType>] The array of nested union types
     # @param union_type_context [UnionTypeContext] The context for the union type
-    def initialize(union_types, union_type_context = UnionTypeContext.new)
+    # @return [OneOf] The instance of OneOf
+    extend T::Sig
+
+    sig { params(union_types: T::Array[UnionType], union_type_context: UnionTypeContext).void }
+    def initialize(union_types: [], union_type_context: UnionTypeContext.new)
       super(union_types, union_type_context)
       @collection_cases = nil
     end
@@ -12,6 +17,7 @@ module CoreLibrary
     # Validates a value against the OneOf union type
     # @param value [Object] The value to validate
     # @return [OneOf] The validated OneOf object
+    sig { params(value: Object).returns(OneOf) }
     def validate(value)
       context = @union_type_context
       UnionTypeHelper.update_nested_flag_for_union_types(@union_types)
@@ -44,6 +50,7 @@ module CoreLibrary
     # Serializes a given value.
     # @param value [Object] The value to be serialized.
     # @return [Object, nil] The serialized representation of the value, or nil if the value is nil.
+    sig { params(value: Object).returns(T.nilable(Object)) }
     def serialize(value)
       return nil if value.nil?
 
@@ -59,6 +66,7 @@ module CoreLibrary
     # @param value [Object] The value to deserialize
     # @param should_symbolize [Boolean] Indicates whether the deserialized value should be symbolized.
     # @return [Object, nil] The deserialized value, or nil if the input value is nil
+    sig { params(value: Object, should_symbolize: T::Boolean).returns(T.nilable(Object)) }
     def deserialize(value, should_symbolize: false)
       return nil if value.nil?
 
@@ -71,6 +79,8 @@ module CoreLibrary
     # Validates a value against the appropriate case of the OneOf union type
     # @param value [Object] The value to validate
     # @param context [UnionTypeContext] The context for the union type
+    # @return [void]
+    sig { params(value: Object, context: UnionTypeContext).void }
     def _validate_value_against_case(value, context)
       if context.is_array && context.is_dict && context.is_array_of_dict
         @is_valid, @collection_cases = UnionTypeHelper.validate_array_of_dict_case(@union_types, value,

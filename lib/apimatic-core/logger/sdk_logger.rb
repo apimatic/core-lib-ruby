@@ -1,3 +1,4 @@
+# typed: strict
 module CoreLibrary
   # This class is responsible for logging request and response info.
   class SdkLogger < ApiLogger
@@ -5,11 +6,11 @@ module CoreLibrary
 
     sig { params(logging_config: ApiLoggingConfiguration).void }
     def initialize(logging_config)
-      @log_level = logging_config.log_level
-      @logger = logging_config.logger
-      @request_logging_config = logging_config.request_logging_config
-      @response_logging_config = logging_config.response_logging_config
-      @mask_sensitive_headers = logging_config.mask_sensitive_headers
+      @log_level = T.let(logging_config.log_level, CoreLibrary::Logger)
+      @logger = T.let(logging_config.logger, CoreLibrary::LoggerHelper)
+      @request_logging_config = T.let(logging_config.request_logging_config, T.nilable(CoreLibrary::ApiRequestLoggingConfiguration))
+      @response_logging_config = T.let(logging_config.response_logging_config, T.nilable(CoreLibrary::ApiResponseLoggingConfiguration))
+      @mask_sensitive_headers = T.let(logging_config.mask_sensitive_headers, T::Boolean)
     end
 
     sig { params(request: HttpRequest).void }

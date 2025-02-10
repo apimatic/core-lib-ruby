@@ -28,7 +28,7 @@ module CoreLibrary
         verify: T::Boolean,
         http_callback: T.nilable(T.proc.void),
         http_client: T.nilable(HttpClient),
-        logging_configuration: T.nilable(LoggingConfiguration)
+        logging_configuration: T.nilable(CoreLibrary::ApiLoggingConfiguration)
       ).void
     }
     # Initializes a new instance of HttpClientConfiguration.
@@ -65,7 +65,7 @@ module CoreLibrary
       @verify = T.let(verify, T::Boolean)
       @cache = T.let(cache, T::Boolean)
       @http_client = T.let(http_client, T.nilable(HttpClient))
-      @logging_configuration = T.let(logging_configuration, T.nilable(LoggingConfiguration))
+      @logging_configuration = T.let(logging_configuration, T.nilable(CoreLibrary::ApiLoggingConfiguration))
     end
 
     sig { params(http_client: HttpClient).void }

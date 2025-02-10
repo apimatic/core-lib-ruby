@@ -51,7 +51,7 @@ module CoreLibrary
     def apply(http_request)
       return unless @is_valid
 
-      @mapped_auth.apply(http_request)
+      T.must(@mapped_auth).apply(http_request)
     end
   end
 end

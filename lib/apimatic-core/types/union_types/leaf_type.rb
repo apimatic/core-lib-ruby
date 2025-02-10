@@ -1,8 +1,13 @@
+# typed: true
 module CoreLibrary
   # Represents a leaf type in a UnionType
   class LeafType < UnionType
+    extend T::Sig  # For Sorbet signature support
+
+    sig { returns(Class) }
     attr_reader :type_to_match
 
+    sig { params(type_to_match: Class, union_type_context: UnionTypeContext).void }
     # Initializes a new instance of LeafType
     # @param type_to_match [Class] The type to match against
     # @param union_type_context [UnionTypeContext] The UnionTypeContext associated with the leaf type
@@ -11,6 +16,7 @@ module CoreLibrary
       @type_to_match = type_to_match
     end
 
+    sig { params(value: Object).returns(LeafType) }
     # Validates a value against the leaf type
     # @param value [Object] The value to validate
     # @return [LeafType] The current LeafType object
@@ -26,12 +32,15 @@ module CoreLibrary
       self
     end
 
+    sig { params(value: Object).returns(Object) }
+    # Serializes a value against the leaf type
     def serialize(value)
       return nil if value.nil?
 
       serialize_value_against_case(value, @union_type_context)
     end
 
+    sig { params(value: Object, should_symbolize: T::Boolean).returns(Object) }
     # Deserializes a value based on the leaf type
     # @param value [Object] The value to deserialize
     # @param should_symbolize [Boolean] Indicates whether the deserialized value should be symbolized.
@@ -44,6 +53,10 @@ module CoreLibrary
 
     private
 
+    sig { params(value: Object, context: UnionTypeContext).returns(T::Boolean) }
+    # Validates a value against the appropriate case for the leaf type
+    # @param value [Object] The value to validate
+    # @param context [UnionTypeContext] The context for the union type
     def validate_value_against_case(value, context)
       if context.is_array && context.is_dict && context.is_array_of_dict
         validate_array_of_dict_case(value)
@@ -58,6 +71,7 @@ module CoreLibrary
       end
     end
 
+    sig { params(dict_value: Object).returns(T::Boolean) }
     def validate_dict_case(dict_value)
       return false unless dict_value.instance_of?(Hash)
 
@@ -69,6 +83,7 @@ module CoreLibrary
       true
     end
 
+    sig { params(dict_value: Object).returns(T::Boolean) }
     def validate_dict_of_array_case(dict_value)
       return false unless dict_value.instance_of?(Hash)
 
@@ -80,6 +95,7 @@ module CoreLibrary
       true
     end
 
+    sig { params(array_value: Object).returns(T::Boolean) }
     def validate_array_case(array_value)
       return false unless array_value.instance_of?(Array)
 
@@ -91,6 +107,7 @@ module CoreLibrary
       true
     end
 
+    sig { params(array_value: Object).returns(T::Boolean) }
     def validate_array_of_dict_case(array_value)
       return false unless array_value.instance_of?(Array)
 
@@ -102,6 +119,7 @@ module CoreLibrary
       true
     end
 
+    sig { params(value: Object).returns(T::Boolean) }
     def validate_simple_case(value)
       context = @union_type_context
 
@@ -114,6 +132,7 @@ module CoreLibrary
       end
     end
 
+    sig { params(value: Object, context: UnionTypeContext).returns(T::Boolean) }
     def validate_value(value, context)
       if @type_to_match == DateTime
         dt_string = if value.instance_of?(DateTime) && context.date_time_converter
@@ -130,6 +149,7 @@ module CoreLibrary
       end
     end
 
+    sig { params(value: Object, context: UnionTypeContext).returns(T::Boolean) }
     def validate_value_with_discriminator(value, context)
       discriminator = context.discriminator
       discriminator_value = context.discriminator_value
@@ -143,6 +163,7 @@ module CoreLibrary
       end
     end
 
+    sig { params(discriminator: Object, discriminator_value: Object, value: Object).returns(T::Boolean) }
     def validate_with_discriminator(discriminator, discriminator_value, value)
       return false unless value.instance_of?(Hash) && value[discriminator] == discriminator_value
 
@@ -153,6 +174,7 @@ module CoreLibrary
       end
     end
 
+    sig { params(value: Object).returns(Object) }
     def serialize_value_against_case(value, context)
       if context.is_array && context.is_dict && context.is_array_of_dict
         serialize_array_of_dict_case(value)
@@ -167,6 +189,7 @@ module CoreLibrary
       end
     end
 
+    sig { params(dict_value: Object).returns(Object) }
     def serialize_dict_case(dict_value)
       serialized_value = {}
 
@@ -178,6 +201,7 @@ module CoreLibrary
       serialized_value
     end
 
+    sig { params(dict_value: Object).returns(Object) }
     def serialize_dict_of_array_case(dict_value)
       serialized_value = {}
 
@@ -189,6 +213,7 @@ module CoreLibrary
       serialized_value
     end
 
+    sig { params(array_value: Object).returns(Object) }
     def serialize_array_case(array_value)
       serialized_value = []
 
@@ -200,6 +225,7 @@ module CoreLibrary
       serialized_value
     end
 
+    sig { params(array_value: Object).returns(Object) }
     def serialize_array_of_dict_case(array_value)
       serialized_value = []
 
@@ -211,6 +237,7 @@ module CoreLibrary
       serialized_value
     end
 
+    sig { params(value: Object).returns(Object) }
     def serialize_simple_case(value)
       case @union_type_context.date_time_format
       when DateTimeFormat::HTTP_DATE_TIME
@@ -224,6 +251,7 @@ module CoreLibrary
       value
     end
 
+    sig { params(value: Object, should_symbolize: T::Boolean).returns(Object) }
     def deserialize_value_against_case(value, context, should_symbolize: false)
       if context.is_array && context.is_dict && context.is_array_of_dict
         deserialize_array_of_dict_case(value, should_symbolize: should_symbolize)
@@ -238,6 +266,7 @@ module CoreLibrary
       end
     end
 
+    sig { params(dict_value: Object, should_symbolize: T::Boolean).returns(Object) }
     def deserialize_dict_case(dict_value, should_symbolize: false)
       deserialized_value = {}
 
@@ -249,6 +278,7 @@ module CoreLibrary
       deserialized_value
     end
 
+    sig { params(dict_value: Object, should_symbolize: T::Boolean).returns(Object) }
     def deserialize_dict_of_array_case(dict_value, should_symbolize: false)
       deserialized_value = {}
 
@@ -260,6 +290,7 @@ module CoreLibrary
       deserialized_value
     end
 
+    sig { params(array_value: Object, should_symbolize: T::Boolean).returns(Object) }
     def deserialize_array_case(array_value, should_symbolize: false)
       deserialized_value = []
 
@@ -271,6 +302,7 @@ module CoreLibrary
       deserialized_value
     end
 
+    sig { params(array_value: Object, should_symbolize: T::Boolean).returns(Object) }
     def deserialize_array_of_dict_case(array_value, should_symbolize: false)
       deserialized_value = []
 
@@ -282,6 +314,7 @@ module CoreLibrary
       deserialized_value
     end
 
+    sig { params(value: Object, should_symbolize: T::Boolean).returns(Object) }
     def deserialize_simple_case(value, should_symbolize: false)
       if @type_to_match.respond_to?(:from_hash)
         @type_to_match.from_hash(value)

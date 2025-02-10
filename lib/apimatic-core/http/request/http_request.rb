@@ -6,7 +6,7 @@ module CoreLibrary
     extend T::Sig
 
     # The HTTP method.
-    sig { returns(HttpMethodEnum) }
+    sig { returns(CoreLibrary::HttpMethod) }
     attr_accessor :http_method
 
     # The URL to send the request to.
@@ -41,7 +41,7 @@ module CoreLibrary
     # @param [Hash, Optional] context The context for the HTTP Request.
     sig do
       params(
-        http_method: HttpMethodEnum,
+        http_method: CoreLibrary::HttpMethod,
         query_url: String,
         headers: T::Hash[String, String],
         parameters: T::Hash[String, String],

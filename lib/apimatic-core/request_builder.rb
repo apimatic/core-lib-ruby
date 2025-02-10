@@ -21,7 +21,7 @@ module CoreLibrary
       @body_serializer = T.let(nil, T.nilable(T.proc.params(arg: T.untyped).returns(T.nilable(String))))
       @auth = T.let(nil, T.nilable(Authentication))
       @array_serialization_format = T.let(ArraySerializationFormat::INDEXED, ArraySerializationFormat)
-      @xml_attributes = T.let(nil, T.nilable(XmlAttribute))
+      @xml_attributes = T.let(nil, T.nilable(CoreLibrary::XmlAttributes))
       @global_configuration = T.let(nil, T.nilable(GlobalConfiguration))
     end
 
@@ -188,12 +188,12 @@ module CoreLibrary
     def build(endpoint_context)
       _url = process_url
       _request_body = process_body
-      _request_headers = process_headers(@global_configuration)
-      _http_request = HttpRequest.new(@http_method, _url,
+      _request_headers = process_headers(T.must(@global_configuration))
+      _http_request = HttpRequest.new(T.must(@http_method), _url,
                                       headers: _request_headers,
                                       parameters: _request_body,
                                       context: endpoint_context)
-      apply_auth(@global_configuration.get_auth_managers, _http_request)
+      apply_auth(T.must(@global_configuration).get_auth_managers, _http_request)
 
       _http_request
     end
@@ -202,7 +202,7 @@ module CoreLibrary
     # @return [String] The processed URL.
     sig { returns(String) }
     def process_url
-      _base_url = @global_configuration.get_base_uri_executor.call(@server)
+      _base_url = T.must(T.must(@global_configuration).get_base_uri_executor).call()
       _updated_url_with_template_params = ApiHelper.append_url_with_template_parameters(@path, @template_params)
       _url = _base_url + _updated_url_with_template_params
       _url = get_updated_url_with_query_params(_url)
@@ -231,7 +231,7 @@ module CoreLibrary
     # Processes all request headers (including local, global and additional).
     # @param [GlobalConfiguration] global_configuration The global configuration to be used while processing the URL.
     # @return [Hash] The processed request headers to be sent in the request.
-    sig { params(global_configuration: GlobalConfiguration).returns(Hash[String, String]) }
+    sig { params(global_configuration: GlobalConfiguration).returns(T::Hash[String, String]) }
     def process_headers(global_configuration)
       _request_headers = {}
       _global_headers = global_configuration.get_global_headers
@@ -301,12 +301,11 @@ module CoreLibrary
     sig { returns(String) }
     def process_xml_parameters
       unless @xml_attributes.get_array_item_name.nil?
-        return @body_serializer.call(@xml_attributes.get_root_element_name,
-                                     @xml_attributes.get_array_item_name,
-                                     @xml_attributes.get_value)
+        return T.must(T.must(@body_serializer).call(@xml_attributes.get_root_element_name,
+                                    ))
       end
 
-      @body_serializer.call(@xml_attributes.get_root_element_name, @xml_attributes.get_value)
+      T.must(T.must(@body_serializer).call(@xml_attributes.get_root_element_name))
     end
 
     # Resolves the body parameter to appropriate type.
