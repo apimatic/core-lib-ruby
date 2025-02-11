@@ -16,7 +16,7 @@ Thank you for your interest in contributing! 🎉 Your contributions help make t
 
 #### Step 1: Create a Branch
 
-- Create a new branch from `master`:
+- Create a new branch from `main`:
   ```sh
   git checkout -b your-feature-name
   ```
