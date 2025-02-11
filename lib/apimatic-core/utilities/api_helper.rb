@@ -375,12 +375,12 @@ module CoreLibrary
     def self.form_encode(obj, instance_name, formatting: ArraySerializationFormat::INDEXED)
       retval = {}
 
-      # If this is a structure, resolve it's field names.
+      # If this is a structure, resolve its field names.
       obj = obj.to_hash if obj.is_a? BaseModel
 
       # Create a form encoded hash for this object.
       if obj.nil?
-        nil
+        return retval
       elsif obj.instance_of? Array
         if formatting == ArraySerializationFormat::INDEXED
           obj.each_with_index do |value, index|
@@ -415,6 +415,7 @@ module CoreLibrary
       else
         retval[instance_name] = obj
       end
+
       retval
     end
 
