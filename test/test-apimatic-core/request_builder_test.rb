@@ -160,10 +160,18 @@ class RequestBuilderTest < Minitest::Test
 
   def test_header_param
     actual = MockHelper.create_basic_request_builder
-                       .header_param(MockHelper.new_parameter("value", key: "key"))
+                       .header_param(MockHelper.new_parameter("value", key: "string"))
+                       .header_param(MockHelper.new_parameter(10, key: "number"))
+                       .header_param(MockHelper.new_parameter(MockHelper.get_person_model, key: "model"))
+                       .header_param(MockHelper.new_parameter([11, 22, 33, 44], key: "array"))
+                       .header_param(MockHelper.new_parameter({ alpha: 'value', bravo: 'value' }, key: "hash"))
                        .build({})
 
-    assert(actual.headers["key"] == "value")
+    assert(actual.headers["string"] == "value")
+    assert(actual.headers["model"] == CoreLibrary::ApiHelper.json_serialize(MockHelper.get_person_model))
+    assert(actual.headers["number"] == '10')
+    assert(actual.headers["array"] == '[11,22,33,44]')
+    assert(actual.headers["hash"] == '{"alpha":"value","bravo":"value"}')
   end
 
   def test_form_param
@@ -290,8 +298,17 @@ class RequestBuilderTest < Minitest::Test
     actual = MockHelper.create_basic_request_builder_with_global_headers
                        .build({})
 
-    assert(actual.headers[:globalHeader] == "value")
-    assert(actual.headers[:additionalHeader] == "value")
+    assert(actual.headers[:globalHeaderString] == "value")
+    assert(actual.headers[:globalHeaderModel] == CoreLibrary::ApiHelper.json_serialize(MockHelper.get_person_model))
+    assert(actual.headers[:globalHeaderNumber] == '20')
+    assert(actual.headers[:globalHeaderArray] == '[1,2,3,4]')
+    assert(actual.headers[:globalHeaderHash] == '{"key1":"value1","key2":"value2"}')
+
+    assert(actual.headers[:additionalHeaderString] == "value")
+    assert(actual.headers[:additionalHeaderModel] == CoreLibrary::ApiHelper.json_serialize(MockHelper.get_person_model))
+    assert(actual.headers[:additionalHeaderNumber] == '20')
+    assert(actual.headers[:additionalHeaderArray] == '[11,12,13,14]')
+    assert(actual.headers[:additionalHeaderHash] == '{"name":"alice","department":"finance"}')
   end
 
   def test_multipart_param

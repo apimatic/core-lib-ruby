@@ -222,7 +222,11 @@ module CoreLibrary
         _request_headers.merge!(@header_params)
       end
 
-      _request_headers
+      _serialized_headers = _request_headers.transform_values do |value|
+        value.nil? ? value : ApiHelper.json_serialize(value)
+      end
+
+      _serialized_headers
     end
 
     # Processes the body parameter of the request (including form param, json body or xml body).

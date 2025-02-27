@@ -139,8 +139,22 @@ module TestComponent
       GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback))
                          .base_uri_executor(method(:get_base_uri))
                          .global_errors(get_global_errors)
-                         .global_headers({ "globalHeader": "value" })
-                         .additional_headers({ "additionalHeader": "value" })
+                         .global_headers(
+                           {
+                             "globalHeaderString": "value",
+                             "globalHeaderNumber": 20,
+                             "globalHeaderArray": [1, 2, 3, 4],
+                             "globalHeaderHash": {"key1": "value1", "key2": "value2"},
+                             "globalHeaderModel": self.get_person_model
+                           })
+                         .additional_headers(
+                           {
+                             "additionalHeaderString": "value",
+                             "additionalHeaderNumber": 20,
+                             "additionalHeaderArray": [11, 12, 13, 14],
+                             "additionalHeaderHash": {"name": "alice", "department": "finance"},
+                             "additionalHeaderModel": self.get_person_model
+                           })
     end
 
     def self.create_logging_configuration(logger: nil, log_level: nil, request_logging_config: nil, response_logging_config: nil, mask_sensitive_headers: true)
