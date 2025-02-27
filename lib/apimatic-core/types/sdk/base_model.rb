@@ -16,7 +16,7 @@ module CoreLibrary
 
     # Override for additional model properties.
     def respond_to_missing?(method_sym, include_private = false)
-      instance_variable_defined?("@#{method_sym}") ? true : super
+      instance_variable_defined?("@#{method_sym}") || super
     end
   end
 end
