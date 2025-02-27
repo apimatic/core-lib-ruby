@@ -163,15 +163,15 @@ class RequestBuilderTest < Minitest::Test
                        .header_param(MockHelper.new_parameter("value", key: "string"))
                        .header_param(MockHelper.new_parameter(10, key: "number"))
                        .header_param(MockHelper.new_parameter(MockHelper.get_person_model, key: "model"))
-                       .header_param(MockHelper.new_parameter([1, 2, 3, 4], key: "array"))
-                       .header_param(MockHelper.new_parameter({ key1: 'value1', key2: 'value2' }, key: "hash"))
+                       .header_param(MockHelper.new_parameter([11, 22, 33, 44], key: "array"))
+                       .header_param(MockHelper.new_parameter({ alpha: 'value', bravo: 'value' }, key: "hash"))
                        .build({})
 
     assert(actual.headers["string"] == "value")
     assert(actual.headers["model"] == CoreLibrary::ApiHelper.json_serialize(MockHelper.get_person_model))
     assert(actual.headers["number"] == '10')
-    assert(actual.headers["array"] == '[1,2,3,4]')
-    assert(actual.headers["hash"] == '{"key1":"value1","key2":"value2"}')
+    assert(actual.headers["array"] == '[11,22,33,44]')
+    assert(actual.headers["hash"] == '{"alpha":"value","bravo":"value"}')
   end
 
   def test_form_param
@@ -307,8 +307,8 @@ class RequestBuilderTest < Minitest::Test
     assert(actual.headers[:additionalHeaderString] == "value")
     assert(actual.headers[:additionalHeaderModel] == CoreLibrary::ApiHelper.json_serialize(MockHelper.get_person_model))
     assert(actual.headers[:additionalHeaderNumber] == '20')
-    assert(actual.headers[:additionalHeaderArray] == '[1,2,3,4]')
-    assert(actual.headers[:additionalHeaderHash] == '{"key1":"value1","key2":"value2"}')
+    assert(actual.headers[:additionalHeaderArray] == '[11,12,13,14]')
+    assert(actual.headers[:additionalHeaderHash] == '{"name":"alice","department":"finance"}')
   end
 
   def test_multipart_param

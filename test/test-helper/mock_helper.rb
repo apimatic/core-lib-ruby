@@ -151,8 +151,8 @@ module TestComponent
                            {
                              "additionalHeaderString": "value",
                              "additionalHeaderNumber": 20,
-                             "additionalHeaderArray": [1, 2, 3, 4],
-                             "additionalHeaderHash": {"key1": "value1", "key2": "value2"},
+                             "additionalHeaderArray": [11, 12, 13, 14],
+                             "additionalHeaderHash": {"name": "alice", "department": "finance"},
                              "additionalHeaderModel": self.get_person_model
                            })
     end
