@@ -1,121 +1,101 @@
+# typed: strict
+
 module CoreLibrary
-  # A utility that supports dateTime conversion to different formats.
   class DateTimeHelper
-    # Safely converts a DateTime object into a rfc1123 format string.
-    # @param [DateTime] date_time The DateTime object.
-    # @return [String] The rfc1123 formatted datetime string.
+    extend T::Sig
+
+    sig { params(date_time: DateTime).returns(String) }
     def self.to_rfc1123(date_time)
-      date_time&.httpdate
+      date_time.httpdate
     end
 
-    # Safely converts a map of DateTime objects into a map of rfc1123 format string.
-    # @param [hash] date_time A map of DateTime objects.
-    # @return [hash] A map of rfc1123 formatted datetime string.
+    sig {
+      params(date_time: T::Hash[String, DateTime], hash: T::Hash[String, T.untyped], key: String)
+        .returns(T::Hash[String, String])
+    }
     def self.to_rfc1123_map(date_time, hash, key)
-      return if date_time.nil?
-
       hash[key] = {}
       date_time.each do |k, v|
-        hash[key][k] =
-          v.instance_of?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
+        hash[key][k] = to_rfc1123(v)
       end
       hash[key]
     end
 
-    # Safely converts an array of DateTime objects into an array of rfc1123 format string.
-    # @param [Array] date_time An array of DateTime objects.
-    # @return [Array] An array of rfc1123 formatted datetime string.
+    sig {
+      params(date_time: T::Array[DateTime], hash: T::Hash[String, T.untyped], key: String)
+        .returns(T::Array[String])
+    }
     def self.to_rfc1123_array(date_time, hash, key)
-      return if date_time.nil?
-
-      hash[key] = date_time.map do |v|
-        v.instance_of?(DateTime) ? DateTimeHelper.to_rfc1123(v) : v
-      end
+      hash[key] = date_time.map { |v| to_rfc1123(v) }
+      hash[key]
     end
 
-    # Safely converts a DateTime object into a unix format string.
-    # @param [DateTime] date_time The DateTime object.
-    # @return [Integer] The unix formatted datetime integer.
+    sig { params(date_time: DateTime).returns(Integer) }
     def self.to_unix(date_time)
-      date_time.to_time.utc.to_i unless date_time.nil?
+      date_time.to_time.utc.to_i
     end
 
-    # Safely converts a map of DateTime objects into a map of unix format string.
-    # @param [hash] date_time A map of DateTime objects.
-    # @return [hash] A map of unix formatted datetime string.
+    sig {
+      params(date_time: T::Hash[String, DateTime], hash: T::Hash[String, T.untyped], key: String)
+        .returns(T::Hash[String, Integer])
+    }
     def self.to_unix_map(date_time, hash, key)
-      return if date_time.nil?
-
       hash[key] = {}
       date_time.each do |k, v|
-        hash[key][k] =
-          v.instance_of?(DateTime) ? DateTimeHelper.to_unix(v) : v
+        hash[key][k] = to_unix(v)
       end
       hash[key]
     end
 
-    # Safely converts an array of DateTime objects into a map of unix format string.
-    # @param [hash] date_time An array of DateTime objects.
-    # @return [hash] An array of unix formatted datetime string.
+    sig {
+      params(date_time: T::Array[DateTime], hash: T::Hash[String, T.untyped], key: String)
+        .returns(T::Array[Integer])
+    }
     def self.to_unix_array(date_time, hash, key)
-      return if date_time.nil?
-
-      hash[key] = date_time.map do |v|
-        v.instance_of?(DateTime) ? DateTimeHelper.to_unix(v) : v
-      end
+      hash[key] = date_time.map { |v| to_unix(v) }
+      hash[key]
     end
 
-    # Safely converts a DateTime object into a rfc3339 format string.
-    # @param [DateTime] date_time The DateTime object.
-    # @return [String] The rfc3339 formatted datetime string.
+    sig { params(date_time: DateTime).returns(String) }
     def self.to_rfc3339(date_time)
-      date_time&.rfc3339
+      date_time.rfc3339
     end
 
-    # Safely converts a map of DateTime objects into a map of rfc1123 format string.
-    # @param [hash] date_time A map of DateTime objects.
-    # @return [hash] A map of rfc1123 formatted datetime string.
+    sig {
+      params(date_time: T::Hash[String, DateTime], hash: T::Hash[String, T.untyped], key: String)
+        .returns(T::Hash[String, String])
+    }
     def self.to_rfc3339_map(date_time, hash, key)
-      return if date_time.nil?
 
       hash[key] = {}
       date_time.each do |k, v|
-        hash[key][k] =
-          v.instance_of?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
+        hash[key][k] = to_rfc3339(v)
       end
       hash[key]
     end
 
-    # Safely converts an array of DateTime objects into an array of rfc1123 format string.
-    # @param [Array] date_time An array of DateTime objects.
-    # @return [Array] An array of rfc1123 formatted datetime string.
+    sig {
+      params(date_time: T::Array[DateTime], hash: T::Hash[String, T.untyped], key: String)
+        .returns(T::Array[String])
+    }
     def self.to_rfc3339_array(date_time, hash, key)
       return if date_time.nil?
 
-      hash[key] = date_time.map do |v|
-        v.instance_of?(DateTime) ? DateTimeHelper.to_rfc3339(v) : v
-      end
+      hash[key] = date_time.map { |v| to_rfc3339(v) }
     end
 
-    # Safely converts a rfc1123 format string into a DateTime object.
-    # @param [String] date_time The rfc1123 formatted datetime string.
-    # @return [DateTime] A DateTime object.
+    sig { params(date_time: String).returns(DateTime) }
     def self.from_rfc1123(date_time)
       DateTime.httpdate(date_time)
     end
 
-    # Safely converts a unix format string into a DateTime object.
-    # @param [String] date_time The unix formatted datetime string.
-    # @return [DateTime] A DateTime object.
+    sig { params(date_time: T.any(String, Integer)).returns(DateTime) }
     def self.from_unix(date_time)
       Time.at(date_time.to_i).utc.to_datetime
     end
 
-    # Safely converts a rfc3339 format string into a DateTime object.
-    # @param [String] date_time The rfc3339 formatted datetime string.
-    # @return [DateTime] A DateTime object.
+    sig { params(date_time: String).returns(DateTime) }
     def self.from_rfc3339(date_time)
-      # missing timezone information
       if date_time.match?(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[-+]\d{2}:\d{2})\z$/)
         DateTime.rfc3339(date_time)
       else
@@ -123,23 +103,25 @@ module CoreLibrary
       end
     end
 
+    sig { params(dt_format: DateTimeFormat, dt: String).returns(T::Boolean) }
     def self.valid_datetime?(dt_format, dt)
       case dt_format
-      when DateTimeFormat::HTTP_DATE_TIME
-        return DateTimeHelper.rfc_1123?(dt)
-      when DateTimeFormat::RFC3339_DATE_TIME
-        return DateTimeHelper.rfc_3339?(dt)
-      when DateTimeFormat::UNIX_DATE_TIME
-        return DateTimeHelper.unix_timestamp?(dt)
+      when :http
+        return rfc_1123?(dt)
+      when :rfc3339
+        return rfc_3339?(dt)
+      when :unix
+        return unix_timestamp?(dt)
       end
 
       false
     end
 
+    sig { params(date_value: T.any(String, Date)).returns(T::Boolean) }
     def self.valid_date?(date_value)
-      if date_value.instance_of?(Date)
+      if date_value.is_a?(Date)
         true
-      elsif date_value.instance_of?(String) && date_value.match?(/^\d{4}-\d{2}-\d{2}$/)
+      elsif date_value.is_a?(String) && date_value.match?(/^\d{4}-\d{2}-\d{2}$/)
         DateTime.strptime(date_value, '%Y-%m-%d')
         true
       else
@@ -149,6 +131,7 @@ module CoreLibrary
       false
     end
 
+    sig { params(datetime_value: String).returns(T::Boolean) }
     def self.rfc_1123?(datetime_value)
       DateTime.strptime(datetime_value, '%a, %d %b %Y %H:%M:%S %Z')
       true
@@ -156,6 +139,7 @@ module CoreLibrary
       false
     end
 
+    sig { params(datetime_value: String).returns(T::Boolean) }
     def self.rfc_3339?(datetime_value)
       DateTime.strptime(datetime_value, '%Y-%m-%dT%H:%M:%S')
       true
@@ -163,6 +147,7 @@ module CoreLibrary
       false
     end
 
+    sig { params(timestamp: T.any(String, Integer, Float)).returns(T::Boolean) }
     def self.unix_timestamp?(timestamp)
       Time.at(Float(timestamp))
       true

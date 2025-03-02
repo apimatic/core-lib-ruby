@@ -3,11 +3,14 @@ require 'nokogiri'
 module CoreLibrary
   # A utility class for handling xml parsing.
   class XmlHelper
+    extend T::Sig
+
     class << self
       # Serializes the provided value to XML.
       # @param [String] root_element_name Root element for the XML provided.
-      # @param [String] value Value to convert to XML.
+      # @param [String] Value to convert to XML.
       # @param [CoreLibrary::DateTimeFormat] datetime_format The format to convert the date time into.
+      sig { params(root_element_name: String, value: String, datetime_format: DateTimeFormat).returns(String) }
       def serialize_to_xml(root_element_name, value, datetime_format: nil)
         doc = Nokogiri::XML::Document.new
         add_as_subelement(doc, doc, root_element_name, value,
@@ -18,8 +21,9 @@ module CoreLibrary
       # Serializes the provided array value to XML.
       # @param [String] root_element_name Root element for the xml provided.
       # @param [String] item_name Item name for XML.
-      # @param value Value to convert to XML.
+      # @param [String] Value to convert to XML.
       # @param [CoreLibrary::DateTimeFormat] datetime_format The format to convert the date time into.
+      sig { params(root_element_name: String, item_name: String, value: T.untyped, datetime_format: DateTimeFormat).returns(String) }
       def serialize_array_to_xml(root_element_name, item_name, value,
                                  datetime_format: nil)
         doc = Nokogiri::XML::Document.new
@@ -30,9 +34,10 @@ module CoreLibrary
       end
 
       # Serializes the provided hash to XML.
-      # @param [string] root_element_name Root element for the XML provided.
-      # @param [Hash] entries Entries to convert to XML.
+      # @param [String] root_element_name Root element for the XML provided.
+      # @param [Hash] Entries to convert to XML.
       # @param [CoreLibrary::DateTimeFormat] datetime_format The format to convert the date time into.
+      sig { params(root_element_name: String, entries: T::Hash[T.untyped, T.untyped], datetime_format: DateTimeFormat).returns(String) }
       def serialize_hash_to_xml(root_element_name, entries,
                                 datetime_format: nil)
         doc = Nokogiri::XML::Document.new
@@ -43,9 +48,10 @@ module CoreLibrary
 
       # Adds the value as an attribute.
       # @param [REXML::Element] root Root element of the XML to add the attribute to.
-      # @param [string] name Attribute name.
-      # @param [string] value Attribute value.
+      # @param [String] name Attribute name.
+      # @param [String] value Attribute value.
       # @param [CoreLibrary::DateTimeFormat] datetime_format The format to convert the date time into.
+      sig { params(root: REXML::Element, name: String, value: String, datetime_format: DateTimeFormat).void }
       def add_as_attribute(root, name, value, datetime_format: nil)
         return if value.nil?
 
@@ -60,6 +66,7 @@ module CoreLibrary
       # @param [string] name Attribute name.
       # @param [Hash] entries Hash to add as value.
       # @param [CoreLibrary::DateTimeFormat] datetime_format The format to convert the date time into.
+      sig { params(doc: Nokogiri::XML::Document, root: REXML::Element, name: String, entries: T::Hash[T.untyped, T.untyped], datetime_format: DateTimeFormat).void }
       def add_hash_as_subelement(doc, root, name, entries,
                                  datetime_format: nil)
         return if entries.nil?
@@ -184,7 +191,7 @@ module CoreLibrary
       # @param [String] parent Parent XML.
       # @param [String] name Attribute name.
       # @param [Class] clazz Attribute class.
-      # @param [CoreLibrary::DateTimeFormat] datetime_format Datetime format to use for conversion..
+      # @param [CoreLibrary::DateTimeFormat] datetime_format Datetime format to use for conversion.
       def from_element(parent, name, clazz, datetime_format: nil)
         element = parent.at_xpath(name)
         return nil if element.nil?

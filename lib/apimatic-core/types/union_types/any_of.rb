@@ -75,7 +75,7 @@ module CoreLibrary
 
     private
 
-    sig { params(value: T.untyped, context: UnionTypeContext).void }
+    sig { params(value: Object, context: UnionTypeContext).void }
     # Validates a value against the appropriate case of the AnyOf union type
     # @param value [Object] The value to validate
     # @param context [UnionTypeContext] The context for the union type

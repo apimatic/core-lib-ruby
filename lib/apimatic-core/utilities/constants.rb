@@ -1,8 +1,13 @@
+# typed: strict
+
 module CoreLibrary
-  CONTENT_TYPE_HEADER = 'content-type'.freeze
-  CONTENT_LENGTH_HEADER = 'content-length'.freeze
-  METHOD = 'method'.freeze
-  URL = 'url'.freeze
-  STATUS_CODE = 'status_code'.freeze
-  REDACTED = '**Redacted**'.freeze
+  extend T::Sig
+
+  CONTENT_TYPE_HEADER = T.let('content-type'.freeze, String)
+  CONTENT_LENGTH_HEADER = T.let('content-length'.freeze, String)
+  METHOD = T.let('method'.freeze, String)
+  URL = T.let('url'.freeze, String)
+  STATUS_CODE = T.let('status_code'.freeze, String)
+  REDACTED = T.let('**Redacted**'.freeze, String)
 end
+
