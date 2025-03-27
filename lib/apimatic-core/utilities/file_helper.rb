@@ -19,7 +19,7 @@ module CoreLibrary
       tempfile.flush
       tempfile.close
 
-      raise "Tempfile path is nil!" if tempfile.path.nil?
+      raise 'Tempfile path is nil!' if tempfile.path.nil?
 
       @cache[url] = tempfile.path.to_s # Store only the file path
     end
