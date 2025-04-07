@@ -9,19 +9,19 @@ module CoreLibrary
     # Class method which takes a URL, downloads the file (if not already downloaded
     # for this test session), and returns the file path.
     # @param [String] url The URL of the required file.
-    # @return [String] The path of the downloaded file.
+    # @return [Tempfile] The path of the downloaded file.
     def self.get_file(url)
-      return @cache[url] if @cache.key?(url)
+      if @cache.key?(url)
+        @cache[url].rewind
+        return @cache[url] if @cache.key?(url)
+      end
 
       tempfile = Tempfile.new('APIMatic')
       tempfile.binmode
       tempfile.write(URI.parse(url).open(ssl_ca_cert: Certifi.where).read)
       tempfile.flush
-      tempfile.close
 
-      raise 'Tempfile path is nil!' if tempfile.path.nil?
-
-      @cache[url] = tempfile.path.to_s # Store only the file path
+      @cache[url] = tempfile
     end
   end
 end
