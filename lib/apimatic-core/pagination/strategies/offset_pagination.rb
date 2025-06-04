@@ -1,0 +1,50 @@
+module CoreLibrary
+  # Implements offset-based pagination strategy for API responses.
+  #
+  # This class manages pagination by updating an offset parameter in the request builder,
+  # allowing sequential retrieval of paginated data. It extracts and updates the offset
+  # based on a configurable JSON pointer and applies a metadata wrapper to each page response.
+  class OffsetPagination < PaginationStrategy
+    # Initializes an OffsetPagination instance with the given input pointer and metadata wrapper.
+    #
+    # @param input [String] JSON pointer indicating the pagination parameter to update.
+    # @param metadata_wrapper [Proc] Callable for handling pagination metadata.
+    # @raise [ArgumentError] If input is nil.
+    def initialize(input, metadata_wrapper)
+      super(metadata_wrapper)
+
+      raise ArgumentError, 'Input pointer for offset based pagination cannot be nil' if input.nil?
+
+      @input = input
+      @offset = 0
+    end
+
+    # Updates the request builder to fetch the next page of results using offset-based pagination.
+    #
+    # If this is the first page, initializes the offset from the request builder.
+    # Otherwise, increments the offset by the previous page size and updates the pagination parameter.
+    #
+    # @param paginated_data [PaginatedData] Contains the last response, request builder, and page size.
+    # @return [Object] An updated request builder configured for the next page request.
+    def apply(paginated_data)
+      last_response = paginated_data.last_response
+      request_builder = paginated_data.request_builder
+      @offset = PaginationStrategy::get_initial_request_param_value(request_builder, @input)
+
+      # If there is no response yet, this is the first page
+      return request_builder if last_response.nil?
+
+      @offset += paginated_data.page_size
+
+      PaginationStrategy::get_updated_request_builder(request_builder, @input, @offset)
+    end
+
+    # Applies the metadata wrapper to the given page response, passing the current offset.
+    #
+    # @param page_response [Object] The response object for the current page.
+    # @return [Object] The result of the metadata wrapper with the page response and offset.
+    def apply_metadata_wrapper(page_response)
+      @metadata_wrapper.call(page_response, @offset)
+    end
+  end
+end

@@ -43,5 +43,23 @@ module CoreLibrary
     def set_http_client(http_client)
       @http_client = http_client
     end
+
+    def clone_with(http_callback: nil)
+      HttpClientConfiguration.new(
+        connection: DeepCloneUtils::deep_copy(@connection),
+        adapter: @adapter,
+        timeout: @timeout,
+        max_retries: @max_retries,
+        retry_interval: @retry_interval,
+        backoff_factor: @backoff_factor,
+        retry_statuses: DeepCloneUtils::deep_copy(@retry_statuses),
+        retry_methods: DeepCloneUtils::deep_copy(@retry_methods),
+        cache: @cache,
+        verify: @verify,
+        http_callback: http_callback || DeepCloneUtils::deep_copy(@http_callback),
+        http_client: DeepCloneUtils::deep_copy(@http_client),
+        logging_configuration: DeepCloneUtils::deep_copy(@logging_configuration)
+      )
+    end
   end
 end

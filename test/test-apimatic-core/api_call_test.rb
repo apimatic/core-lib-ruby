@@ -52,7 +52,6 @@ class ApiCallTest < Minitest::Test
 
   def test_end_to_end_success_case
     api_call = ApiCall.new(MockHelper::create_global_configurations)
-                      .new_builder
                       .request(@request_builder)
                       .response(@response_handler)
     actual_response = api_call.execute

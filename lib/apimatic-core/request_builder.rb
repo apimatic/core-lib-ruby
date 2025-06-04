@@ -1,6 +1,9 @@
 module CoreLibrary
   # This class is the builder of the http request for an API call.
   class RequestBuilder
+
+    attr_reader :template_params, :query_params, :header_params, :body_params, :form_params
+
     # Creates an instance of RequestBuilder.
     def initialize
       @server = nil
@@ -13,7 +16,7 @@ module CoreLibrary
       @additional_form_params = {}
       @additional_query_params = {}
       @multipart_params = {}
-      @body_param = nil
+      @body_params = nil
       @body_serializer = nil
       @auth = nil
       @array_serialization_format = ArraySerializationFormat::INDEXED
@@ -112,10 +115,10 @@ module CoreLibrary
     def body_param(body_param)
       body_param.validate
       if !body_param.get_key.nil?
-        @body_param = {} if @body_param.nil?
-        @body_param[body_param.get_key] = body_param.get_value
+        @body_params = {} if @body_params.nil?
+        @body_params[body_param.get_key] = body_param.get_value
       else
-        @body_param = body_param.get_value
+        @body_params = body_param.get_value
       end
       self
     end
@@ -235,7 +238,7 @@ module CoreLibrary
       _has_form_params = !@form_params.nil? && @form_params.any?
       _has_additional_form_params = !@additional_form_params.nil? && @additional_form_params.any?
       _has_multipart_param = !@multipart_params.nil? && @multipart_params.any?
-      _has_body_param = !@body_param.nil?
+      _has_body_param = !@body_params.nil?
       _has_body_serializer = !@body_serializer.nil?
       _has_xml_attributes = !@xml_attributes.nil?
 
@@ -287,15 +290,15 @@ module CoreLibrary
     # Resolves the body parameter to appropriate type.
     # @return [Hash] The resolved body parameter as per the type.
     def resolve_body_param
-      if !@body_param.nil? && @body_param.is_a?(FileWrapper)
-        @header_params['content-type'] = @body_param.content_type if !@body_param.file.nil? &&
-                                                                     !@body_param.content_type.nil?
-        @header_params['content-length'] = @body_param.file.size.to_s
-        return @body_param.file
-      elsif !@body_param.nil? && @body_param.is_a?(File)
-        @header_params['content-length'] = @body_param.size.to_s
+      if !@body_params.nil? && @body_params.is_a?(FileWrapper)
+        @header_params['content-type'] = @body_params.content_type if !@body_params.file.nil? &&
+                                                                     !@body_params.content_type.nil?
+        @header_params['content-length'] = @body_params.file.size.to_s
+        return @body_params.file
+      elsif !@body_params.nil? && @body_params.is_a?(File)
+        @header_params['content-length'] = @body_params.size.to_s
       end
-      @body_param
+      @body_params
     end
 
     # Applies the configured auth onto the http request.
@@ -305,6 +308,45 @@ module CoreLibrary
       is_valid_auth = @auth.with_auth_managers(auth_managers).valid unless @auth.nil?
       @auth.apply(http_request) if is_valid_auth
       raise AuthValidationException, @auth.error_message if !@auth.nil? && !is_valid_auth
+    end
+
+
+    # Creates a deep copy of this RequestBuilder instance with optional overrides.
+    #
+    # @param template_params [Hash, nil] Optional replacement for template_params
+    # @param query_params [Hash, nil] Optional replacement for query_params
+    # @param header_params [Hash, nil] Optional replacement for header_params
+    # @param body_params [Object, nil] Optional replacement for body_params
+    # @param form_params [Hash, nil] Optional replacement for form_params
+    #
+    # @return [RequestBuilder] A new instance with copied state and applied overrides
+    def clone_with(
+      template_params: nil,
+      query_params: nil,
+      header_params: nil,
+      body_params: nil,
+      form_params: nil
+    )
+      clone = RequestBuilder.new
+
+      # Manually copy internal state
+      clone.instance_variable_set(:@server, DeepCloneUtils.deep_copy(@server))
+      clone.instance_variable_set(:@path, DeepCloneUtils.deep_copy(@path))
+      clone.instance_variable_set(:@http_method, DeepCloneUtils.deep_copy(@http_method))
+      clone.instance_variable_set(:@template_params, template_params || DeepCloneUtils.deep_copy(@template_params))
+      clone.instance_variable_set(:@header_params, header_params || DeepCloneUtils.deep_copy(@header_params))
+      clone.instance_variable_set(:@query_params, query_params || DeepCloneUtils.deep_copy(@query_params))
+      clone.instance_variable_set(:@form_params, form_params || DeepCloneUtils.deep_copy(@form_params))
+      clone.instance_variable_set(:@additional_form_params, DeepCloneUtils.deep_copy(@additional_form_params))
+      clone.instance_variable_set(:@additional_query_params, DeepCloneUtils.deep_copy(@additional_query_params))
+      clone.instance_variable_set(:@multipart_params, DeepCloneUtils.deep_copy(@multipart_params))
+      clone.instance_variable_set(:@body_params, body_params || DeepCloneUtils.deep_copy(@body_params))
+      clone.instance_variable_set(:@body_serializer, DeepCloneUtils.deep_copy(@body_serializer))
+      clone.instance_variable_set(:@auth, DeepCloneUtils.deep_copy(@auth))
+      clone.instance_variable_set(:@array_serialization_format, DeepCloneUtils.deep_copy(@array_serialization_format))
+      clone.instance_variable_set(:@xml_attributes, DeepCloneUtils.deep_copy(@xml_attributes))
+
+      clone
     end
   end
 end
