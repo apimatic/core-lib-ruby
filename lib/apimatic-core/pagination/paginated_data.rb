@@ -56,7 +56,7 @@ module CoreLibrary
           paged_response = paginated_data.send(:fetch_next_page)
           paginated_data.instance_variable_set(:@paged_response, paged_response)
 
-          items = paged_response ? @paginated_items_converter.call(paged_response.body) : []
+          items = paged_response ? @paginated_items_converter.call(paged_response.data) : []
           break if items.nil? || items.empty?
 
           paginated_data.instance_variable_set(:@items, items)
@@ -73,7 +73,7 @@ module CoreLibrary
 
         loop do
           paginated_data.instance_variable_set(:@paged_response, paginated_data.send(:fetch_next_page))
-          items = paginated_data.instance_variable_get(:@paged_response)&.body
+          items = paginated_data.instance_variable_get(:@paged_response)&.data
           items = @paginated_items_converter.call(items) if items
 
           break if items.nil? || items.empty?
