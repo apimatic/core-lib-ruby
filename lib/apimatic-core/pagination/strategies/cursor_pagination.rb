@@ -23,6 +23,19 @@ module CoreLibrary
       @cursor_value = nil
     end
 
+    # Determines whether the cursor pagination strategy is applicable
+    # based on the given HTTP response.
+    #
+    # @param [HttpResponse, nil] response The response from the previous API call.
+    # @return [Boolean] true if this strategy is applicable based on the response; false otherwise.
+    def applicable?(response)
+      return true if response.nil?
+
+      @cursor_value = response&.get_value_by_json_pointer(@output)
+
+      !@cursor_value.nil?
+    end
+
     # Advances the pagination by updating the request builder with the next cursor value.
     #
     # If there is no previous response, initializes the cursor from the request builder.
@@ -33,20 +46,16 @@ module CoreLibrary
     def apply(paginated_data)
       last_response = paginated_data.last_response
       request_builder = paginated_data.request_builder
-      @cursor_value = get_initial_cursor_value(request_builder)
+      @cursor_value = request_builder.get_parameter_value_by_json_pointer(@input).to_s
 
       # If there is no response yet, this is the first page
       return request_builder if last_response.nil?
 
-      @cursor_value = PaginationStrategy::resolve_response_pointer(
-        @output,
-        ApiHelper::json_deserialize(last_response.raw_body),
-        last_response.headers
-      )
+      @cursor_value = last_response.get_value_by_json_pointer(@output)
 
       return nil if @cursor_value.nil?
 
-      PaginationStrategy::get_updated_request_builder(request_builder, @input, @cursor_value)
+      request_builder.get_updated_request_by_json_pointer(@input, @cursor_value)
     end
 
     # Applies the configured metadata wrapper to the paged response, including the current cursor value.
@@ -55,31 +64,6 @@ module CoreLibrary
     # @return [Object] The result of the metadata wrapper applied to the paged response and cursor value.
     def apply_metadata_wrapper(paged_response)
       @metadata_wrapper.call(paged_response, @cursor_value)
-    end
-
-    # Retrieves the initial cursor value from the request builder using the specified input pointer.
-    #
-    # @param request_builder [Object] The request builder containing request parameters.
-    # @return [Object, nil] The initial cursor value if found, otherwise nil.
-    def get_initial_cursor_value(request_builder)
-      path_prefix, field_path = JsonPointerHelper::split_into_parts(@input)
-
-      case path_prefix
-      when PATH_PARAMS
-        JsonPointerHelper::get_value_by_json_pointer(
-          request_builder.template_params, "#{field_path}/value"
-        )
-      when QUERY_PARAMS
-        JsonPointerHelper::get_value_by_json_pointer(request_builder.query_params, field_path)
-      when HEADER_PARAMS
-        JsonPointerHelper::get_value_by_json_pointer(request_builder.header_params, field_path)
-      when BODY_PARAM
-        JsonPointerHelper::get_value_by_json_pointer(
-          request_builder.body_params || request_builder.form_params, field_path
-        )
-      else
-        nil
-      end
     end
   end
 end

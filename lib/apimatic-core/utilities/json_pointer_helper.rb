@@ -26,7 +26,8 @@ module CoreLibrary
 
       begin
         json_pointer_resolver = JsonPointer.new(hash, pointer, symbolize_keys: symbolize_keys)
-        json_pointer_resolver.value
+        _value = json_pointer_resolver.value
+        _value.is_a?(JsonPointer::NotFound) ? nil : _value
       rescue StandardError => e
         # Optionally log error or re-raise specific known ones
         nil

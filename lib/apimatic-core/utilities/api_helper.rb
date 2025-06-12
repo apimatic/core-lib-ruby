@@ -601,12 +601,20 @@ module CoreLibrary
 
         parsed = CGI.parse(query)
 
-        # Convert single-value arrays to scalars
-        parsed.transform_values! { |v| v.size == 1 ? v.first : v }
+        # Convert arrays to string or handle empty ones as ""
+        parsed.transform_values! do |v|
+          if v.empty?
+            ''
+          elsif v.size == 1
+            v.first
+          else
+            v
+          end
+        end
       rescue URI::InvalidURIError => e
         warn "Invalid URL provided: #{e.message}"
         {}
-      rescue => e
+      rescue Exception => e
         warn "Unexpected error while parsing URL: #{e.message}"
         {}
       end

@@ -29,6 +29,7 @@ require_relative 'models/model_with_additional_properties_of_primitive_array_typ
 require_relative 'models/model_with_additional_properties_of_primitive_dict_type'
 require_relative 'models/model_with_additional_properties_of_primitive_type'
 require_relative 'models/model_with_additional_properties_of_type_combinator_primitive_type'
+require_relative 'http/paginated_client_mock'
 
 module TestComponent
   # An enum for SDK environments.
@@ -102,9 +103,13 @@ module TestComponent
                           .exception_type(NestedModelException)}
     end
 
-    def self.create_client_configuration(http_callback: nil, logging_configuration: nil)
-      HttpClientConfiguration.new(http_client: HttpClientMock.new, http_callback: http_callback,
-                                  logging_configuration: logging_configuration)
+    def self.create_client_configuration(http_client: HttpClientMock.new, http_callback: nil, logging_configuration: nil)
+      HttpClientConfiguration
+        .new(
+          http_client: http_client,
+          http_callback: http_callback,
+          logging_configuration: logging_configuration
+        )
     end
 
     def self.create_global_config_with_auth(raiseException, http_callback: nil)
@@ -116,17 +121,34 @@ module TestComponent
         auth_managers['test_global'] = TestOAuth.new
       end
 
-      GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback))
-                         .base_uri_executor(method(:get_base_uri))
-                         .global_errors(get_global_errors)
-                         .auth_managers(auth_managers)
+      GlobalConfiguration
+        .new(
+          client_configuration: create_client_configuration(http_callback: http_callback)
+        )
+        .base_uri_executor(method(:get_base_uri))
+        .global_errors(get_global_errors)
+        .auth_managers(auth_managers)
     end
 
     def self.create_global_configurations(http_callback: nil, logging_configuration: nil)
-      GlobalConfiguration.new(client_configuration: create_client_configuration(http_callback: http_callback,
-                                                                                logging_configuration: logging_configuration))
-                         .base_uri_executor(method(:get_base_uri))
-                         .global_errors(get_global_errors)
+      GlobalConfiguration
+        .new(
+          client_configuration: create_client_configuration(
+            http_callback: http_callback,
+            logging_configuration: logging_configuration
+          ))
+        .base_uri_executor(method(:get_base_uri))
+        .global_errors(get_global_errors)
+    end
+
+    def self.create_global_configurations_with_mocked_paginated_client
+      GlobalConfiguration
+        .new(
+          client_configuration: create_client_configuration(
+            http_client: PaginatedClientMock.new
+          ))
+        .base_uri_executor(method(:get_base_uri))
+        .global_errors(get_global_errors)
     end
 
     def self.create_global_configurations_without_client

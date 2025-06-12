@@ -18,6 +18,19 @@ module CoreLibrary
       @next_link = nil
     end
 
+    # Determines whether the link pagination strategy is applicable
+    # based on the given HTTP response.
+    #
+    # @param [HttpResponse, nil] response The response from the previous API call.
+    # @return [Boolean] true if this strategy is applicable based on the response; false otherwise.
+    def applicable?(response)
+      return true if response.nil?
+
+      @next_link = response&.get_value_by_json_pointer(@next_link_pointer)
+
+      !@next_link.nil?
+    end
+
     # Updates the request builder with query parameters from the next page link extracted from the last API response.
     #
     # @param paginated_data [Object] An object containing the last API response and the current request builder.
@@ -32,15 +45,11 @@ module CoreLibrary
         return request_builder
       end
 
-      @next_link = PaginationStrategy::resolve_response_pointer(
-        @next_link_pointer,
-        ApiHelper::json_deserialize(last_response.raw_body),
-        last_response.headers
-      )
+      @next_link = last_response.get_value_by_json_pointer(@next_link_pointer)
 
       return nil if @next_link.nil?
 
-      query_params = ApiHelper::get_query_parameters(@next_link)
+      query_params = ApiHelper.get_query_parameters(@next_link)
       updated_query_params = DeepCloneUtils.deep_copy(request_builder.query_params)
       updated_query_params.merge!(query_params)
 

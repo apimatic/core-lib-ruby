@@ -15,10 +15,14 @@ module CoreLibrary
       @paginated_items_converter = paginated_items_converter
       @initial_request_builder = api_call.request_builder
       @last_request_builder = nil
+      @locked_strategy = nil
       @pagination_strategies = @api_call.pagination_strategy_list
-      @http_call_context = @api_call.global_configuration.client_configuration.http_callback || HttpCallContext.new
-      http_client_config = @api_call.global_configuration.client_configuration.clone_with(http_callback: @http_call_context)
-      @global_configuration = @api_call.global_configuration.clone_with(client_configuration: http_client_config)
+      @http_call_context = @api_call.global_configuration.client_configuration.http_callback ||
+        HttpCallContext.new
+      http_client_config = @api_call.global_configuration.client_configuration.clone_with(
+        http_callback: @http_call_context)
+      @global_configuration = @api_call.global_configuration.clone_with(
+        client_configuration: http_client_config)
 
       @paged_response = nil
       @items = []
@@ -95,20 +99,46 @@ module CoreLibrary
     private
 
     def fetch_next_page
-      @pagination_strategies.each do |strategy|
-        request_builder = strategy.apply(self)
-        next if request_builder.nil?
+      return execute_strategy(@locked_strategy) unless @locked_strategy.nil?
 
-        @last_request_builder = request_builder
+      @pagination_strategies.each do |pagination_strategy|
+        response = execute_strategy(pagination_strategy)
+        next if response.nil?
 
-        response = @api_call
-                     .clone_with(global_configuration: @global_configuration, request_builder: request_builder)
-                     .execute
-
-        return strategy.apply_metadata_wrapper(response)
+        @locked_strategy ||= get_locked_strategy
+        return response
       end
 
       nil
+    end
+
+    # Executes a pagination strategy: builds the request, performs the API call,
+    # and applies response metadata.
+    #
+    # @param [Object] pagination_strategy The pagination strategy to apply.
+    # @return [Object, nil] The processed response, or nil if the strategy could not build a request.
+    def execute_strategy(pagination_strategy)
+      _request_builder = pagination_strategy.apply(self)
+      return nil if _request_builder.nil?
+
+      @last_request_builder = _request_builder
+
+      response = @api_call.clone_with(
+        global_configuration: @global_configuration,
+        request_builder: _request_builder
+      ).execute
+
+      pagination_strategy.apply_metadata_wrapper(response)
+    end
+
+    # Finds and returns the first applicable pagination strategy
+    # based on the current response.
+    #
+    # @return [Object, nil] The applicable pagination strategy, or nil if none match.
+    def get_locked_strategy
+      @pagination_strategies.find do |pagination_strategy|
+        pagination_strategy.applicable?(last_response)
+      end
     end
   end
 end

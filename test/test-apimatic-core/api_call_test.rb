@@ -5,18 +5,22 @@ require_relative '../test-helper/http/http_callback_mock'
 
 class ApiCallTest < Minitest::Test
   include CoreLibrary, TestComponent
+
   def setup
-    @request_builder = RequestBuilder.new
-                                     .server(Server::DEFAULT)
-                                     .path('/test/number')
-                                     .http_method(HttpMethod::GET)
-                                     .header_param(Parameter.new
-                                                            .key('accept')
-                                                            .value('application/json'))
-    @response_handler = ResponseHandler.new
-                                       .is_nullify404(true)
-                                       .deserializer(ApiHelper.method(:custom_type_deserializer))
-                                       .deserialize_into(Validate.method(:from_hash))
+    @request_builder = RequestBuilder
+                         .new
+                         .server(Server::DEFAULT)
+                         .path('/test/number')
+                         .http_method(HttpMethod::GET)
+                         .header_param(Parameter
+                                         .new
+                                         .key('accept')
+                                         .value('application/json'))
+    @response_handler = ResponseHandler
+                          .new
+                          .is_nullify404(true)
+                          .deserializer(ApiHelper.method(:custom_type_deserializer))
+                          .deserialize_into(Validate.method(:from_hash))
   end
 
   def teardown
@@ -62,5 +66,4 @@ class ApiCallTest < Minitest::Test
     assert_equal expected_response.field, actual_response.field
     assert_equal expected_response.name, actual_response.name
   end
-
 end

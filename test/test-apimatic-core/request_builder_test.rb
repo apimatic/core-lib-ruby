@@ -341,4 +341,92 @@ class RequestBuilderTest < Minitest::Test
     assert(actual.parameters["file"].class == Multipart::Post::UploadIO)
     assert(actual.parameters["file"].content_type == "application/octet-stream")
   end
+
+  def get_request_builder(add_form_param: false)
+    builder = MockHelper.create_basic_request_builder
+                        .template_param(MockHelper.new_parameter('abc123', key: "cursor"))
+                        .query_param(MockHelper.new_parameter(10, key: "offset"))
+                        .header_param(MockHelper.new_parameter('foo', key: "X-Custom"))
+
+    if add_form_param
+      builder.form_param(MockHelper.new_parameter('form_value', key: "form_key"))
+    else
+      builder.body_param(MockHelper.new_parameter('value1', key: "data"))
+    end
+
+    builder
+  end
+
+  def test_get_parameter_value_by_json_pointer_for_path
+    builder = get_request_builder
+    pointer = "#{RequestBuilder::PATH_PARAM_POINTER}#/cursor"
+    result = builder.get_parameter_value_by_json_pointer(pointer)
+    assert_equal 'abc123', result
+  end
+
+  def test_get_parameter_value_by_json_pointer_for_query
+    builder = get_request_builder
+    pointer = "#{RequestBuilder::QUERY_PARAM_POINTER}#/offset"
+    result = builder.get_parameter_value_by_json_pointer(pointer)
+    assert_equal 10, result
+  end
+
+  def test_get_parameter_value_by_json_pointer_for_header
+    builder = get_request_builder
+    pointer = "#{RequestBuilder::HEADER_PARAM_POINTER}#/X-Custom"
+    result = builder.get_parameter_value_by_json_pointer(pointer)
+    assert_equal 'foo', result
+  end
+
+  def test_get_parameter_value_by_json_pointer_for_body
+    builder = get_request_builder
+    pointer = "#{RequestBuilder::BODY_PARAM_POINTER}#/data"
+    result = builder.get_parameter_value_by_json_pointer(pointer)
+    assert_equal 'value1', result
+  end
+
+  def test_get_updated_request_by_json_pointer_for_path
+    builder = get_request_builder
+    pointer = "#{RequestBuilder::PATH_PARAM_POINTER}#/cursor"
+    new_value = 'updated'
+    updated_builder = builder.get_updated_request_by_json_pointer(pointer, new_value)
+    assert_equal 'abc123', builder.template_params['cursor']['value']
+    assert_equal 'updated', updated_builder.template_params['cursor']['value']
+  end
+
+  def test_get_updated_request_by_json_pointer_for_query
+    builder = get_request_builder
+    pointer = "#{RequestBuilder::QUERY_PARAM_POINTER}#/offset"
+    new_value = 20
+    updated_builder = builder.get_updated_request_by_json_pointer(pointer, new_value)
+    assert_equal 10, builder.query_params['offset']
+    assert_equal 20, updated_builder.query_params['offset']
+  end
+
+  def test_get_updated_request_by_json_pointer_for_header
+    builder = get_request_builder
+    pointer = "#{RequestBuilder::HEADER_PARAM_POINTER}#/X-Custom"
+    new_value = 'bar'
+    updated_builder = builder.get_updated_request_by_json_pointer(pointer, new_value)
+    assert_equal 'foo', builder.header_params['X-Custom']
+    assert_equal 'bar', updated_builder.header_params['X-Custom']
+  end
+
+  def test_get_updated_request_by_json_pointer_for_body
+    builder = get_request_builder
+    pointer = "#{RequestBuilder::BODY_PARAM_POINTER}#/data"
+    new_value = 'value2'
+    updated_builder = builder.get_updated_request_by_json_pointer(pointer, new_value)
+    assert_equal 'value1', builder.body_params['data']
+    assert_equal 'value2', updated_builder.body_params['data']
+  end
+
+  def test_get_updated_request_by_json_pointer_for_form
+    builder = get_request_builder add_form_param: true
+    pointer = "#{RequestBuilder::BODY_PARAM_POINTER}#/form_key"
+    new_value = 'new_form_val'
+    updated_builder = builder.get_updated_request_by_json_pointer(pointer, new_value)
+    assert_equal 'form_value', builder.form_params['form_key']
+    assert_equal 'new_form_val', updated_builder.form_params['form_key']
+  end
 end

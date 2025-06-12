@@ -1,4 +1,30 @@
 module CoreLibrary
+  # The `JsonPointer` class provides a utility for querying, modifying, and deleting
+  # values within deeply nested Ruby Hashes and Arrays using JSON Pointer syntax (RFC 6901),
+  # extended with support for wildcards (`~`) and array-push semantics (`-`).
+  #
+  # ## Features
+  # - Navigate and retrieve deeply nested values using JSON Pointer paths.
+  # - Supports complex structures containing both Arrays and Hashes.
+  # - Wildcard support (`~`) for batch operations across multiple elements.
+  # - Special key (`-`) for appending to arrays (push behavior).
+  # - Optional `:symbolize_keys` behavior to convert pointer fragments to symbols.
+  #
+  # ## Example Usage
+  #   data = { "a" => [{ "b" => 1 }, { "b" => 2 }] }
+  #   pointer = JsonPointer.new(data, "/a/~1/b")
+  #   value = pointer.value  # => 2
+  #
+  #   pointer.value = 42
+  #   pointer.delete
+  #
+  # ## Limitations
+  # - This class operates directly on mutable input data structures.
+  # - Wildcards and array push keys are not part of the official JSON Pointer spec.
+  #
+  # @example Initialize and read value
+  #   JsonPointer.new({ "foo" => { "bar" => 42 } }, "/foo/bar").value # => 42
+  #
   class JsonPointer
     NotFound = Class.new
     WILDCARD = '~'.freeze
@@ -12,6 +38,10 @@ module CoreLibrary
 
     def self.unescape_fragment(fragment)
       fragment.gsub(/~1/, '/').gsub(/~0/, '~')
+    end
+
+    def self.join_fragments(fragments)
+      fragments.map { |f| escape_fragment(f) }.join('/')
     end
 
     def initialize(hash, path, options = {})
@@ -122,18 +152,14 @@ module CoreLibrary
 
       target_fragment = fragments.pop
 
-      if target_fragment == ARRAY_PUSH_KEY
-        target_parent_fragment = fragments.pop
-      end
+      target_parent_fragment = fragments.pop if target_fragment == ARRAY_PUSH_KEY
 
-      get_target_member(obj, fragments.dup, :create_missing => true) do |target, options={}|
+      get_target_member(obj, fragments.dup, create_missing: true) do |target, options={}|
         if options[:wildcard]
-          fragments = fragments.inject([]) do |memo, f|
-            if f == WILDCARD
-              break memo
-            else
-              memo << f
-            end
+          fragments = fragments.each_with_object([]) do |memo, f|
+            break memo if f == WILDCARD
+
+            memo << f
             memo
           end
 
@@ -150,7 +176,7 @@ module CoreLibrary
             key = fragment_to_index(target_parent_fragment)
           end
 
-          target[key] ||= Array.new
+          target[key] ||= []
           if Array === target[key]
             target[key].push(new_value)
             return new_value
@@ -208,6 +234,10 @@ module CoreLibrary
 
     def unescape_fragment(fragment)
       JsonPointer.unescape_fragment(fragment)
+    end
+
+    def join_fragments(fragments)
+      JsonPointer.join_fragments(fragments)
     end
 
     def fragment_to_key(fragment)

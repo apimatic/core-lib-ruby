@@ -19,6 +19,15 @@ module CoreLibrary
       @page_number = 1
     end
 
+    # Determines whether the page pagination strategy is applicable
+    # based on the given HTTP response.
+    #
+    # @param [HttpResponse, nil] _response The response from the previous API call.
+    # @return [Boolean] Always returns true, as this strategy does not depend on the response content.
+    def applicable?(_response)
+      true
+    end
+
     # Updates the request builder to fetch the next page of results based on the current paginated data.
     #
     # @param paginated_data [PaginatedData] An object containing the last response, request builder, and page size.
@@ -26,14 +35,15 @@ module CoreLibrary
     def apply(paginated_data)
       last_response = paginated_data.last_response
       request_builder = paginated_data.request_builder
-      @page_number = PaginationStrategy::get_initial_request_param_value(request_builder, @input, 1)
+      param_value = request_builder.get_parameter_value_by_json_pointer(@input)
+      @page_number = param_value.nil? ? 1 : Integer(param_value)
 
       # If there is no response yet, this is the first page
       return request_builder if last_response.nil?
 
       @page_number += 1 if paginated_data.page_size.positive?
 
-      PaginationStrategy::get_updated_request_builder(request_builder, @input, @page_number)
+      request_builder.get_updated_request_by_json_pointer(@input, @page_number)
     end
 
     # Applies the metadata wrapper to the paged response, including the current page number.

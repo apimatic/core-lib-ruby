@@ -1,6 +1,10 @@
 module CoreLibrary
   # This class is the builder of the http request for an API call.
   class RequestBuilder
+    PATH_PARAM_POINTER = '$request.path'.freeze
+    QUERY_PARAM_POINTER = '$request.query'.freeze
+    HEADER_PARAM_POINTER = '$request.headers'.freeze
+    BODY_PARAM_POINTER = '$request.body'.freeze
 
     attr_reader :template_params, :query_params, :header_params, :body_params, :form_params
 
@@ -292,7 +296,7 @@ module CoreLibrary
     def resolve_body_param
       if !@body_params.nil? && @body_params.is_a?(FileWrapper)
         @header_params['content-type'] = @body_params.content_type if !@body_params.file.nil? &&
-                                                                     !@body_params.content_type.nil?
+          !@body_params.content_type.nil?
         @header_params['content-length'] = @body_params.file.size.to_s
         return @body_params.file
       elsif !@body_params.nil? && @body_params.is_a?(File)
@@ -310,6 +314,77 @@ module CoreLibrary
       raise AuthValidationException, @auth.error_message if !@auth.nil? && !is_valid_auth
     end
 
+    # Updates the given request builder by modifying its path, query,
+    # or header parameters based on the specified JSON pointer and value.
+    #
+    # @param json_pointer [String] JSON pointer indicating which parameter to update.
+    # @param value [Object] The value to set at the specified parameter location.
+    # @return [Object] The updated request builder with the modified parameter.
+    def get_updated_request_by_json_pointer(json_pointer, value)
+      param_pointer, field_pointer = JsonPointerHelper::split_into_parts(json_pointer)
+
+      template_params = nil
+      query_params = nil
+      header_params = nil
+      body_params = nil
+      form_params = nil
+
+      case param_pointer
+      when PATH_PARAM_POINTER
+        template_params = JsonPointerHelper.update_entry_by_json_pointer(
+          DeepCloneUtils::deep_copy(@template_params), "#{field_pointer}/value", value
+        )
+      when QUERY_PARAM_POINTER
+        query_params = JsonPointerHelper.update_entry_by_json_pointer(
+          DeepCloneUtils::deep_copy(@query_params), field_pointer, value
+        )
+      when HEADER_PARAM_POINTER
+        header_params = JsonPointerHelper.update_entry_by_json_pointer(
+          DeepCloneUtils::deep_copy(@header_params), field_pointer, value
+        )
+      when BODY_PARAM_POINTER
+        if @body_params
+          body_params = JsonPointerHelper.update_entry_by_json_pointer(
+            DeepCloneUtils::deep_copy(@body_params), field_pointer, value
+          )
+        else
+          form_params = JsonPointerHelper.update_entry_by_json_pointer(
+            DeepCloneUtils::deep_copy(@form_params), field_pointer, value
+          )
+        end
+      end
+
+      clone_with(
+        template_params: template_params,
+        query_params: query_params,
+        header_params: header_params,
+        body_params: body_params,
+        form_params: form_params
+      )
+    end
+
+    # Extracts the initial pagination offset value from the request builder using the specified JSON pointer.
+    #
+    # @param json_pointer [String] JSON pointer indicating which parameter to extract.
+    # @return [Object, nil] The initial offset value from the specified parameter, or default if not found.
+    def get_parameter_value_by_json_pointer(json_pointer)
+      param_pointer, field_pointer = JsonPointerHelper::split_into_parts(json_pointer)
+
+      case param_pointer
+      when PATH_PARAM_POINTER
+        JsonPointerHelper.get_value_by_json_pointer(
+          @template_params, "#{field_pointer}/value"
+        )
+      when QUERY_PARAM_POINTER
+        JsonPointerHelper.get_value_by_json_pointer(@query_params, field_pointer)
+      when HEADER_PARAM_POINTER
+        JsonPointerHelper.get_value_by_json_pointer(@header_params, field_pointer)
+      when BODY_PARAM_POINTER
+        JsonPointerHelper.get_value_by_json_pointer(
+          @body_params || @form_params, field_pointer
+        )
+      end
+    end
 
     # Creates a deep copy of this RequestBuilder instance with optional overrides.
     #

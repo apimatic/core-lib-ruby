@@ -1,7 +1,6 @@
 module CoreLibrary
   # This class is responsible for executing an API call using HttpClient, RequestBuilder and ResponseHandler objects.
   class ApiCall
-
     attr_accessor :request_builder, :pagination_strategy_list, :global_configuration
 
     # Initializes a new instance of ApiCall.
@@ -119,7 +118,7 @@ module CoreLibrary
     # @param request_builder [RequestBuilder, nil] Optional replacement request builder.
     #
     # @return [ApiCall] A new instance with copied internal state and any applied overrides.
-    def clone_with(global_configuration:nil, request_builder: nil)
+    def clone_with(global_configuration: nil, request_builder: nil)
       clone = ApiCall.new(global_configuration || @global_configuration)
 
       clone.request(request_builder || @request_builder.clone_with)
