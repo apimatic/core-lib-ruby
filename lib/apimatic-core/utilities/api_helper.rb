@@ -614,7 +614,7 @@ module CoreLibrary
       rescue URI::InvalidURIError => e
         warn "Invalid URL provided: #{e.message}"
         {}
-      rescue Exception => e
+      rescue StandardError => e
         warn "Unexpected error while parsing URL: #{e.message}"
         {}
       end

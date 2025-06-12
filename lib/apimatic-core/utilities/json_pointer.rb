@@ -154,8 +154,8 @@ module CoreLibrary
 
       target_parent_fragment = fragments.pop if target_fragment == ARRAY_PUSH_KEY
 
-      get_target_member(obj, fragments.dup, create_missing: true) do |target, options={}|
-        if options[:wildcard]
+      get_target_member(obj, fragments.dup, create_missing: true) do |target, options = {}|
+      if options[:wildcard]
           fragments = fragments.each_with_object([]) do |memo, f|
             break memo if f == WILDCARD
 
@@ -177,12 +177,10 @@ module CoreLibrary
           end
 
           target[key] ||= []
-          if Array === target[key]
-            target[key].push(new_value)
-            return new_value
-          else
-            return
-          end
+          return unless target[key].is_a?(Array)
+
+          target[key].push(new_value)
+          return new_value
         end
 
         case target

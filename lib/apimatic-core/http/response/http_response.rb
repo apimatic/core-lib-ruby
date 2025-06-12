@@ -33,7 +33,7 @@ module CoreLibrary
     # @return [Object, nil] The value located at the specified JSON pointer,
     #                       or nil if not found or prefix is unrecognized.
     def get_value_by_json_pointer(json_pointer)
-      param_pointer, field_pointer = JsonPointerHelper::split_into_parts(json_pointer)
+      param_pointer, field_pointer = JsonPointerHelper.split_into_parts(json_pointer)
 
       value = case param_pointer
               when HEADER_PARAM_POINTER

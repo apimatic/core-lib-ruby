@@ -321,7 +321,7 @@ module CoreLibrary
     # @param value [Object] The value to set at the specified parameter location.
     # @return [Object] The updated request builder with the modified parameter.
     def get_updated_request_by_json_pointer(json_pointer, value)
-      param_pointer, field_pointer = JsonPointerHelper::split_into_parts(json_pointer)
+      param_pointer, field_pointer = JsonPointerHelper.split_into_parts(json_pointer)
 
       template_params = nil
       query_params = nil
@@ -332,24 +332,24 @@ module CoreLibrary
       case param_pointer
       when PATH_PARAM_POINTER
         template_params = JsonPointerHelper.update_entry_by_json_pointer(
-          DeepCloneUtils::deep_copy(@template_params), "#{field_pointer}/value", value
+          DeepCloneUtils.deep_copy(@template_params), "#{field_pointer}/value", value
         )
       when QUERY_PARAM_POINTER
         query_params = JsonPointerHelper.update_entry_by_json_pointer(
-          DeepCloneUtils::deep_copy(@query_params), field_pointer, value
+          DeepCloneUtils.deep_copy(@query_params), field_pointer, value
         )
       when HEADER_PARAM_POINTER
         header_params = JsonPointerHelper.update_entry_by_json_pointer(
-          DeepCloneUtils::deep_copy(@header_params), field_pointer, value
+          DeepCloneUtils.deep_copy(@header_params), field_pointer, value
         )
       when BODY_PARAM_POINTER
         if @body_params
           body_params = JsonPointerHelper.update_entry_by_json_pointer(
-            DeepCloneUtils::deep_copy(@body_params), field_pointer, value
+            DeepCloneUtils.deep_copy(@body_params), field_pointer, value
           )
         else
           form_params = JsonPointerHelper.update_entry_by_json_pointer(
-            DeepCloneUtils::deep_copy(@form_params), field_pointer, value
+            DeepCloneUtils.deep_copy(@form_params), field_pointer, value
           )
         end
       end
@@ -368,7 +368,7 @@ module CoreLibrary
     # @param json_pointer [String] JSON pointer indicating which parameter to extract.
     # @return [Object, nil] The initial offset value from the specified parameter, or default if not found.
     def get_parameter_value_by_json_pointer(json_pointer)
-      param_pointer, field_pointer = JsonPointerHelper::split_into_parts(json_pointer)
+      param_pointer, field_pointer = JsonPointerHelper.split_into_parts(json_pointer)
 
       case param_pointer
       when PATH_PARAM_POINTER

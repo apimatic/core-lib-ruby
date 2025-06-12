@@ -4,12 +4,13 @@ module CoreLibrary
     # Splits a JSON pointer string into its prefix and field path components.
     #
     # @param [String, nil] json_pointer The JSON pointer string to split.
-    # @return [Array(String, String), Array(nil, nil)] A tuple with path prefix and field path, or [nil, nil] if input is nil or empty.
+    # @return [Array(String, String), Array(nil, nil)] A tuple with path prefix and field path,
+    #                                 or [nil, nil] if input is nil or empty.
     def self.split_into_parts(json_pointer)
       return [nil, nil] if json_pointer.nil? || json_pointer.strip.empty?
 
       path_prefix, field_path = json_pointer.split('#', 2)
-      field_path ||= ""
+      field_path ||= ''
 
       [path_prefix, field_path]
     end
@@ -28,7 +29,7 @@ module CoreLibrary
         json_pointer_resolver = JsonPointer.new(hash, pointer, symbolize_keys: symbolize_keys)
         _value = json_pointer_resolver.value
         _value.is_a?(JsonPointer::NotFound) ? nil : _value
-      rescue StandardError => e
+      rescue StandardError
         # Optionally log error or re-raise specific known ones
         nil
       end
@@ -48,7 +49,7 @@ module CoreLibrary
         value_extractor = JsonPointer.new(hash, pointer, symbolize_keys: symbolize_keys)
         value_extractor.value = value
         hash
-      rescue StandardError => e
+      rescue StandardError
         # Optionally log error or re-raise specific known ones
         hash
       end
