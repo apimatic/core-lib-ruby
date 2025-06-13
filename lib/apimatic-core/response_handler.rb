@@ -86,7 +86,7 @@ module CoreLibrary
     # Sets the is_primitive_response property.
     # @param [Boolean] is_primitive_response Flag if the response is of primitive type.
     # @return [ResponseHandler] An updated instance of ResponseHandler.
-    # rubocop:disable Naming/PredicateName
+    # rubocop:disable Naming/PredicatePrefix
     def is_primitive_response(is_primitive_response)
       @is_primitive_response = is_primitive_response
       self
@@ -147,7 +147,7 @@ module CoreLibrary
       @is_nullable_response = is_nullable_response
       self
     end
-    # rubocop:enable Naming/PredicateName
+    # rubocop:enable Naming/PredicatePrefix
 
     # Main method to handle the response with all the set properties.
     # @param [HttpResponse] response The response received.

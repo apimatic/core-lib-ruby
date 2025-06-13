@@ -122,7 +122,7 @@ module CoreLibrary
       clone = ApiCall.new(global_configuration || @global_configuration)
 
       clone.request(request_builder || @request_builder.clone_with)
-      clone.response(@response_handler)  # Assuming response_handler is immutable or reused safely
+      clone.response(@response_handler)
       @endpoint_context.each do |key, value|
         clone.endpoint_context(key, value)
       end
