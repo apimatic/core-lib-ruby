@@ -21,7 +21,7 @@ module CoreLibrary
       # @param value [Object] The value to deeply clone.
       # @param visited [Hash] A hash that tracks already visited objects to handle cycles.
       # @return [Object] A deep copy of the input value.
-      def deep_copy(value, visited = Hash.new.compare_by_identity)
+      def deep_copy(value, visited = {}.compare_by_identity)
         return value if primitive?(value)
         return visited[value] if visited.key?(value)
 
@@ -43,7 +43,7 @@ module CoreLibrary
       # @param array [Array] The array to deeply clone.
       # @param visited [Hash] Identity hash to track visited objects.
       # @return [Array] A deep copy of the array.
-      def deep_copy_array(array, visited = Hash.new.compare_by_identity)
+      def deep_copy_array(array, visited = {}.compare_by_identity)
         return nil if array.nil?
         return array if primitive?(array)
 
@@ -61,7 +61,7 @@ module CoreLibrary
       # @param hash [Hash] The hash to deeply clone.
       # @param visited [Hash] Identity hash to track visited objects.
       # @return [Hash] A deep copy of the hash.
-      def deep_copy_hash(hash, visited = Hash.new.compare_by_identity)
+      def deep_copy_hash(hash, visited = {}.compare_by_identity)
         return nil if hash.nil?
         return hash if primitive?(hash)
 
