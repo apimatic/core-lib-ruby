@@ -1,61 +1,9 @@
 require 'minitest/autorun'
 require 'apimatic_core'
+require_relative '../../../test-helper/mocks/mocks'
 
 class LinkPaginationTest < Minitest::Test
-  include CoreLibrary
-  module LinkPaginationMocks
-    class RequestBuilder
-      attr_accessor :query_params
-
-      def initialize(query_params = {})
-        @query_params = query_params
-      end
-
-      def clone_with(query_params:)
-        RequestBuilder.new(query_params)
-      end
-
-      # Stub method for testing purposes. This method is intentionally left unimplemented
-      # to simulate or mock the behavior of retrieving a parameter value by a JSON pointer path.
-      #
-      # @param json_pointer [String] the JSON pointer path used to locate the parameter value
-      # @return [Object, nil] the value at the given JSON pointer, or nil (in mock context)
-      def get_parameter_value_by_json_pointer(json_pointer); end
-
-      # Stub method for testing purposes. This method is intentionally left unimplemented
-      # to simulate or mock the behavior of updating a request with a value at a specific JSON pointer path.
-      #
-      # @param json_pointer [String] the JSON pointer path indicating where the value should be updated
-      # @param value [Object] the new value to insert or update at the given JSON pointer path
-      # @return [Object, nil] the updated request object, or nil (in mock context)
-      def get_updated_request_by_json_pointer(json_pointer, value); end
-    end
-
-    class PaginatedData
-      attr_reader :request_builder, :last_response
-
-      def initialize(request_builder:, last_response: nil)
-        @request_builder = request_builder
-        @last_response = last_response
-      end
-    end
-
-    class Response
-      attr_reader :raw_body, :headers
-
-      def initialize(raw_body, headers = {})
-        @raw_body = raw_body
-        @headers = headers
-      end
-
-      # Stub method for testing purposes. This method is intentionally left unimplemented
-      # to simulate or mock the behavior of retrieving a value by a JSON pointer path.
-      #
-      # @param json_pointer [String] the JSON pointer path used to access a value
-      # @return [Object, nil] the value at the given JSON pointer, or nil (in mock context)
-      def get_value_by_json_pointer(json_pointer); end
-    end
-  end
+  include CoreLibrary, Mocks::Pagination
 
   def setup
     @next_link_pointer = "#{HttpResponse::BODY_PARAM_POINTER}$/next"
@@ -68,17 +16,17 @@ class LinkPaginationTest < Minitest::Test
   end
 
   def test_apply_with_no_last_response
-    builder = LinkPaginationMocks::RequestBuilder.new({ 'page' => 1 })
-    data = LinkPaginationMocks::PaginatedData.new(request_builder: builder)
+    builder = Mocks::Pagination::RequestBuilder.new(query_params: { 'page' => 1 })
+    data = Mocks::Pagination::PaginatedData.new(request_builder: builder)
 
     result = @strategy.apply(data)
     assert_equal builder, result
   end
 
   def test_apply_with_nil_next_link
-    builder = LinkPaginationMocks::RequestBuilder.new({ 'page' => 1 })
-    response = LinkPaginationMocks::Response.new('{}')
-    data = LinkPaginationMocks::PaginatedData.new(request_builder: builder, last_response: response)
+    builder = Mocks::Pagination::RequestBuilder.new(query_params: { 'page' => 1 })
+    response = Mocks::Pagination::Response.new('{}')
+    data = Mocks::Pagination::PaginatedData.new(request_builder: builder, last_response: response)
 
     response.stub(:get_value_by_json_pointer, nil) do
       result = @strategy.apply(data)
@@ -87,9 +35,9 @@ class LinkPaginationTest < Minitest::Test
   end
 
   def test_apply_with_valid_next_link
-    builder = LinkPaginationMocks::RequestBuilder.new({ 'existing' => 'value' })
-    response = LinkPaginationMocks::Response.new('{"next":"https://api.com/items?page=2&limit=10"}')
-    data = LinkPaginationMocks::PaginatedData.new(request_builder: builder, last_response: response)
+    builder = Mocks::Pagination::RequestBuilder.new(query_params: { 'existing' => 'value' })
+    response = Mocks::Pagination::Response.new('{"next":"https://api.com/items?page=2&limit=10"}')
+    data = Mocks::Pagination::PaginatedData.new(request_builder: builder, last_response: response)
 
     response.stub(:get_value_by_json_pointer, 'https://api.com/items?page=2&limit=10') do
       result = @strategy.apply(data)
