@@ -1,30 +1,4 @@
 module CoreLibrary
-  # The `JsonPointer` class provides a utility for querying, modifying, and deleting
-  # values within deeply nested Ruby Hashes and Arrays using JSON Pointer syntax (RFC 6901),
-  # extended with support for wildcards (`~`) and array-push semantics (`-`).
-  #
-  # ## Features
-  # - Navigate and retrieve deeply nested values using JSON Pointer paths.
-  # - Supports complex structures containing both Arrays and Hashes.
-  # - Wildcard support (`~`) for batch operations across multiple elements.
-  # - Special key (`-`) for appending to arrays (push behavior).
-  # - Optional `:symbolize_keys` behavior to convert pointer fragments to symbols.
-  #
-  # ## Example Usage
-  #   data = { "a" => [{ "b" => 1 }, { "b" => 2 }] }
-  #   pointer = JsonPointer.new(data, "/a/~1/b")
-  #   value = pointer.value  # => 2
-  #
-  #   pointer.value = 42
-  #   pointer.delete
-  #
-  # ## Limitations
-  # - This class operates directly on mutable input data structures.
-  # - Wildcards and array push keys are not part of the official JSON Pointer spec.
-  #
-  # @example Initialize and read value
-  #   JsonPointer.new({ "foo" => { "bar" => 42 } }, "/foo/bar").value # => 42
-  #
   class JsonPointer
     NotFound = Class.new
     WILDCARD = '~'.freeze
@@ -32,7 +6,6 @@ module CoreLibrary
 
     def self.escape_fragment(fragment)
       return fragment if fragment == WILDCARD
-
       fragment.gsub(/~/, '~0').gsub(%r{/}, '~1')
     end
 
@@ -124,9 +97,7 @@ module CoreLibrary
       if fragment == WILDCARD
         if obj.any?
           targets = obj.map do |i|
-            get_target_member(i || {}, fragments.dup, options) do |t|
-              t
-            end
+            get_target_member(i || {}, fragments.dup, options) { |t| t }
           end
           yield(targets, wildcard: true)
         else
@@ -151,14 +122,13 @@ module CoreLibrary
       return if fragments.empty?
 
       target_fragment = fragments.pop
-
       target_parent_fragment = fragments.pop if target_fragment == ARRAY_PUSH_KEY
 
       get_target_member(obj, fragments.dup, create_missing: true) do |target, options = {}|
         if options[:wildcard]
           fragments = fragments.each_with_object([]) do |memo, f|
             break memo if f == WILDCARD
-
+            
             memo << f
             memo
           end
@@ -166,28 +136,34 @@ module CoreLibrary
           path = join_fragments(fragments)
           pointer = self.class.new(obj, path, @options)
           pointer.value.push({ fragment_to_key(target_fragment) => new_value })
-        end
+        else
+          if target_fragment == ARRAY_PUSH_KEY
+            case target
+            when Hash
+              key = fragment_to_key(target_parent_fragment)
+            when Array
+              key = fragment_to_index(target_parent_fragment)
+            else
+              key = nil
+            end
 
-        if target_fragment == ARRAY_PUSH_KEY
-          case target
-          when Hash
-            key = fragment_to_key(target_parent_fragment)
-          when Array
-            key = fragment_to_index(target_parent_fragment)
+            return unless key
+
+            target[key] ||= []
+            return unless target[key].is_a?(Array)
+
+            target[key].push(new_value)
+            return new_value
+          else
+            case target
+            when Hash
+              target[fragment_to_key(target_fragment)] = new_value
+            when Array
+              target.insert(fragment_to_index(target_fragment), new_value)
+            else
+              nil
+            end
           end
-
-          target[key] ||= []
-          return unless target[key].is_a?(Array)
-
-          target[key].push(new_value)
-          return new_value
-        end
-
-        case target
-        when Hash
-          target[fragment_to_key(target_fragment)] = new_value
-        when Array
-          target.insert(fragment_to_index(target_fragment), new_value)
         end
       end
     end
@@ -205,6 +181,8 @@ module CoreLibrary
             case t
             when Hash
               t.delete(fragment_to_key(target_fragment))
+            else
+              nil
             end
           end
         else
@@ -217,6 +195,8 @@ module CoreLibrary
             else
               target.delete_at(fragment_to_index(target_fragment))
             end
+          else
+            nil
           end
         end
       end
@@ -239,11 +219,7 @@ module CoreLibrary
     end
 
     def fragment_to_key(fragment)
-      if @options[:symbolize_keys]
-        fragment.to_sym
-      else
-        fragment
-      end
+      @options[:symbolize_keys] ? fragment.to_sym : fragment
     end
 
     def fragment_to_index(fragment)

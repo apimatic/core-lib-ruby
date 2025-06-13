@@ -352,6 +352,8 @@ module CoreLibrary
             DeepCloneUtils.deep_copy(@form_params), field_pointer, value
           )
         end
+      else
+        clone_with
       end
 
       clone_with(
@@ -383,6 +385,8 @@ module CoreLibrary
         JsonPointerHelper.get_value_by_json_pointer(
           @body_params || @form_params, field_pointer
         )
+      else
+        nil
       end
     end
 

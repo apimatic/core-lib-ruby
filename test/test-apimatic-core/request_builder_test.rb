@@ -16,6 +16,7 @@ require_relative '../test-helper/models/parent_model'
 class RequestBuilderTest < Minitest::Test
   include CoreLibrary, TestComponent
 
+  HEADER_KEY = 'X-Custom'
   def test_http_method
     actual = MockHelper.create_basic_request_builder
                        .http_method(HttpMethod::GET)
@@ -408,8 +409,8 @@ class RequestBuilderTest < Minitest::Test
     pointer = "#{RequestBuilder::HEADER_PARAM_POINTER}#/X-Custom"
     new_value = 'bar'
     updated_builder = builder.get_updated_request_by_json_pointer(pointer, new_value)
-    assert_equal 'foo', builder.header_params['X-Custom']
-    assert_equal 'bar', updated_builder.header_params['X-Custom']
+    assert_equal 'foo', builder.header_params[HEADER_KEY]
+    assert_equal 'bar', updated_builder.header_params[HEADER_KEY]
   end
 
   def test_get_updated_request_by_json_pointer_for_body

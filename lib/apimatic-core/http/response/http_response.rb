@@ -43,6 +43,8 @@ module CoreLibrary
                   ApiHelper.json_deserialize(@raw_body),
                   field_pointer
                 )
+              else
+                nil
               end
 
       value.nil? || (value.is_a? JsonPointer::NotFound) ? nil : value

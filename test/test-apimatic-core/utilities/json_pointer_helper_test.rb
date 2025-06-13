@@ -3,6 +3,9 @@ require 'apimatic_core'
 
 class JsonPointerHelperTest < Minitest::Test
   include CoreLibrary
+
+  PATH = "/some/path"
+
   def setup
     @hash = {
       water: ['river', 'lake', 'ocean', 'pond', 'everything else'],
@@ -46,11 +49,11 @@ class JsonPointerHelperTest < Minitest::Test
   end
 
   def test_split_into_parts_with_only_prefix
-    assert_equal ["/some/path", ""], JsonPointerHelper.split_into_parts("/some/path")
+    assert_equal [PATH, ""], JsonPointerHelper.split_into_parts(PATH)
   end
 
   def test_split_into_parts_with_prefix_and_field_path
-    assert_equal ["/some/path", "/field"], JsonPointerHelper.split_into_parts("/some/path#/field")
+    assert_equal [PATH, "/field"], JsonPointerHelper.split_into_parts("/some/path#/field")
   end
 
   def test_get_value_by_json_pointer_with_nil_hash
