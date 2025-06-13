@@ -8,31 +8,31 @@ require 'date'
 module TestComponent
   # Employee Model.
   class Employee < Person
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [String]
     attr_accessor :department
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [List of Person]
     attr_accessor :dependents
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [DateTime]
     attr_accessor :hired_at
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Days]
     attr_accessor :joining_day
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Integer]
     attr_accessor :salary
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [List of Days]
     attr_accessor :working_days
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Person]
     attr_accessor :boss
 

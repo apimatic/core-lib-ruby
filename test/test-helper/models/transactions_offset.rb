@@ -7,7 +7,7 @@ module TestComponent
     SKIP = Object.new
     private_constant :SKIP
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Array[Transaction]]
     attr_accessor :data
 

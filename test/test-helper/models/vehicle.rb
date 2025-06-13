@@ -9,7 +9,7 @@ module TestComponent
     SKIP = Object.new
     private_constant :SKIP
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [String]
     attr_accessor :number_of_tyres
 
