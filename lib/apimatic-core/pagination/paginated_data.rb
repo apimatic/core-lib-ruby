@@ -14,16 +14,18 @@ module CoreLibrary
       @api_call = api_call
       @paginated_items_converter = paginated_items_converter
       @initial_request_builder = api_call.request_builder
+      @pagination_strategies = @api_call.pagination_strategy_list
+      @http_call_context =
+        @api_call.global_configuration.client_configuration.http_callback || HttpCallContext.new
+      http_client_config = @api_call.global_configuration.client_configuration.clone_with(
+        http_callback: @http_call_context
+      )
+      @global_configuration = @api_call.global_configuration.clone_with(
+        client_configuration: http_client_config
+      )
+
       @last_request_builder = nil
       @locked_strategy = nil
-      @pagination_strategies = @api_call.pagination_strategy_list
-      @http_call_context = @api_call.global_configuration.client_configuration.http_callback ||
-        HttpCallContext.new
-      http_client_config = @api_call.global_configuration.client_configuration.clone_with(
-        http_callback: @http_call_context)
-      @global_configuration = @api_call.global_configuration.clone_with(
-        client_configuration: http_client_config)
-
       @paged_response = nil
       @items = []
       @page_size = 0

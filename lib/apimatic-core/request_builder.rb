@@ -295,8 +295,8 @@ module CoreLibrary
     # @return [Hash] The resolved body parameter as per the type.
     def resolve_body_param
       if !@body_params.nil? && @body_params.is_a?(FileWrapper)
-        @header_params['content-type'] = @body_params.content_type if !@body_params.file.nil? &&
-          !@body_params.content_type.nil?
+        @header_params['content-type'] = @body_params.content_type if
+          !@body_params.file.nil? && !@body_params.content_type.nil?
         @header_params['content-length'] = @body_params.file.size.to_s
         return @body_params.file
       elsif !@body_params.nil? && @body_params.is_a?(File)
