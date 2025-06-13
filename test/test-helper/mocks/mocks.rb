@@ -21,20 +21,15 @@ module Mocks
         )
       end
 
-      # Stub method for testing purposes. This method is intentionally left unimplemented
-      # to simulate or mock the behavior of retrieving a parameter value by a JSON pointer path.
-      #
-      # @param json_pointer [String] the JSON pointer path used to locate the parameter value
-      # @return [Object, nil] the value at the given JSON pointer, or nil (in mock context)
-      def get_parameter_value_by_json_pointer(json_pointer); end
+      def get_parameter_value_by_json_pointer(_json_pointer)
+        # Stub method for testing purposes. This method is intentionally left unimplemented
+        # to simulate or mock the behavior of retrieving a parameter value by a JSON pointer path.
+      end
 
-      # Stub method for testing purposes. This method is intentionally left unimplemented
-      # to simulate or mock the behavior of updating a request with a value at a specific JSON pointer path.
-      #
-      # @param json_pointer [String] the JSON pointer path indicating where the value should be updated
-      # @param value [Object] the new value to insert or update at the given JSON pointer path
-      # @return [Object, nil] the updated request object, or nil (in mock context)
-      def get_updated_request_by_json_pointer(json_pointer, value); end
+      def get_updated_request_by_json_pointer(_json_pointer, _value)
+        # Stub method for testing purposes. This method is intentionally left unimplemented
+        # to simulate or mock the behavior of updating a request with a value at a specific JSON pointer path.
+      end
     end
 
     class PaginatedData
@@ -55,12 +50,10 @@ module Mocks
         @headers = headers
       end
 
-      # Stub method for testing purposes. This method is intentionally left unimplemented
-      # to simulate or mock the behavior of retrieving a value by a JSON pointer path.
-      #
-      # @param json_pointer [String] the JSON pointer path used to access a value
-      # @return [Object, nil] the value at the given JSON pointer, or nil (in mock context)
-      def get_value_by_json_pointer(json_pointer); end
+      def get_value_by_json_pointer(_json_pointer)
+        # Stub method for testing purposes. This method is intentionally left unimplemented
+        # to simulate or mock the behavior of retrieving a value by a JSON pointer path.
+      end
     end
   end
 end
