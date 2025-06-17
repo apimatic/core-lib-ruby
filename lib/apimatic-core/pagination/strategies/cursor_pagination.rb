@@ -31,7 +31,7 @@ module CoreLibrary
     def applicable?(response)
       return true if response.nil?
 
-      @cursor_value = response&.get_value_by_json_pointer(@output)
+      @cursor_value = response.get_value_by_json_pointer(@output)
 
       !@cursor_value.nil?
     end

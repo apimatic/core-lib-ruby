@@ -26,7 +26,7 @@ module CoreLibrary
     def applicable?(response)
       return true if response.nil?
 
-      @next_link = response&.get_value_by_json_pointer(@next_link_pointer)
+      @next_link = response.get_value_by_json_pointer(@next_link_pointer)
 
       !@next_link.nil?
     end

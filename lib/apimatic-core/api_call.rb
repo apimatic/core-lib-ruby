@@ -1,7 +1,7 @@
 module CoreLibrary
   # This class is responsible for executing an API call using HttpClient, RequestBuilder and ResponseHandler objects.
   class ApiCall
-    attr_accessor :request_builder, :pagination_strategy_list, :global_configuration
+    attr_reader :request_builder, :pagination_strategy_list, :global_configuration
 
     # Initializes a new instance of ApiCall.
     # @param [GlobalConfiguration] global_configuration An instance of GlobalConfiguration.
