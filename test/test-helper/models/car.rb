@@ -8,7 +8,7 @@ require_relative 'vehicle'
 module TestComponent
   # Car Model.
   class Car < TestComponent::BaseModelTypeComb
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [TrueClass|FalseClass]
     attr_accessor :have_trunk
 

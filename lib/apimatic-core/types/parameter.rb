@@ -45,12 +45,12 @@ module CoreLibrary
     # The setter for the flag if the parameter is required.
     # @param [Boolean] is_required true if the parameter is required otherwise false, by default the value is false.
     # @return [Parameter] An updated instance of Parameter.
-    # rubocop:disable Naming/PredicateName
+    # rubocop:disable Naming/PredicateName, Naming/PredicatePrefix
     def is_required(is_required)
       @is_required = is_required
       self
     end
-    # rubocop:enable Naming/PredicateName
+    # rubocop:enable Naming/PredicateName, Naming/PredicatePrefix
 
     # The setter for the flag if the parameter value is to be encoded.
     # @param [Boolean] should_encode true if the parameter value is to be encoded otherwise false, default is false.

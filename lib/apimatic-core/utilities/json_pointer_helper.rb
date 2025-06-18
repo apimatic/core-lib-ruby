@@ -1,134 +1,58 @@
 module CoreLibrary
   # A utility for json specific operations.
   class JsonPointerHelper
-    NotFound = Class.new
-    WILDCARD = '~'.freeze
-    ARRAY_PUSH_KEY = '-'.freeze
+    # Splits a JSON pointer string into its prefix and field path components.
+    #
+    # @param [String, nil] json_pointer The JSON pointer string to split.
+    # @return [Array(String, String), Array(nil, nil)] A tuple with path prefix and field path,
+    #                                 or [nil, nil] if input is nil or empty.
+    def self.split_into_parts(json_pointer)
+      return [nil, nil] if json_pointer.nil? || json_pointer.strip.empty?
 
-    def self.escape_fragment(fragment)
-      return fragment if fragment == WILDCARD
+      path_prefix, field_path = json_pointer.split('#', 2)
+      field_path ||= ''
 
-      fragment.gsub(/~/, '~0').gsub(%r{/}, '~1')
+      [path_prefix, field_path]
     end
 
-    def self.unescape_fragment(fragment)
-      fragment.gsub(/~1/, '/').gsub(/~0/, '~')
-    end
+    # Retrieves a value from a hash using a JSON pointer.
+    #
+    # @param [Hash] hash The input hash to search.
+    # @param [String] pointer The JSON pointer string (e.g. "#/a/b").
+    # @param [Boolean] symbolize_keys Whether to symbolize keys in the hash while resolving.
+    #
+    # @return [Object, nil] The value at the given pointer path, or nil if not found or invalid.
+    def self.get_value_by_json_pointer(hash, pointer, symbolize_keys: false)
+      return nil if hash.nil? || pointer.nil? || pointer.strip.empty?
 
-    def initialize(hash, path, options = {})
-      @hash = hash
-      @path = path
-      @options = options
-    end
-
-    def value
-      get_member_value
-    end
-
-    def exists?
-      _exists = false
-      get_target_member(@hash, path_fragments.dup) do |target, options = {}|
-        if options[:wildcard]
-          _exists = target.any? { |t| !t.nil? && !t.is_a?(NotFound) }
-        else
-          _exists = true unless target.is_a?(NotFound)
-        end
-      end
-      _exists
-    end
-
-    private
-
-    def get_member_value(obj = @hash, fragments = path_fragments.dup)
-      return obj if fragments.empty?
-
-      fragment = fragments.shift
-      case obj
-      when Hash
-        get_member_value(obj[fragment_to_key(fragment)], fragments)
-      when Array
-        if fragment == WILDCARD
-          obj.map { |i| get_member_value(i, fragments.dup) }
-        else
-          get_member_value(obj[fragment_to_index(fragment)], fragments)
-        end
-      else
-        NotFound.new
+      begin
+        json_pointer_resolver = JsonPointer.new(hash, pointer, symbolize_keys: symbolize_keys)
+        _value = json_pointer_resolver.value
+        _value.is_a?(JsonPointer::NotFound) ? nil : _value
+      rescue StandardError
+        # Optionally log error or re-raise specific known ones
+        nil
       end
     end
 
-    def get_target_member(obj, fragments, options = {}, &block)
-      return yield(obj, {}) if fragments.empty?
+    # Retrieves a value from a hash using a JSON pointer.
+    #
+    # @param [Hash] hash The input hash to search.
+    # @param [String] pointer The JSON pointer string (e.g. "#/a/b").
+    # @param [Boolean] symbolize_keys Whether to symbolize keys in the hash while resolving.
+    #
+    # @return [Object, nil] The value at the given pointer path, or nil if not found or invalid.
+    def self.update_entry_by_json_pointer(hash, pointer, value, symbolize_keys: false)
+      return hash if hash.nil? || pointer.nil? || pointer.strip.empty?
 
-      case obj
-      when Hash
-        get_target_member_if_hash(obj, fragments, options, &block)
-      when Array
-        get_target_member_if_array(obj, fragments, options, &block)
-      else
-        NotFound.new
+      begin
+        value_extractor = JsonPointer.new(hash, pointer, symbolize_keys: symbolize_keys)
+        value_extractor.value = value
+        hash
+      rescue StandardError
+        # Optionally log error or re-raise specific known ones
+        hash
       end
-    end
-
-    def get_target_member_if_hash(obj, fragments, options = {}, &block)
-      fragment = fragments.shift
-      key = fragment_to_key(fragment)
-      obj = if options[:create_missing]
-              obj[key] ||= {}
-            else
-              obj.key?(key) ? obj[key] : NotFound.new
-            end
-
-      get_target_member(obj, fragments, options, &block)
-    end
-
-    def get_target_member_if_array(obj, fragments, options = {}, &block)
-      fragment = fragments.shift
-      if fragment == WILDCARD
-        if obj.any?
-          targets = obj.map do |i|
-            get_target_member(i || {}, fragments.dup, options) do |t|
-              t
-            end
-          end
-          yield(targets, wildcard: true)
-        else
-          NotFound.new
-        end
-      else
-        index = fragment_to_index(fragment)
-        obj = if options[:create_missing]
-                obj[index] ||= {}
-              else
-                index >= obj.size ? NotFound.new : obj[index]
-              end
-
-        get_target_member(obj, fragments, &block)
-      end
-    end
-
-    def path_fragments
-      @path_fragments ||= @path.sub(%r{\A/}, '').split('/').map { |fragment| unescape_fragment(fragment) }
-    end
-
-    def escape_fragment(fragment)
-      JsonPointerHelper.escape_fragment(fragment)
-    end
-
-    def unescape_fragment(fragment)
-      JsonPointerHelper.unescape_fragment(fragment)
-    end
-
-    def fragment_to_key(fragment)
-      if @options[:symbolize_keys]
-        fragment.to_sym
-      else
-        fragment
-      end
-    end
-
-    def fragment_to_index(fragment)
-      fragment.to_i
     end
   end
 end

@@ -12,31 +12,31 @@ module TestComponent
     SKIP = Object.new
     private_constant :SKIP
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [String]
     attr_accessor :address
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Integer]
     attr_accessor :age
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Date]
     attr_accessor :birthday
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [DateTime]
     attr_accessor :birthtime
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [String]
     attr_accessor :name
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [String]
     attr_accessor :uid
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [String]
     attr_accessor :person_type
 

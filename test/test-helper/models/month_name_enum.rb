@@ -2,40 +2,40 @@ module TestComponent
   # An enum representing the months of a year
   class MonthNameEnum
     MONTH_NAME_ENUM = [
-      # TODO: Write general description for JANUARY
+      # description for JANUARY
       JANUARY = 'January'.freeze,
 
-      # TODO: Write general description for FEBRUARY
+      # description for FEBRUARY
       FEBRUARY = 'February'.freeze,
 
-      # TODO: Write general description for MARCH
+      # description for MARCH
       MARCH = 'March'.freeze,
 
-      # TODO: Write general description for APRIL
+      # description for APRIL
       APRIL = 'April'.freeze,
 
-      # TODO: Write general description for MAY
+      # description for MAY
       MAY = 'May'.freeze,
 
-      # TODO: Write general description for JUNE
+      # description for JUNE
       JUNE = 'June'.freeze,
 
-      # TODO: Write general description for JULY
+      # description for JULY
       JULY = 'July'.freeze,
 
-      # TODO: Write general description for AUGUST
+      # description for AUGUST
       AUGUST = 'August'.freeze,
 
-      # TODO: Write general description for SEPTEMBER
+      # description for SEPTEMBER
       SEPTEMBER = 'September'.freeze,
 
-      # TODO: Write general description for OCTOBER
+      # description for OCTOBER
       OCTOBER = 'October'.freeze,
 
-      # TODO: Write general description for NOVEMBER
+      # description for NOVEMBER
       NOVEMBER = 'November'.freeze,
 
-      # TODO: Write general description for DECEMBER
+      # description for DECEMBER
       DECEMBER = 'December'.freeze
     ].freeze
 

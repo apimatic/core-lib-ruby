@@ -1,4 +1,6 @@
 require 'erb'
+require 'uri'
+require 'cgi'
 
 module CoreLibrary
   # API utility class involved in executing an API
@@ -544,7 +546,7 @@ module CoreLibrary
         if placeholder.include? '#'
           # pick the 2nd chunk then remove the last character (i.e. `}`) of the string value
           node_pointer = placeholder.split('#')[1].delete_suffix('}')
-          value_pointer = JsonPointerHelper.new(value, node_pointer, symbolize_keys: true)
+          value_pointer = JsonPointer.new(value, node_pointer, symbolize_keys: true)
           extracted_value = json_serialize(value_pointer.value) if value_pointer.exists?
         elsif !value.nil?
           extracted_value = json_serialize(value)
@@ -580,6 +582,42 @@ module CoreLibrary
       end
 
       template
+    end
+
+    # Parses query parameters from a given URL.
+    # Returns a Hash with decoded keys and values.
+    # If a key has multiple values, they are returned as an array.
+    #
+    # Example:
+    #   ApiHelper.get_query_parameters("https://example.com?a=1&b=2&b=3")
+    #   => {"a"=>"1", "b"=>["2", "3"]}
+    def self.get_query_parameters(url)
+      return {} if url.nil? || url.strip.empty?
+
+      begin
+        uri = URI.parse(url)
+        query = uri.query
+        return {} if query.nil? || query.strip.empty?
+
+        parsed = CGI.parse(query)
+
+        # Convert arrays to string or handle empty ones as ""
+        parsed.transform_values! do |v|
+          if v.empty?
+            ''
+          elsif v.size == 1
+            v.first
+          else
+            v
+          end
+        end
+      rescue URI::InvalidURIError => e
+        warn "Invalid URL provided: #{e.message}"
+        {}
+      rescue StandardError => e
+        warn "Unexpected error while parsing URL: #{e.message}"
+        {}
+      end
     end
   end
 end

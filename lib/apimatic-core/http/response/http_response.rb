@@ -1,6 +1,9 @@
 module CoreLibrary
   # Http response received.
   class HttpResponse
+    BODY_PARAM_POINTER = '$response.body'.freeze
+    HEADER_PARAM_POINTER = '$response.headers'.freeze
+
     attr_reader :status_code, :reason_phrase, :headers, :raw_body, :request
 
     # The constructor
@@ -19,6 +22,32 @@ module CoreLibrary
       @headers = headers
       @raw_body = raw_body
       @request = request
+    end
+
+    # Resolves a JSON pointer against either the response body or response headers.
+    #
+    # This method is useful when extracting a specific value from an API response using a JSON pointer.
+    # It determines whether to extract from the body or headers based on the prefix in the pointer.
+    #
+    # @param json_pointer [String] A JSON pointer string (e.g., '/body/data/id' or '/headers/x-request-id').
+    # @return [Object, nil] The value located at the specified JSON pointer,
+    #                       or nil if not found or prefix is unrecognized.
+    def get_value_by_json_pointer(json_pointer)
+      param_pointer, field_pointer = JsonPointerHelper.split_into_parts(json_pointer)
+
+      value = case param_pointer
+              when HEADER_PARAM_POINTER
+                JsonPointerHelper.get_value_by_json_pointer(@headers, field_pointer)
+              when BODY_PARAM_POINTER
+                JsonPointerHelper.get_value_by_json_pointer(
+                  ApiHelper.json_deserialize(@raw_body),
+                  field_pointer
+                )
+              else
+                nil
+              end
+
+      value.nil? || (value.is_a? JsonPointer::NotFound) ? nil : value
     end
   end
 end
