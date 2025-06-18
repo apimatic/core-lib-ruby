@@ -35,11 +35,9 @@ class CursorPaginationTest < Minitest::Test
     response = Mocks::Pagination::Response.new('{}')
     data = Mocks::Pagination::PaginatedData.new(request_builder: builder, last_response: response)
 
-    ApiHelper.stub(:json_deserialize, {}) do
-      response.stub(:get_value_by_json_pointer, nil) do
-        result = @strategy.apply(data)
-        assert_nil result
-      end
+    response.stub(:get_value_by_json_pointer, nil) do
+      result = @strategy.apply(data)
+      assert_nil result
     end
   end
 
@@ -48,13 +46,11 @@ class CursorPaginationTest < Minitest::Test
     response = Mocks::Pagination::Response.new('{"meta": {"next_cursor": "cursor456"}}')
     data = Mocks::Pagination::PaginatedData.new(request_builder: builder, last_response: response)
 
-    ApiHelper.stub(:json_deserialize, { 'meta' => { 'next_cursor' => 'cursor456' } }) do
-      response.stub(:get_value_by_json_pointer, 'cursor456') do
-        updated_builder = Mocks::Pagination::RequestBuilder.new
-        builder.stub(:get_updated_request_by_json_pointer, updated_builder) do
-          result = @strategy.apply(data)
-          assert_instance_of Mocks::Pagination::RequestBuilder, result
-        end
+    response.stub(:get_value_by_json_pointer, 'cursor456') do
+      updated_builder = Mocks::Pagination::RequestBuilder.new
+      builder.stub(:get_updated_request_by_json_pointer, updated_builder) do
+        result = @strategy.apply(data)
+        assert_instance_of Mocks::Pagination::RequestBuilder, result
       end
     end
   end

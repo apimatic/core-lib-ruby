@@ -62,16 +62,13 @@ class JsonPointerTest < Minitest::Test
     assert_equal [0, "x", 1, 2], hash['a']
   end
 
-  def test_push_value_to_array
+  def test_append_value_to_array_using_dash_pointer
     hash = { 'a' => [] }
-    JsonPointer.new(hash, '/a/-').value = 42
-    assert_equal [42], hash['a']
-  end
 
-  def test_push_value_with_parent_key
-    hash = { 'a' => [] }
+    JsonPointer.new(hash, '/a/-').value = 42
     JsonPointer.new(hash, '/a/-').value = 'x'
-    assert_equal ['x'], hash['a']
+
+    assert_equal [42, 'x'], hash['a']
   end
 
   def test_push_value_inside_nested_array
@@ -108,5 +105,19 @@ class JsonPointerTest < Minitest::Test
     hash = { 'a' => [{ 'b' => 2 }, { 'b' => 2 }] }
     JsonPointer.new(hash, '/a/~/b').delete
     assert_equal [{}, {}], hash['a']
+  end
+
+  private
+
+  def assert_pointer_exists(pointer)
+    assert_equal true, pointer.exists?
+  end
+
+  def assert_pointer_not_exists(pointer)
+    assert_equal false, pointer.exists?
+  end
+
+  def assert_pointer_value(pointer, expected_value)
+    assert_equal expected_value, pointer.value
   end
 end

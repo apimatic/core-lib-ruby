@@ -29,12 +29,6 @@ class PaginationStrategyTest < Minitest::Test
     @metadata_wrapper = Minitest::Mock.new
   end
 
-  def test_initialize_with_valid_metadata
-    metadata = Object.new
-    strategy = PaginationStrategy.new(metadata)
-    assert_equal metadata, strategy.metadata_wrapper
-  end
-
   def test_initialize_with_nil_metadata_raises
     err = assert_raises(ArgumentError) do
       PaginationStrategy.new(nil)

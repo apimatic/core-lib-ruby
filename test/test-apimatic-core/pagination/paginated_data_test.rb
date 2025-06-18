@@ -70,8 +70,8 @@ class PaginatedDataTest < Minitest::Test
     class GlobalConfiguration
       attr_reader :client_configuration
 
-      def initialize(client_configuration: nil)
-        @client_configuration = ClientConfiguration.new
+      def initialize(client_configuration: ClientConfiguration.new)
+        @client_configuration = client_configuration
       end
 
       def clone_with(client_configuration: nil)
@@ -84,11 +84,11 @@ class PaginatedDataTest < Minitest::Test
     class ApiCall
       attr_reader :pagination_strategy_list, :request_builder, :global_configuration
 
-      def initialize(strategies:, request_builder:, execute_response:)
+      def initialize(global_configuration: GlobalConfiguration.new, strategies:, request_builder:, execute_response:)
         @pagination_strategy_list = strategies
         @request_builder = request_builder
         @execute_response = execute_response
-        @global_configuration = GlobalConfiguration.new
+        @global_configuration = global_configuration
       end
 
       def execute
@@ -97,6 +97,7 @@ class PaginatedDataTest < Minitest::Test
 
       def clone_with(global_configuration: nil, request_builder: nil)
         ApiCall.new(
+          global_configuration: global_configuration || @global_configuration,
           strategies: @pagination_strategy_list,
           request_builder: request_builder || @request_builder,
           execute_response: @execute_response
