@@ -15,7 +15,9 @@ module CoreLibrary
       @paginated_items_converter = paginated_items_converter
       @initial_request_builder = api_call.request_builder
       @pagination_strategies = @api_call.pagination_strategy_list
-      @http_call_context = get_http_callback
+      @http_call_context = HttpCallContext.new(
+        @api_call.global_configuration.client_configuration.http_callback
+      )
       http_client_config = @api_call.global_configuration.client_configuration.clone_with(
         http_callback: @http_call_context
       )
@@ -130,18 +132,6 @@ module CoreLibrary
       @pagination_strategies.find do |pagination_strategy|
         pagination_strategy.applicable?(last_response)
       end
-    end
-
-    # Retrieves the HTTP callback from the API call's client configuration.
-    #
-    # If a callback is defined and responds to the `:response` method, it is returned.
-    # Otherwise, a new instance of `HttpCallContext` is returned as a fallback.
-    #
-    # @return [Object] The HTTP callback or a default `HttpCallContext` instance.
-    def get_http_callback
-      callback = @api_call.global_configuration.client_configuration.http_callback
-
-      callback.respond_to?(:response) ? callback : HttpCallContext.new
     end
   end
 end
