@@ -15,8 +15,7 @@ module CoreLibrary
       @paginated_items_converter = paginated_items_converter
       @initial_request_builder = api_call.request_builder
       @pagination_strategies = @api_call.pagination_strategy_list
-      @http_call_context =
-        @api_call.global_configuration.client_configuration.http_callback || HttpCallContext.new
+      @http_call_context = get_http_callback
       http_client_config = @api_call.global_configuration.client_configuration.clone_with(
         http_callback: @http_call_context
       )
@@ -26,10 +25,7 @@ module CoreLibrary
 
       @last_request_builder = nil
       @locked_strategy = nil
-      @paged_response = nil
-      @items = []
       @page_size = 0
-      @current_index = 0
     end
 
     # Returns the most recent HTTP response received during pagination.
@@ -47,22 +43,22 @@ module CoreLibrary
       return enum_for(:each) unless block_given?
 
       paginated_data = clone
+      current_index = 0
+      items = []
 
       loop do
-        if paginated_data.current_index < paginated_data.page_size
-          yield paginated_data.items[paginated_data.current_index]
-          paginated_data.current_index += 1
+        if current_index < paginated_data.page_size
+          yield items[current_index]
+          current_index += 1
         else
           response = paginated_data.fetch_next_page
           break if response.nil?
 
-          paginated_data.paged_response = response
           items = @paginated_items_converter.call(response.data)
           break if items.nil? || items.empty?
 
-          paginated_data.items = items
           paginated_data.page_size = items.length
-          paginated_data.current_index = 0
+          current_index = 0
         end
       end
     end
@@ -76,11 +72,9 @@ module CoreLibrary
           response = paginated_data.fetch_next_page
           break if response.nil?
 
-          paginated_data.paged_response = response
           items = @paginated_items_converter.call(response.data)
           break if items.nil? || items.empty?
 
-          paginated_data.items = items
           paginated_data.page_size = items.length
 
           page << response
@@ -136,6 +130,18 @@ module CoreLibrary
       @pagination_strategies.find do |pagination_strategy|
         pagination_strategy.applicable?(last_response)
       end
+    end
+
+    # Retrieves the HTTP callback from the API call's client configuration.
+    #
+    # If a callback is defined and responds to the `:response` method, it is returned.
+    # Otherwise, a new instance of `HttpCallContext` is returned as a fallback.
+    #
+    # @return [Object] The HTTP callback or a default `HttpCallContext` instance.
+    def get_http_callback
+      callback = @api_call.global_configuration.client_configuration.http_callback
+
+      callback.respond_to?(:response) ? callback : HttpCallContext.new
     end
   end
 end
