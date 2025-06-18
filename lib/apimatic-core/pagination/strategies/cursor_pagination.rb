@@ -46,10 +46,13 @@ module CoreLibrary
     def apply(paginated_data)
       last_response = paginated_data.last_response
       request_builder = paginated_data.request_builder
-      @cursor_value = request_builder.get_parameter_value_by_json_pointer(@input).to_s
 
       # If there is no response yet, this is the first page
-      return request_builder if last_response.nil?
+      if last_response.nil?
+        @cursor_value = request_builder.get_parameter_value_by_json_pointer(@input).to_s
+
+        return request_builder
+      end
 
       @cursor_value = last_response.get_value_by_json_pointer(@output)
 
