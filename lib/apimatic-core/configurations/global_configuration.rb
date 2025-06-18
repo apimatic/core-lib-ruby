@@ -147,7 +147,7 @@ module CoreLibrary
       clone.global_headers(DeepCloneUtils.deep_copy(@global_headers))
       clone.additional_headers(DeepCloneUtils.deep_copy(@additional_headers))
       clone.auth_managers(DeepCloneUtils.deep_copy(@auth_managers))
-      clone.base_uri_executor(@base_uri_executor)
+      clone.base_uri_executor(DeepCloneUtils.deep_copy(@base_uri_executor))
       clone.symbolize_hash(@symbolize_hash)
 
       clone

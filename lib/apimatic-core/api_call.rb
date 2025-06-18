@@ -123,12 +123,22 @@ module CoreLibrary
 
       clone.request(request_builder || @request_builder.clone_with)
       clone.response(@response_handler)
-      @endpoint_context.each do |key, value|
-        clone.endpoint_context(key, value)
-      end
+      clone.set_endpoint_context(DeepCloneUtils.deep_copy(@endpoint_context))
       clone.pagination_strategies(*pagination_strategy_list) if pagination_strategy_list
 
       clone
+    end
+
+    protected
+
+    # Sets the entire endpoint context hash to be used in building the API request.
+    #
+    # This replaces any previously set context values with the provided hash.
+    # It is typically used when cloning `ApiCall` instance.
+    #
+    # @param [Hash{String=>Object}] endpoint_context The full endpoint context to assign.
+    def set_endpoint_context(endpoint_context)
+      @endpoint_context = endpoint_context
     end
   end
 end

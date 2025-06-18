@@ -47,7 +47,7 @@ module CoreLibrary
     def clone_with(http_callback: nil)
       HttpClientConfiguration.new(
         connection: DeepCloneUtils.deep_copy(@connection),
-        adapter: @adapter,
+        adapter: DeepCloneUtils.deep_copy(@adapter),
         timeout: @timeout,
         max_retries: @max_retries,
         retry_interval: @retry_interval,
