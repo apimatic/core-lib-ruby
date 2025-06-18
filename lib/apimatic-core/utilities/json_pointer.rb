@@ -185,6 +185,9 @@ module CoreLibrary
           when Hash
             target[fragment_to_key(target_fragment)] = new_value
           when Array
+            # NOTE: Using `Array#insert(index, value)` here shifts existing elements to the right
+            # instead of replacing the value at the index. If the index is out of bounds,
+            # it fills the gap with `nil`.
             target.insert(fragment_to_index(target_fragment), new_value)
           else
             nil
