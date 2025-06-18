@@ -3,6 +3,12 @@ module CoreLibrary
   class ApiCall
     attr_reader :request_builder, :pagination_strategy_list, :global_configuration
 
+    # Creates a new builder instance of the API call with pre-configured global and logging configurations.
+    # @return [ApiCall] The instance of ApiCall object.
+    def new_builder
+      ApiCall.new(@global_configuration)
+    end
+    
     # Initializes a new instance of ApiCall.
     # @param [GlobalConfiguration] global_configuration An instance of GlobalConfiguration.
     def initialize(global_configuration)
