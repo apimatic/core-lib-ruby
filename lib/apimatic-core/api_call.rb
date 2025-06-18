@@ -8,7 +8,7 @@ module CoreLibrary
     def new_builder
       ApiCall.new(@global_configuration)
     end
-    
+
     # Initializes a new instance of ApiCall.
     # @param [GlobalConfiguration] global_configuration An instance of GlobalConfiguration.
     def initialize(global_configuration)
