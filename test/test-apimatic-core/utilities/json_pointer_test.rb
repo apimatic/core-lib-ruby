@@ -106,18 +106,4 @@ class JsonPointerTest < Minitest::Test
     JsonPointer.new(hash, '/a/~/b').delete
     assert_equal [{}, {}], hash['a']
   end
-
-  private
-
-  def assert_pointer_exists(pointer)
-    assert_equal true, pointer.exists?
-  end
-
-  def assert_pointer_not_exists(pointer)
-    assert_equal false, pointer.exists?
-  end
-
-  def assert_pointer_value(pointer, expected_value)
-    assert_equal expected_value, pointer.value
-  end
 end
