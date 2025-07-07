@@ -31,6 +31,9 @@ Lint/UnderscorePrefixedVariableName:
 Lint/MissingSuper:
   Enabled: false
 
+Lint/RedundantCopDisableDirective:
+  Enabled: false
+
 Naming/AccessorMethodName:
   Enabled: false
 
@@ -56,6 +59,9 @@ Style/NumericPredicate:
   Enabled: false
 
 Style/MultilineTernaryOperator:
+  Enabled: false
+
+Style/EmptyElse:
   Enabled: false
 
 AllCops:

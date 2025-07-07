@@ -136,5 +136,21 @@ module CoreLibrary
       end
       @global_headers['user-agent'] = user_agent unless user_agent.nil?
     end
+
+    def clone_with(client_configuration: nil)
+      clone = GlobalConfiguration.new(
+        client_configuration: client_configuration || DeepCloneUtils.deep_copy(@client_configuration)
+      )
+
+      # Copy internal state
+      clone.global_errors(DeepCloneUtils.deep_copy(@global_errors))
+      clone.global_headers(DeepCloneUtils.deep_copy(@global_headers))
+      clone.additional_headers(DeepCloneUtils.deep_copy(@additional_headers))
+      clone.auth_managers(DeepCloneUtils.deep_copy(@auth_managers))
+      clone.base_uri_executor(DeepCloneUtils.deep_copy(@base_uri_executor))
+      clone.symbolize_hash(@symbolize_hash)
+
+      clone
+    end
   end
 end

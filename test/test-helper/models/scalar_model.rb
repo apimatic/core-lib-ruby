@@ -4,19 +4,19 @@ module TestComponent
     SKIP = Object.new
     private_constant :SKIP
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [TrueClass | FalseClass]
     attr_accessor :any_of_required
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Object]
     attr_accessor :one_of_req_nullable
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Object]
     attr_accessor :one_of_optional
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Object]
     attr_accessor :any_of_opt_nullable
 

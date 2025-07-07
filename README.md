@@ -62,22 +62,32 @@ gem 'apimatic_core'
 | [`HttpResponseFactory`](lib/apimatic-core/factories/http_response_factory.rb) | Factory class to create an HTTP Response |
 
 ## HTTP
-| Name                                                                                            | Description                                              |
-|-------------------------------------------------------------------------------------------------|----------------------------------------------------------|
-| [`HttpClientConfiguration`](lib/apimatic-core/http/configurations/http_client_configuration.rb) | Class used for configuring SDK by a user                 |
-| [`HttpRequest`](lib/apimatic-core/http/request/http_request.rb)                                 | Class which contains information about the HTTP Request  |
-| [`ApiResponse`](lib/apimatic-core/http/response/api_response.rb)                                | Wrapper class for Api Response                           |
-| [`HttpResponse`](lib/apimatic-core/http/response/http_response.rb)                              | Class which contains information about the HTTP Response |
+| Name                                                                                            | Description                                                                                                                                                      |
+|-------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`HttpClientConfiguration`](lib/apimatic-core/http/configurations/http_client_configuration.rb) | Class used for configuring SDK by a user                                                                                                                         |
+| [`HttpRequest`](lib/apimatic-core/http/request/http_request.rb)                                 | Class which contains information about the HTTP Request                                                                                                          |
+| [`ApiResponse`](lib/apimatic-core/http/response/api_response.rb)                                | Wrapper class for Api Response                                                                                                                                   |
+| [`HttpResponse`](lib/apimatic-core/http/response/http_response.rb)                              | Class which contains information about the HTTP Response                                                                                                         |
+| [`HttpCallContext`](lib/apimatic-core/http/http_call_context.rb)                                | This class captures the HTTP request and response lifecycle during an API call and is used with clients or controllers that support pre- and post-request hooks. |
 
 ## Logger
-| Name                                                              | Description                                |
-|-------------------------------------------------------------------|--------------------------------------------|
-| [`SdkLogger`](lib/apimatic-core/logger/sdk_logger.rb)   | A class responsible for logging request and response of an api call|
-| [`NilSdkLogger`](lib/apimatic-core/logger/nil_sdk_logger.rb)   | A class responsible for no logging|
-| [`ConsoleLogger`](lib/apimatic-core/logger/default_logger.rb)   | Represents default implementation of logger interface|
-| [`ApiLoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb)   | Represents logging configuration|
-| [`ApiRequestLoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb)   | Represents request logging configuration.|
-| [`ApiResponseLoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb)   | Represents response logging configuration.|
+| Name                                                                                       | Description                                                         |
+|--------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| [`SdkLogger`](lib/apimatic-core/logger/sdk_logger.rb)                                      | A class responsible for logging request and response of an api call |
+| [`NilSdkLogger`](lib/apimatic-core/logger/nil_sdk_logger.rb)                               | A class responsible for no logging                                  |
+| [`ConsoleLogger`](lib/apimatic-core/logger/default_logger.rb)                              | Represents default implementation of logger interface               |
+| [`ApiLoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb)         | Represents logging configuration                                    |
+| [`ApiRequestLoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb)  | Represents request logging configuration.                           |
+| [`ApiResponseLoggingConfiguration`](lib/apimatic-core/logger/api_logging_configuration.rb) | Represents response logging configuration.                          |
+
+## Pagination
+| Name                                                                               | Description                                                                                                                                      |
+|------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`CursorPagination`](lib/apimatic-core/pagination/strategies/cursor_pagination.rb) | Cursor-based pagination strategy that handles extraction and injection of cursor values for seamless traversal across paged API responses.       |
+| [`LinkPagination`](lib/apimatic-core/pagination/strategies/link_pagination.rb)     | Extracts the next page link from API responses via a JSON pointer and updates the request builder with corresponding query parameters.           |
+| [`OffsetPagination`](lib/apimatic-core/pagination/strategies/offset_pagination.rb) | Offset-based pagination using a configurable JSON pointer to update and track offset values in the request builder across responses.             |
+| [`PagePagination`](lib/apimatic-core/pagination/strategies/page_pagination.rb)     | Page-based pagination strategy that updates the request builder with page numbers using a JSON pointer and wraps each response with metadata.    |
+| [`PaginatedData`](lib/apimatic-core/pagination/paginated_data.rb)                  | Iterator for paginated API responses supporting multiple strategies, item/page iteration, and access to the latest response and request builder. |
 
 ## Types
 | Name                                                                            | Description                                                                   |
@@ -94,14 +104,19 @@ gem 'apimatic_core'
 | [`XmlAttributes`](lib/apimatic-core/types/xml_attributes.rb)                    | A class to represent information about an XML Parameter passed in an endpoint |
 
 ## Utilities
-| Name                                                                   | Description                                                                           |
-|------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| [`ApiHelper`](lib/apimatic-core/utilities/api_helper.rb)               | A Helper Class with various functions associated with making an API Call              |
-| [`AuthHelper`](lib/apimatic-core/utilities/auth_helper.rb)             | A Helper Class with various functions associated with authentication in API Calls     |
-| [`UnionTypeHelper`](lib/apimatic-core/utilities/union_type_helper.rb)  | A Helper Class with various functions associated with Union type in API Calls         |
-| [`ComparisonHelper`](lib/apimatic-core/utilities/comparison_helper.rb) | A Helper Class used for the comparison of expected and actual API response            |
-| [`FileHelper`](lib/apimatic-core/utilities/file_helper.rb)             | A Helper Class for files                                                              |
-| [`XmlHelper`](lib/apimatic-core/utilities/xml_helper.rb )              | A Helper class that holds utility methods for xml serialization and deserialization.  |
+| Name                                                                       | Description                                                                                                            |
+|----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| [`ApiHelper`](lib/apimatic-core/utilities/api_helper.rb)                   | A Helper Class with various functions associated with making an API Call                                               |
+| [`AuthHelper`](lib/apimatic-core/utilities/auth_helper.rb)                 | A Helper Class with various functions associated with authentication in API Calls                                      |
+| [`UnionTypeHelper`](lib/apimatic-core/utilities/union_type_helper.rb)      | A Helper Class with various functions associated with Union type in API Calls                                          |
+| [`ComparisonHelper`](lib/apimatic-core/utilities/comparison_helper.rb)     | A Helper Class used for the comparison of expected and actual API response                                             |
+| [`FileHelper`](lib/apimatic-core/utilities/file_helper.rb)                 | A Helper Class for files                                                                                               |
+| [`XmlHelper`](lib/apimatic-core/utilities/xml_helper.rb )                  | A Helper class that holds utility methods for xml serialization and deserialization.                                   |
+| [`DateTimeHelper`](lib/apimatic-core/utilities/date_time_helper.rb )       | Utility methods for date-time format conversions.                                                                      |
+| [`DeepCloneUtils`](lib/apimatic-core/utilities/deep_clone_utils.rb )       | Utility methods for deep cloning arrays, hashes, and objects.                                                          |
+| [`JsonPointerHelper`](lib/apimatic-core/utilities/json_pointer_helper.rb ) | Utility methods for getting and setting JSON pointer values in hashes.                                                 |
+| [`JsonPointer`](lib/apimatic-core/utilities/json_pointer.rb )              | Enables querying, updating, and deleting values in nested Ruby Hashes and Arrays using JSON Pointer syntax (RFC 6901). |
+| [`LoggerHelper`](lib/apimatic-core/utilities/logger_helper.rb )            | Utility methods for logging.                                                                                           |
 
 ## Links
 * [apimatic_core_interfaces](https://rubygems.org/gems/apimatic_core_interfaces)

@@ -9,11 +9,11 @@ require_relative 'employee'
 module TestComponent
   # Testing circular reference.
   class Boss < Employee
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [DateTime]
     attr_accessor :promoted_at
 
-    # TODO: Write general description for this method
+    # Represents a model field
     # @return [Employee]
     attr_accessor :assistant
 

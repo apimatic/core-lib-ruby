@@ -784,4 +784,53 @@ class ApiHelperTest < Minitest::Test
       assert_equal test_case[:expected], result
     end
   end
+
+  def test_valid_query_with_multiple_values
+    url = "https://example.com?a=1&b=2&b=3"
+    result = ApiHelper.get_query_parameters(url)
+    assert_equal({ "a" => "1", "b" => ["2", "3"] }, result)
+  end
+
+  def test_query_with_single_value
+    url = "https://example.com?a=hello"
+    result = ApiHelper.get_query_parameters(url)
+    assert_equal({ "a" => "hello" }, result)
+  end
+
+  def test_key_with_no_value
+    url = "https://example.com?flag"
+    result = ApiHelper.get_query_parameters(url)
+    assert_equal({ "flag" => "" }, result)
+  end
+
+  def test_nil_url
+    assert_equal({}, ApiHelper.get_query_parameters(nil))
+  end
+
+  def test_empty_url
+    assert_equal({}, ApiHelper.get_query_parameters(""))
+  end
+
+  def test_url_with_no_query
+    url = "https://example.com"
+    assert_equal({}, ApiHelper.get_query_parameters(url))
+  end
+
+  def test_invalid_uri
+    url = "https://exa mple.com?a=1"
+    result = ApiHelper.get_query_parameters(url)
+    assert_equal({}, result) # should fall into URI::InvalidURIError
+  end
+
+  def test_unexpected_exception
+    # Temporarily stub URI.parse to raise a generic exception
+    original_method = URI.method(:parse)
+    URI.singleton_class.define_method(:parse) { |_url| raise "Boom" }
+
+    result = ApiHelper.get_query_parameters("https://example.com?a=1")
+    assert_equal({}, result)
+
+    # Restore original method to avoid side effects
+    URI.singleton_class.define_method(:parse, original_method)
+  end
 end
