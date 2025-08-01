@@ -3,7 +3,9 @@
 [![Gem Version](https://badge.fury.io/rb/apimatic_core.svg)](https://badge.fury.io/rb/apimatic_core)
 [![Tests][test-badge]][test-url]
 [![Linting][lint-badge]][lint-url]
-[![Test Coverage][test-coverage-url]][code-climate-url]
+[![Test Coverage][coverage-badge]][coverage-url]
+[![Maintainability Rating][maintainability-badge]][maintainability-url]
+[![Vulnerabilities][vulnerabilities-badge]][vulnerabilities-url]
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
 [![Licence][license-badge]][license-url]
 
@@ -125,8 +127,11 @@ gem 'apimatic_core'
 [test-url]: https://github.com/apimatic/core-lib-ruby/actions/workflows/test-runner.yml
 [lint-badge]: https://github.com/apimatic/core-lib-ruby/actions/workflows/lint-runner.yml/badge.svg
 [lint-url]: https://github.com/apimatic/core-lib-ruby/actions/workflows/lint-runner.yml
-[code-climate-url]: https://codeclimate.com/github/apimatic/core-lib-ruby
-[maintainability-url]: https://api.codeclimate.com/v1/badges/85d658cd4e879f057e7d/maintainability
-[test-coverage-url]: https://api.codeclimate.com/v1/badges/85d658cd4e879f057e7d/test_coverage
+[coverage-badge]: https://sonarcloud.io/api/project_badges/measure?project=apimatic_core-lib-ruby&metric=coverage
+[coverage-url]: https://sonarcloud.io/summary/new_code?id=apimatic_core-lib-ruby
+[maintainability-badge]: https://sonarcloud.io/api/project_badges/measure?project=apimatic_core-lib-ruby&metric=sqale_rating
+[maintainability-url]: https://sonarcloud.io/summary/new_code?id=apimatic_core-lib-ruby
+[vulnerabilities-badge]: https://sonarcloud.io/api/project_badges/measure?project=apimatic_core-lib-ruby&metric=vulnerabilities
+[vulnerabilities-url]: https://sonarcloud.io/summary/new_code?id=apimatic_core-lib-ruby
 [license-badge]: https://img.shields.io/badge/licence-MIT-blue
 [license-url]: LICENSE
