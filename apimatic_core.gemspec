@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'apimatic_core'
-  s.version = '0.3.17'
+  s.version = '0.3.18'
   s.summary = 'A library that contains apimatic-apimatic-core logic and utilities for consuming REST APIs using Python SDKs generated '\
               'by APIMatic.'
   s.description = 'The APIMatic Core libraries provide a stable runtime that powers all the functionality of SDKs.'\
