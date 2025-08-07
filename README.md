@@ -14,7 +14,7 @@ Core library ruby does the job of congregating common and core functionality fro
 
 
 ## Installation
-You will need `2.6 <= Ruby version <= 3.3` to support this package.
+You will need `2.6 <= Ruby version <= 3.4` to support this package.
 
 Installation is quite simple, just execute the following command:
 ```

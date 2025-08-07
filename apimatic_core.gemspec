@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'apimatic_core'
-  s.version = '0.3.17'
+  s.version = '0.3.18'
   s.summary = 'A library that contains apimatic-apimatic-core logic and utilities for consuming REST APIs using Python SDKs generated '\
               'by APIMatic.'
   s.description = 'The APIMatic Core libraries provide a stable runtime that powers all the functionality of SDKs.'\
@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency('nokogiri', '~> 1.13', '>=1.13.10')
   s.add_dependency('certifi', '~> 2018.1', '>= 2018.01.18')
   s.add_dependency('faraday-multipart', '~> 1.0')
+  s.add_dependency('base64', '~> 0.3.0') if RUBY_VERSION >= '3.4.0'
   s.add_development_dependency('faraday', '~> 2.8', '>= 2.8.1')
   s.add_development_dependency('minitest', '~> 5.25', '>= 5.25.4')
   s.add_development_dependency('minitest-proveit', '~> 1.0')
