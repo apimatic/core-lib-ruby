@@ -73,7 +73,8 @@ module CoreLibrary
     # Deserializer to use when the type of response is not known beforehand.
     # @param response The response received.
     def self.dynamic_deserializer(response, should_symbolize)
-      json_deserialize(response, should_symbolize) unless response.nil? || response.to_s.strip.empty?
+      json_deserialize(response, should_symbolize) unless response.nil? ||
+        response.to_s.strip.empty? || !deserializable_json?(response)
     end
 
     # Deserializes response to a known custom model type.
@@ -300,6 +301,20 @@ module CoreLibrary
         raise TypeError, 'Server responded with invalid JSON.' unless allow_primitive_type_parsing
 
         ApiHelper.apply_primitive_type_parser(json)
+      end
+    end
+
+    # Checks whether the content is deserializable JSON.
+    # @param [String] json A JSON string.
+    # @return [Boolean] True if the content can be deserialized, false otherwise.
+    def self.deserializable_json?(json)
+      return false if json.nil? || json.to_s.strip.empty?
+
+      begin
+        JSON.parse(json)
+        true
+      rescue JSON::ParserError
+        false
       end
     end
 
