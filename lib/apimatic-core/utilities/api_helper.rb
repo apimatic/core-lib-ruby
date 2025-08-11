@@ -72,6 +72,7 @@ module CoreLibrary
 
     # Deserializer to use when the type of response is not known beforehand.
     # @param response The response received.
+    # @return [Hash, Array, nil] The deserialized response.
     def self.dynamic_deserializer(response, should_symbolize)
       return unless deserializable_json?(response)
 
