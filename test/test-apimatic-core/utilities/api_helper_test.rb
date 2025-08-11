@@ -833,4 +833,32 @@ class ApiHelperTest < Minitest::Test
     # Restore original method to avoid side effects
     URI.singleton_class.define_method(:parse, original_method)
   end
+
+  def test_deserializable_json
+    valid_cases = {
+      'valid JSON object' => '{"key": "value"}',
+      'valid JSON array' => '[1, 2, 3]',
+      'valid JSON string' => '"hello world"',
+      'valid JSON number' => '42',
+      'valid JSON boolean true' => 'true',
+      'valid JSON boolean false' => 'false',
+      'valid JSON null' => 'null'
+    }
+
+    invalid_cases = {
+      'invalid JSON - unquoted value' => '{"key": value}',
+      'invalid JSON - trailing comma' => '{"key": "value",}',
+      'empty string' => '',
+      'nil input' => nil,
+      'whitespace only' => '   '
+    }
+
+    valid_cases.each do |desc, input|
+      assert ApiHelper.deserializable_json?(input), "Expected valid JSON for: #{desc}"
+    end
+
+    invalid_cases.each do |desc, input|
+      refute ApiHelper.deserializable_json?(input), "Expected invalid JSON for: #{desc}"
+    end
+  end
 end
