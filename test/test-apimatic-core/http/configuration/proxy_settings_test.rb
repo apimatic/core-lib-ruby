@@ -18,20 +18,20 @@ class ProxySettingsTest < Minitest::Test
         user: 'user',
         password: 'pass'
       },
-      proxy.to_hash
+      proxy.to_h
     )
   end
 
   def test_to_hash_excludes_username_and_password_when_nil
     proxy = ProxySettings.new(address: 'http://localhost', port: 8080)
 
-    assert_equal({ uri: 'http://localhost:8080' }, proxy.to_hash)
+    assert_equal({ uri: 'http://localhost:8080' }, proxy.to_h)
   end
 
   def test_to_hash_excludes_port_when_nil
     proxy = ProxySettings.new(address: 'http://localhost')
 
-    assert_equal({ uri: 'http://localhost' }, proxy.to_hash)
+    assert_equal({ uri: 'http://localhost' }, proxy.to_h)
   end
 
   def test_initialize_raises_for_empty_address

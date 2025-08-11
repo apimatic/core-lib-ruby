@@ -28,7 +28,7 @@ module CoreLibrary
     #
     # @return [Hash] A hash with keys :uri, :user, and :password (as applicable).
     #
-    def to_hash
+    def to_h
       uri_str = port ? "#{address}:#{port}" : address
 
       {
