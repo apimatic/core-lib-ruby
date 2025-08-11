@@ -22,23 +22,22 @@ class ProxySettingsTest < Minitest::Test
     )
   end
 
-  def test_to_hash_excludes_optional_fields_when_nil
+  def test_to_hash_excludes_username_and_password_when_nil
     proxy = ProxySettings.new(address: 'http://localhost', port: 8080)
 
     assert_equal({ uri: 'http://localhost:8080' }, proxy.to_hash)
   end
 
-  def test_initialize_raises_for_empty_address
-    error = assert_raises(ArgumentError) do
-      ProxySettings.new(address: '', port: 8080)
-    end
-    assert_match(/address must be a non-empty string/, error.message)
+  def test_to_hash_excludes_port_when_nil
+    proxy = ProxySettings.new(address: 'http://localhost')
+
+    assert_equal({ uri: 'http://localhost' }, proxy.to_hash)
   end
 
-  def test_initialize_raises_for_non_positive_port
+  def test_initialize_raises_for_empty_address
     error = assert_raises(ArgumentError) do
-      ProxySettings.new(address: 'http://localhost', port: 0)
+      ProxySettings.new(address: '')
     end
-    assert_match(/port must be a positive integer/, error.message)
+    assert_match(/address must be a non-empty string/, error.message)
   end
 end

@@ -8,15 +8,14 @@ module CoreLibrary
 
     ##
     # @param address [String] The proxy server address (e.g., 'http://localhost').
-    # @param port [Integer] The proxy server port (e.g., 8080).
+    # @param port [Integer, nil] Optional proxy server port (e.g., 8080).
     # @param username [String, nil] Optional proxy auth username.
     # @param password [String, nil] Optional proxy auth password.
     #
-    # @raise [ArgumentError] If address or port is invalid.
+    # @raise [ArgumentError] If address is invalid.
     #
-    def initialize(address:, port:, username: nil, password: nil)
+    def initialize(address:, port: nil, username: nil, password: nil)
       raise ArgumentError, 'Proxy address must be a non-empty string' unless address.is_a?(String) && !address.empty?
-      raise ArgumentError, 'Proxy port must be a positive integer' unless port.is_a?(Integer) && port.positive?
 
       @address = address
       @port = port
@@ -30,8 +29,10 @@ module CoreLibrary
     # @return [Hash] A hash with keys :uri, :user, and :password (as applicable).
     #
     def to_hash
+      uri_str = port ? "#{address}:#{port}" : address
+
       {
-        uri: "#{address}:#{port}"
+        uri: uri_str
       }.tap do |hash|
         hash[:user] = username if username
         hash[:password] = password if password
