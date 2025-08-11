@@ -73,8 +73,9 @@ module CoreLibrary
     # Deserializer to use when the type of response is not known beforehand.
     # @param response The response received.
     def self.dynamic_deserializer(response, should_symbolize)
-      json_deserialize(response, should_symbolize) unless
-        response.nil? || response.to_s.strip.empty? || !deserializable_json?(response)
+      return unless deserializable_json?(response)
+
+      json_deserialize(response, should_symbolize)
     end
 
     # Deserializes response to a known custom model type.
