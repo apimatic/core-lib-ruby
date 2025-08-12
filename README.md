@@ -45,7 +45,7 @@ gem 'apimatic_core'
 | [`Single`](lib/apimatic-core/authentication/multiple/single_auth.rb)   | Helper class to support single authentication                               |
 
 
-## Configurations
+## Global Configuration
 | Name                                                                                           | Description                                                                     |
 |------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
 | [`GlobalConfiguration`](lib/apimatic-core/configurations/global_configuration.rb )             | Class holding the global configuration properties to make a successful API Call |
@@ -63,10 +63,15 @@ gem 'apimatic_core'
 |-------------------------------------------------------------------------------|------------------------------------------|
 | [`HttpResponseFactory`](lib/apimatic-core/factories/http_response_factory.rb) | Factory class to create an HTTP Response |
 
+## HTTP Configuration
+| Name                                                                                            | Description                                                                                                           |
+|-------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| [`HttpClientConfiguration`](lib/apimatic-core/http/configurations/http_client_configuration.rb) | Class used for configuring SDK by a user                                                                              |
+| [`ProxySettings`](lib/apimatic-core/http/configurations/proxy_settings.rb)                      | ProxySettings encapsulates HTTP proxy configuration for Faraday, e.g. address, port and optional basic authentication |
+
 ## HTTP
 | Name                                                                                            | Description                                                                                                                                                      |
 |-------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`HttpClientConfiguration`](lib/apimatic-core/http/configurations/http_client_configuration.rb) | Class used for configuring SDK by a user                                                                                                                         |
 | [`HttpRequest`](lib/apimatic-core/http/request/http_request.rb)                                 | Class which contains information about the HTTP Request                                                                                                          |
 | [`ApiResponse`](lib/apimatic-core/http/response/api_response.rb)                                | Wrapper class for Api Response                                                                                                                                   |
 | [`HttpResponse`](lib/apimatic-core/http/response/http_response.rb)                              | Class which contains information about the HTTP Response                                                                                                         |

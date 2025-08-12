@@ -30,6 +30,7 @@ require_relative 'apimatic-core/pagination/strategies/offset_pagination'
 require_relative 'apimatic-core/pagination/strategies/page_pagination'
 
 require_relative 'apimatic-core/http/configurations/http_client_configuration'
+require_relative 'apimatic-core/http/configurations/proxy_settings'
 require_relative 'apimatic-core/http/request/http_request'
 require_relative 'apimatic-core/http/response/http_response'
 require_relative 'apimatic-core/http/response/api_response'
