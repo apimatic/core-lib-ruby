@@ -53,8 +53,8 @@ module CoreLibrary
       logging_configuration: nil
     )
       @response_factory = T.let(HttpResponseFactory.new, HttpResponseFactory)
-      @connection = T.let(connection, T.untyped)
-      @adapter = T.let(adapter, Symbol)
+      @connection = T.let(connection, T.nilable(Faraday::Connection))
+      @adapter = T.let(adapter, Faraday::Adapter)
       @retry_interval = T.let(retry_interval, Integer)
       @http_callback = T.let(http_callback, T.nilable(T.proc.void))
       @timeout = T.let(timeout, Integer)
