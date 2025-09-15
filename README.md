@@ -52,12 +52,12 @@ gem 'apimatic_core'
 
 
 ## Exceptions
-| Name                                                                                      | Description                                                                                              |
-|-------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| Name                                                                                     | Description                                                                                              |
+|------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
 | [`OneOfValidationException`](lib/apimatic-core/exceptions/one_of_validation_exception.rb) | An exception class for the failed validation of oneOf (union-type) cases                                 |
 | [`AnyOfValidationException`](lib/apimatic-core/exceptions/any_of_validation_exception.rb) | An exception class for the failed validation of anyOf (union-type) cases                                 |
-| [`AuthValidationException`](lib/apimatic-core/exceptions/auth_validation_exception.rb)    | An exception class for the failed validation of authentication schemes                                   |
-| [`SignatureVerificationException`](lib/apimatic-core/exceptions/auth_validation_exception.rb)    | An exception class for the failed validation of HMAC or Custom signature (missing or invalid signature). |
+| [`AuthValidationException`](lib/apimatic-core/exceptions/auth_validation_exception.rb)   | An exception class for the failed validation of authentication schemes                                   |
+| [`SignatureVerificationException`](lib/apimatic-core/exceptions/signature_verification_exception.rb)    | An exception class for the failed validation of HMAC or Custom signature (missing or invalid signature). |
 
 ## Factories
 | Name                                                                          | Description                              |
@@ -77,7 +77,7 @@ gem 'apimatic_core'
 | [`ApiResponse`](lib/apimatic-core/http/response/api_response.rb)   | Wrapper class for Api Response                                                                                                                                   |
 | [`HttpResponse`](lib/apimatic-core/http/response/http_response.rb) | Class which contains information about the HTTP Response                                                                                                         |
 | [`HttpCallContext`](lib/apimatic-core/http/http_call_context.rb)   | This class captures the HTTP request and response lifecycle during an API call and is used with clients or controllers that support pre- and post-request hooks. |
-| [`BasicRequest`](lib/apimatic-core/http/request/http_request.rb)   | Immutable snapshot of an HTTP request, capturing method, path, url, headers, raw body, query parameters, form data, and cookies.                                                                                                          |
+| [`BasicRequest`](lib/apimatic-core/http/request/basic_request.rb)  | Immutable snapshot of an HTTP request, capturing method, path, url, headers, raw body, query parameters, form data, and cookies.                                                                                                          |
 ## Logger
 | Name                                                                                       | Description                                                         |
 |--------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
@@ -127,18 +127,18 @@ gem 'apimatic_core'
 | [`LoggerHelper`](lib/apimatic-core/utilities/logger_helper.rb )            | Utility methods for logging.                                                                                           |
 
 ## Signature Verification
-| Name                                                                                      | Description                                                                           |
-|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| [`HmacSignatureVerifier`](lib/apimatic-core/exceptions/one_of_validation_exception.rb) | Verifies HMAC signatures using configurable templates, hash algorithms, and encoders. |
-| [`HexEncoder`](lib/apimatic-core/exceptions/any_of_validation_exception.rb) | Encodes digest as lowercase hex.                                                      |
-| [`Base64Encoder`](lib/apimatic-core/exceptions/auth_validation_exception.rb)    | Encodes digest as Base64.                                                             |
-| [`Base64UrlEncoder`](lib/apimatic-core/exceptions/auth_validation_exception.rb)    | Encodes digest as URL-safe Base64 without padding.                                    |
+| Name                                                                                                    | Description                                                                           |
+|---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`HmacSignatureVerifier`](lib/apimatic-core/security/signature_verification/hmac_signature_verifier.rb) | Verifies HMAC signatures using configurable templates, hash algorithms, and encoders. |
+| [`HexEncoder`](lib/apimatic-core/security/signature_verification/hmac_signature_verifier.rb)            | Encodes digest as lowercase hex.                                                      |
+| [`Base64Encoder`](lib/apimatic-core/security/signature_verification/hmac_signature_verifier.rb)         | Encodes digest as Base64.                                                             |
+| [`Base64UrlEncoder`](lib/apimatic-core/security/signature_verification/hmac_signature_verifier.rb)                         | Encodes digest as URL-safe Base64 without padding.                                    |
 
 This layer enables secure handling of webhooks, callbacks, and API integrations that rely on HMAC or other signing strategies.
 
 | Name                                                                                      | Description                                                                           |
 |-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| [`to_unified_request`](lib/apimatic-core/exceptions/one_of_validation_exception.rb) | Adapter that converts Rails, Rack, or Hanami requests into a framework-agnostic `BasicRequest` snapshot (method, path, url, headers, body, query, form, cookies). |
+| [`to_unified_request`](lib/apimatic-core/adapters/request_adapter.rb) | Adapter that converts Rails, Rack, or Hanami requests into a framework-agnostic `BasicRequest` snapshot (method, path, url, headers, body, query, form, cookies). |
 ## Links
 * [apimatic_core_interfaces](https://rubygems.org/gems/apimatic_core_interfaces)
 

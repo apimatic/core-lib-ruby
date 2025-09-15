@@ -3,7 +3,7 @@ module CoreLibrary
   class SignatureVerificationException < StandardError
     attr_reader :message
 
-    # Initializes a new instance of SignatureVerificationError with the specified message.
+    # Initializes a new instance of SignatureVerificationException with the specified message.
     # @param [String] message The error message.
     def initialize(message)
       @message = message
