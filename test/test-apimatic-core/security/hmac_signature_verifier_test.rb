@@ -1,23 +1,25 @@
 require 'minitest/autorun'
 require 'apimatic_core'
 require_relative '../../test-helper/security/signature_test_helper'
-require_relative '../../test-helper/webhooks/webhook_request'
+require_relative '../../test-helper/security/rack_request_mock'
 
 class HmacSignatureVerifierTest < Minitest::Test
-  include CoreLibrary
-  include TestComponent
+  include CoreLibrary, TestComponent
 
   def setup
-    @req_base = WebhookRequest.new(
+    # Simulating a JSON POST request with headers + body
+    @req_base = Rack::Request.new(
       method: "POST",
       path: "/events",
       url: "https://example.test/events",
-      headers: { "X-Timestamp" => "111", "X-Meta" => "ABC", "Content-Type" => "application/json" },
-      raw_body: '{"event":{"id":"evt_1"},"payload":{"checksum":"abc"}}',
-      query: {},
-      cookies: {},
-      form: {}
+      headers: {
+        "Content-Type" => "application/json",
+        "X-Timestamp"  => "111",
+        "X-Meta"       => "ABC"
+      },
+      body: '{"event":{"id":"evt_1"},"payload":{"checksum":"abc"}}'
     )
+
     @enc_hex    = HexEncoder.new
     @enc_b64    = Base64Encoder.new
     @enc_b64url = Base64UrlEncoder.new
@@ -88,7 +90,13 @@ class HmacSignatureVerifierTest < Minitest::Test
 
   # ---------- Fallback builder=nil ----------
   def test_verify_uses_raw_body_when_builder_nil
-    req_alt = @req_base.clone_with(raw_body: '{"event":{"id":"DIFFERENT"}}')
+    req_alt = Rack::Request.new(
+      method: "POST",
+      path: "/events",
+      url: "https://example.test/events",
+      headers: { "Content-Type" => "application/json" },
+      body: '{"event":{"id":"DIFFERENT"}}'
+    )
     verifier = HmacSignatureVerifier.new(
       secret_key: "secret",
       signature_header: "X-Sig",
@@ -137,7 +145,7 @@ class HmacSignatureVerifierTest < Minitest::Test
     req_wrong = SignatureTestHelper.with_header(@req_base, "X-Sig", "wrong")
     result = verifier.verify(req_wrong)
     refute result.ok
-    assert_includes result.error.message, "Signature mismatch"
+    assert result.errors.any? { |msg| msg.include?("Signature mismatch") }
   end
 
   def test_resolver_returning_invalid_leads_to_failed_result
@@ -162,11 +170,17 @@ class HmacSignatureVerifierTest < Minitest::Test
     req = SignatureTestHelper.with_header(@req_base, "X-Sig", "whatever")
     result = verifier.verify(req)
     refute result.ok
-    assert_includes result.error.message, "Signature verification failed"
+    assert result.errors.any? { |msg| msg.include?("Signature verification failed") }
   end
 
   def test_builder_nil_and_no_raw_body_causes_failed_result
-    req = @req_base.clone_with(headers: { "X-Sig" => "whatever" }, raw_body: nil)
+    req = Rack::Request.new(
+      method: "POST",
+      path: "/events",
+      url: "https://example.test/events",
+      headers: { "X-Sig" => "whatever" },
+      body: '{}'
+    )
     verifier = HmacSignatureVerifier.new(
       secret_key: "secret",
       signature_header: "X-Sig",
@@ -174,7 +188,7 @@ class HmacSignatureVerifierTest < Minitest::Test
     )
     result = verifier.verify(req)
     refute result.ok
-    assert_includes result.error.message, "Signature mismatch"
+    assert result.errors.any? { |msg| msg.include?("Signature mismatch") }
   end
 
   def test_hash_function_raises_produces_failed_result
@@ -190,6 +204,6 @@ class HmacSignatureVerifierTest < Minitest::Test
     req = SignatureTestHelper.with_header(@req_base, "X-Sig", "anything")
     result = verifier.verify(req)
     refute result.ok
-    assert_includes result.error.message, "Signature verification failed"
+    assert result.errors.any? { |msg| msg.start_with?("Signature verification failed:") }
   end
 end

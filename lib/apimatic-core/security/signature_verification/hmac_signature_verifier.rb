@@ -34,13 +34,18 @@ module CoreLibrary
   end
 
   # === HmacSignatureVerifier ===
+  # Verifies HMAC signatures for incoming requests.
+  #
+  # Works with Rack::Request or any object exposing Rack-like `env` or `headers`/`raw_body`.
+  #
+  # Example:
+  #   verifier = HmacSignatureVerifier.new(
+  #     secret_key: "supersecret",
+  #     signature_header: "X-Signature"
+  #   )
+  #   result = verifier.verify(rack_request)
+  #
   class HmacSignatureVerifier < CoreLibrary::SignatureVerifier
-    # @param secret_key [String] Shared secret for HMAC
-    # @param signature_header [String] Header name containing signature
-    # @param canonical_message_builder [Proc, nil] Optional proc that builds the message to sign
-    # @param hash_alg [String] OpenSSL digest algorithm name (e.g., 'sha256')
-    # @param encoder [DigestEncoder] Encoder for digest (default: HexEncoder)
-    # @param signature_value_template [String, nil] Template for expected signature (e.g., "{digest}")
     def initialize(secret_key:, signature_header:, canonical_message_builder: nil, hash_alg: 'sha256',
                    encoder: HexEncoder.new, signature_value_template: '{digest}')
       raise ArgumentError, 'secret_key must be a non-empty string' unless secret_key.is_a?(String) && !secret_key.empty?
@@ -60,54 +65,51 @@ module CoreLibrary
 
     # Verifies the HMAC signature for the request.
     #
-    # @param request [CoreLibrary::Request]
+    # @param request [Rack::Request, #env, #headers, #raw_body]
     # @return [CoreLibrary::SignatureVerificationResult]
     def verify(request)
-      provided_signature = read_signature_header(request)
+      headers = SignatureVerifierHelper.extract_headers_hash(request)
+      provided_signature = headers[@signature_header_lc]
+
       if provided_signature.nil?
         return CoreLibrary::SignatureVerificationResult.failed(
-          ArgumentError.new("Signature header '#{@signature_header_lc}' is missing")
+          ["Signature header '#{@signature_header_lc}' is missing"]
         )
       end
 
       message = resolve_message_bytes(request)
       digest = OpenSSL::HMAC.digest(@hash_alg, @secret_key, message)
       encoded_digest = @encoder.encode(digest)
-      expected_signature = @signature_value_template.include?('{digest}') ? @signature_value_template.gsub(
-        '{digest}', encoded_digest
-      ) : @signature_value_template
+
+      expected_signature =
+        if @signature_value_template.include?('{digest}')
+          @signature_value_template.gsub('{digest}', encoded_digest)
+        else
+          @signature_value_template
+        end
 
       if secure_compare(provided_signature, expected_signature)
         CoreLibrary::SignatureVerificationResult.passed
       else
-        CoreLibrary::SignatureVerificationResult.failed(SignatureVerificationException.new('Signature mismatch'))
+        CoreLibrary::SignatureVerificationResult.failed(
+          ['Signature mismatch']
+        )
       end
     rescue StandardError => e
       CoreLibrary::SignatureVerificationResult.failed(
-        SignatureVerificationException.new(
-          "Signature verification failed: #{e.message}"
-        )
+        ["Signature verification failed: #{e.message}"]
       )
     end
 
     private
 
-    # @param request [CoreLibrary::Request]
-    # @return [String, nil]
-    def read_signature_header(request)
-      headers = (request.headers || {}).transform_keys { |k| k.to_s.downcase }
-      value = headers[@signature_header_lc]
-      value.nil? || value.strip.empty? ? nil : value
-    end
-
-    # @param request [CoreLibrary::Request]
-    # @return [String] raw body to be used in HMAC
+    # Builds the canonical message (raw body or custom builder)
     def resolve_message_bytes(request)
       if @canonical_message_builder.nil?
-        request.raw_body.to_s
+        SignatureVerifierHelper.read_raw_body(request)
       else
         result = @canonical_message_builder.call(request)
-        result.nil? ? request.raw_body.to_s : result.to_s
+        result.nil? ? SignatureVerifierHelper.read_raw_body(request) : result.to_s
       end
     end
 
