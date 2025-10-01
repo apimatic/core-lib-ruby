@@ -103,7 +103,7 @@ module TestComponent
       #
       # @return [Proc] a proc that extracts the raw request body
       def resolver_body_bytes
-        ->(request) { CoreLibrary::SignatureVerifierHelper.read_raw_body(request) }
+        ->(request) { CoreLibrary::RackRequestHelper.read_raw_body(request) }
       end
 
       # Resolver: build canonical message as "METHOD:header_value:body"
@@ -116,9 +116,9 @@ module TestComponent
       def resolver_bytes_prefix_header(header_name)
         lambda do |request|
           method  = request.request_method || ''
-          headers = CoreLibrary::SignatureVerifierHelper.extract_headers_hash(request)
+          headers = CoreLibrary::RackRequestHelper.extract_headers_hash(request)
           target  = headers[header_name.downcase] || headers[header_name] || ''
-          body    = CoreLibrary::SignatureVerifierHelper.read_raw_body(request)
+          body    = CoreLibrary::RackRequestHelper.read_raw_body(request)
           "#{method}:#{target}:#{body}"
         end
       end

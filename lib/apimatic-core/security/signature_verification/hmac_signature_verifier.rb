@@ -46,7 +46,7 @@ module CoreLibrary
   #   result = verifier.verify(rack_request)
   #
   class HmacSignatureVerifier < CoreLibrary::SignatureVerifier
-    def initialize(secret_key:, signature_header:, canonical_message_builder: nil, hash_alg: 'sha256',
+    def initialize(secret_key:, signature_header:, canonical_message_builder: nil, hash_algorithm: 'sha256',
                    encoder: HexEncoder.new, signature_value_template: '{digest}')
       raise ArgumentError, 'secret_key must be a non-empty string' unless secret_key.is_a?(String) && !secret_key.empty?
 
@@ -56,9 +56,9 @@ module CoreLibrary
       end
 
       @secret_key = secret_key
-      @signature_header_lc = signature_header.strip.downcase
+      @signature_header_lc = signature_header.strip.downcase.tr('_', '-')
       @canonical_message_builder = canonical_message_builder
-      @hash_alg = hash_alg
+      @hash_alg = hash_algorithm
       @encoder = encoder
       @signature_value_template = signature_value_template
     end
@@ -68,7 +68,7 @@ module CoreLibrary
     # @param request [Rack::Request, #env, #headers, #raw_body]
     # @return [CoreLibrary::SignatureVerificationResult]
     def verify(request)
-      headers = SignatureVerifierHelper.extract_headers_hash(request)
+      headers = RackRequestHelper.extract_headers_hash(request)
       provided_signature = headers[@signature_header_lc]
 
       if provided_signature.nil?
@@ -88,7 +88,7 @@ module CoreLibrary
           @signature_value_template
         end
 
-      if secure_compare(provided_signature, expected_signature)
+      if OpenSSL.fixed_length_secure_compare(provided_signature, expected_signature)
         CoreLibrary::SignatureVerificationResult.passed
       else
         CoreLibrary::SignatureVerificationResult.failed(
@@ -106,22 +106,11 @@ module CoreLibrary
     # Builds the canonical message (raw body or custom builder)
     def resolve_message_bytes(request)
       if @canonical_message_builder.nil?
-        SignatureVerifierHelper.read_raw_body(request)
+        RackRequestHelper.read_raw_body(request)
       else
         result = @canonical_message_builder.call(request)
-        result.nil? ? SignatureVerifierHelper.read_raw_body(request) : result.to_s
+        result.nil? ? RackRequestHelper.read_raw_body(request) : result.to_s
       end
-    end
-
-    # Constant-time string comparison
-    def secure_compare(a, b)
-      return false unless a.bytesize == b.bytesize
-
-      l = a.unpack('C*')
-      r = b.unpack('C*')
-      res = 0
-      l.zip(r) { |x, y| res |= x ^ y }
-      res.zero?
     end
   end
 end

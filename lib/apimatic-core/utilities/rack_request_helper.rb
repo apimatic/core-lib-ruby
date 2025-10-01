@@ -3,7 +3,7 @@ module CoreLibrary
   # Utility class for extracting headers and body from Rack::Request (or request-like objects).
   #
   # All methods are class methods and can be used without instantiating.
-  class SignatureVerifierHelper
+  class RackRequestHelper
     class << self
       # Extract headers into a downcast-key Hash from Rack::Request or request-like object.
       # Supports both Rack env (`request.env`) and objects exposing `headers` Hash.
@@ -47,6 +47,25 @@ module CoreLibrary
         end
       end
 
+      # Normalizes a header name to the Rack environment variable format.
+      #
+      # - Converts "Content-Type" → "CONTENT_TYPE"
+      # - Converts "Content-Length" → "CONTENT_LENGTH"
+      # - Converts all other headers → "HTTP_<UPPERCASED_NAME>"
+      #
+      # @param [String, Symbol] name The header name.
+      # @return [String] The Rack-compliant environment key.
+      def prepend_header(name)
+        k_s = name.to_s
+        if /\Acontent[-_]type\z/i.match?(k_s)
+          'CONTENT_TYPE'
+        elsif /\Acontent[-_]length\z/i.match?(k_s)
+          'CONTENT_LENGTH'
+        else
+          "HTTP_#{k_s.upcase.gsub('-', '_')}"
+        end
+      end
+
       private
 
       # Convert a simple headers Hash (e.g., { "Content-Type" => "a" }) into Rack-style env.
@@ -54,15 +73,8 @@ module CoreLibrary
       # @param headers_hash [Hash]
       # @return [Hash]
       def headers_to_env(headers_hash)
-        headers_hash.each_with_object({}) do |(k, v), env|
-          k_s = k.to_s
-          if /\Acontent[-_]type\z/i.match?(k_s)
-            env['CONTENT_TYPE'] = v
-          elsif /\Acontent[-_]length\z/i.match?(k_s)
-            env['CONTENT_LENGTH'] = v
-          else
-            env["HTTP_#{k_s.upcase.gsub('-', '_')}"] = v
-          end
+        headers_hash.transform_keys do |k|
+          prepend_header(k)
         end
       end
 

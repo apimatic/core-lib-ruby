@@ -3,7 +3,7 @@ require 'stringio'
 require 'apimatic_core'
 require_relative '../../test-helper/security/rack_request_mock'
 
-class SignatureVerifierHelperTest < Minitest::Test
+class RackRequestHelperTest < Minitest::Test
   include CoreLibrary
 
   def test_extract_headers_from_rack_request
@@ -19,7 +19,7 @@ class SignatureVerifierHelperTest < Minitest::Test
       },
       body: '{"event":{"id":"evt_1"},"payload":{"checksum":"abc"}}'
     )
-    headers = SignatureVerifierHelper.extract_headers_hash(rack_request)
+    headers = RackRequestHelper.extract_headers_hash(rack_request)
 
     assert_equal 'abc123', headers['x-signature']
     assert_equal '2024-01-01T00:00:00Z', headers['x-timestamp']
@@ -33,7 +33,7 @@ class SignatureVerifierHelperTest < Minitest::Test
                                               'X-Custom-Header' => 'hello'
                                             })
 
-    headers = SignatureVerifierHelper.extract_headers_hash(fake_request)
+    headers = RackRequestHelper.extract_headers_hash(fake_request)
 
     assert_equal 'application/xml', headers['content-type']
     assert_equal 'hello', headers['x-custom-header']
@@ -41,7 +41,7 @@ class SignatureVerifierHelperTest < Minitest::Test
 
   def test_extract_headers_from_invalid_object
     bad_request = Object.new
-    headers = SignatureVerifierHelper.extract_headers_hash(bad_request)
+    headers = RackRequestHelper.extract_headers_hash(bad_request)
 
     assert_equal({}, headers)
   end
@@ -55,7 +55,7 @@ class SignatureVerifierHelperTest < Minitest::Test
       body: '{"data":"ok"}'
     )
 
-    body = SignatureVerifierHelper.read_raw_body(rack_request)
+    body = RackRequestHelper.read_raw_body(rack_request)
 
     assert_equal '{"data":"ok"}', body
     # Ensure body was rewound
@@ -66,7 +66,7 @@ class SignatureVerifierHelperTest < Minitest::Test
   def test_read_raw_body_from_object_with_raw_body
     fake_request = Struct.new(:raw_body).new('{"status":"ok"}')
 
-    body = SignatureVerifierHelper.read_raw_body(fake_request)
+    body = RackRequestHelper.read_raw_body(fake_request)
 
     assert_equal '{"status":"ok"}', body
   end
@@ -74,7 +74,7 @@ class SignatureVerifierHelperTest < Minitest::Test
   def test_read_raw_body_from_invalid_object
     empty_request = Object.new
 
-    body = SignatureVerifierHelper.read_raw_body(empty_request)
+    body = RackRequestHelper.read_raw_body(empty_request)
 
     assert_equal '', body
   end

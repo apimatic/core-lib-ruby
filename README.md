@@ -124,6 +124,7 @@ gem 'apimatic_core'
 | [`JsonPointerHelper`](lib/apimatic-core/utilities/json_pointer_helper.rb ) | Utility methods for getting and setting JSON pointer values in hashes.                                                 |
 | [`JsonPointer`](lib/apimatic-core/utilities/json_pointer.rb )              | Enables querying, updating, and deleting values in nested Ruby Hashes and Arrays using JSON Pointer syntax (RFC 6901). |
 | [`LoggerHelper`](lib/apimatic-core/utilities/logger_helper.rb )            | Utility methods for logging.                                                                                           |
+| [`RackRequestHelper`](lib/apimatic-core/utilities/rack_request_helper.rb ) | Utility methods for Rack::Request.                                                                                     |
 
 ## Signature Verification
 | Name                                                                                                    | Description                                                                           |

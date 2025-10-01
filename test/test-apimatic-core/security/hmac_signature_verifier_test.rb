@@ -51,7 +51,7 @@ class HmacSignatureVerifierTest < Minitest::Test
         secret_key: "secret",
         signature_header: header,
         canonical_message_builder: resolver,
-        hash_alg: hash_alg,
+        hash_algorithm: hash_alg,
         encoder: encoder,
         signature_value_template: template
       )
@@ -142,7 +142,7 @@ class HmacSignatureVerifierTest < Minitest::Test
       canonical_message_builder: SignatureTestHelper.resolver_body_bytes,
       encoder: @enc_hex
     )
-    req_wrong = SignatureTestHelper.with_header(@req_base, "X-Sig", "wrong")
+    req_wrong = SignatureTestHelper.with_header(@req_base, "X-Sig", "623c4c24cda866b0b41bde4980bf21ce7e735eb03eb792c22b2ac30dc0cfa21d")
     result = verifier.verify(req_wrong)
     refute result.ok
     assert result.errors.any? { |msg| msg.include?("Signature mismatch") }
@@ -167,7 +167,7 @@ class HmacSignatureVerifierTest < Minitest::Test
       canonical_message_builder: SignatureTestHelper.resolver_body_bytes,
       encoder: nil
     )
-    req = SignatureTestHelper.with_header(@req_base, "X-Sig", "whatever")
+    req = SignatureTestHelper.with_header(@req_base, "X-Sig", "623c4c24cda866b0b41bde4980bf21ce7e735eb03eb792c22b2ac30dc0cfa21d")
     result = verifier.verify(req)
     refute result.ok
     assert result.errors.any? { |msg| msg.include?("Signature verification failed") }
@@ -178,7 +178,7 @@ class HmacSignatureVerifierTest < Minitest::Test
       method: "POST",
       path: "/events",
       url: "https://example.test/events",
-      headers: { "X-Sig" => "whatever" },
+      headers: { "X-Sig" => "623c4c24cda866b0b41bde4980bf21ce7e735eb03eb792c22b2ac30dc0cfa21d" },
       body: '{}'
     )
     verifier = HmacSignatureVerifier.new(
@@ -199,7 +199,7 @@ class HmacSignatureVerifierTest < Minitest::Test
       secret_key: "secret",
       signature_header: "X-Sig",
       canonical_message_builder: SignatureTestHelper.resolver_body_bytes,
-      hash_alg: boom
+      hash_algorithm: boom
     )
     req = SignatureTestHelper.with_header(@req_base, "X-Sig", "anything")
     result = verifier.verify(req)
