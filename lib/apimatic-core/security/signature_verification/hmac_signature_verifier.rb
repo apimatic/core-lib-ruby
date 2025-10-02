@@ -47,7 +47,7 @@ module CoreLibrary
   #
   class HmacSignatureVerifier < CoreLibrary::SignatureVerifier
     def initialize(secret_key:, signature_header:, canonical_message_builder: nil, hash_algorithm: 'sha256',
-                   encoder: HexEncoder.new, signature_value_template: '{digest}')
+                   encoder: HexEncoder.new, signature_value_template: DIGEST_PLACEHOLDER)
       raise ArgumentError, 'secret_key must be a non-empty string' unless secret_key.is_a?(String) && !secret_key.empty?
 
       unless signature_header.is_a?(String) && !signature_header.strip.empty?
@@ -82,8 +82,8 @@ module CoreLibrary
       encoded_digest = @encoder.encode(digest) unless @encoder.nil?
 
       expected_signature =
-        if @signature_value_template.include?('{digest}')
-          @signature_value_template.gsub('{digest}', encoded_digest)
+        if @signature_value_template.include?(DIGEST_PLACEHOLDER)
+          @signature_value_template.gsub(DIGEST_PLACEHOLDER, encoded_digest)
         else
           @signature_value_template
         end
@@ -99,18 +99,6 @@ module CoreLibrary
       CoreLibrary::SignatureVerificationResult.failed(
         ["Signature verification failed: #{e.message}"]
       )
-    end
-
-    private
-
-    # Builds the canonical message (raw body or custom builder)
-    def resolve_message_bytes(request)
-      if @canonical_message_builder.nil?
-        RackRequestHelper.read_raw_body(request)
-      else
-        result = @canonical_message_builder.call(request)
-        result.to_s
-      end
     end
 
     # Compares two strings in constant time to prevent timing attacks.
@@ -132,5 +120,19 @@ module CoreLibrary
         res.zero?
       end
     end
+
+    private
+
+    # Builds the canonical message (raw body or custom builder)
+    def resolve_message_bytes(request)
+      if @canonical_message_builder.nil?
+        RackRequestHelper.read_raw_body(request)
+      else
+        result = @canonical_message_builder.call(request)
+        result.to_s
+      end
+    end
+
+    DIGEST_PLACEHOLDER = '{digest}'.freeze
   end
 end
