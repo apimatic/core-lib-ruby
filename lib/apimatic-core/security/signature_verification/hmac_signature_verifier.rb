@@ -79,7 +79,7 @@ module CoreLibrary
 
       message = resolve_message_bytes(request)
       digest = OpenSSL::HMAC.digest(@hash_alg, @secret_key, message)
-      encoded_digest = @encoder.encode(digest)
+      encoded_digest = @encoder.encode(digest) unless @encoder.nil?
 
       expected_signature =
         if @signature_value_template.include?('{digest}')
@@ -109,7 +109,7 @@ module CoreLibrary
         RackRequestHelper.read_raw_body(request)
       else
         result = @canonical_message_builder.call(request)
-        result.nil? ? RackRequestHelper.read_raw_body(request) : result.to_s
+        result.to_s
       end
     end
   end

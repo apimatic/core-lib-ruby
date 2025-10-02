@@ -61,9 +61,7 @@ module TestComponent
       # @return [String] the expected signature value
       # @raise [TypeError] if resolver does not return a String
       def compute_expected_signature(secret_key:, signature_template:, resolver:, request:, hash_alg: 'sha256', encoder: CoreLibrary::HexEncoder.new)
-        message = resolver.call(request)
-        raise TypeError, 'Message must be a string' unless message.is_a?(String)
-
+        message = resolver.call(request).to_s
         digest = OpenSSL::HMAC.digest(hash_alg, secret_key, message)
         encoded = encoder.encode(digest)
 
