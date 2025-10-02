@@ -122,10 +122,11 @@ module CoreLibrary
     # @return [Boolean] true if the strings are equal, false otherwise
     # @raise [ArgumentError] if the inputs are of unequal length
     def self.fixed_length_secure_compare(a, b)
-      if RUBY_VERSION >= "3.0" && OpenSSL.respond_to?(:fixed_length_secure_compare)
+      if RUBY_VERSION >= '3.0' && OpenSSL.respond_to?(:fixed_length_secure_compare)
         OpenSSL.fixed_length_secure_compare(a, b)
       else
-        raise ArgumentError, "inputs must be same length" unless a.bytesize == b.bytesize
+        raise ArgumentError, 'inputs must be same length' unless a.bytesize == b.bytesize
+
         res = 0
         a.bytes.zip(b.bytes) { |x, y| res |= (x ^ y) }
         res.zero?
