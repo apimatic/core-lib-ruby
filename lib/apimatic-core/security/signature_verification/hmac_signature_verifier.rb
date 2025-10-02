@@ -88,7 +88,7 @@ module CoreLibrary
           @signature_value_template
         end
 
-      if OpenSSL.fixed_length_secure_compare(provided_signature, expected_signature)
+      if HmacSignatureVerifier.fixed_length_secure_compare(provided_signature, expected_signature)
         CoreLibrary::SignatureVerificationResult.passed
       else
         CoreLibrary::SignatureVerificationResult.failed(
@@ -110,6 +110,25 @@ module CoreLibrary
       else
         result = @canonical_message_builder.call(request)
         result.to_s
+      end
+    end
+
+    # Compares two strings in constant time to prevent timing attacks.
+    # Uses OpenSSL.fixed_length_secure_compare when available (Ruby ≥ 3
+    # with openssl gem ≥ 3.x); falls back to a pure Ruby implementation otherwise.
+    #
+    # @param a [String] the first string to compare
+    # @param b [String] the second string to compare
+    # @return [Boolean] true if the strings are equal, false otherwise
+    # @raise [ArgumentError] if the inputs are of unequal length
+    def self.fixed_length_secure_compare(a, b)
+      if RUBY_VERSION >= "3.0" && OpenSSL.respond_to?(:fixed_length_secure_compare)
+        OpenSSL.fixed_length_secure_compare(a, b)
+      else
+        raise ArgumentError, "inputs must be same length" unless a.bytesize == b.bytesize
+        res = 0
+        a.bytes.zip(b.bytes) { |x, y| res |= (x ^ y) }
+        res.zero?
       end
     end
   end
