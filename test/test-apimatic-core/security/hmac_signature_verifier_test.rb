@@ -206,4 +206,24 @@ class HmacSignatureVerifierTest < Minitest::Test
     refute result.ok
     assert result.errors.any? { |msg| msg.start_with?("Signature verification failed:") }
   end
+
+  def test_verify_header_lookup_case_insensitive
+    verifier = HmacSignatureVerifier.new(
+      secret_key: "secret",
+      signature_header: "X-Sig", # here it contains `-`
+      canonical_message_builder: SignatureTestHelper.resolver_body_bytes,
+      encoder: @enc_hex
+    )
+    value = SignatureTestHelper.compute_expected_signature(
+      secret_key: "secret",
+      signature_template: "{digest}",
+      resolver: SignatureTestHelper.resolver_body_bytes,
+      request: @req_base,
+      hash_alg: "sha256"
+    )
+    %w[X_SIG].each do |cased| # here the header name contains `_`
+      req_signed = SignatureTestHelper.with_header(@req_base, cased, value)
+      assert verifier.verify(req_signed).ok
+    end
+  end
 end
