@@ -70,12 +70,12 @@ gem 'apimatic_core'
 | [`ProxySettings`](lib/apimatic-core/http/configurations/proxy_settings.rb)                      | ProxySettings encapsulates HTTP proxy configuration for Faraday, e.g. address, port and optional basic authentication |
 
 ## HTTP
-| Name                                                                                            | Description                                                                                                                                                      |
-|-------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`HttpRequest`](lib/apimatic-core/http/request/http_request.rb)                                 | Class which contains information about the HTTP Request                                                                                                          |
-| [`ApiResponse`](lib/apimatic-core/http/response/api_response.rb)                                | Wrapper class for Api Response                                                                                                                                   |
-| [`HttpResponse`](lib/apimatic-core/http/response/http_response.rb)                              | Class which contains information about the HTTP Response                                                                                                         |
-| [`HttpCallContext`](lib/apimatic-core/http/http_call_context.rb)                                | This class captures the HTTP request and response lifecycle during an API call and is used with clients or controllers that support pre- and post-request hooks. |
+| Name                                                               | Description                                                                                                                                                      |
+|--------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`HttpRequest`](lib/apimatic-core/http/request/http_request.rb)    | Class which contains information about the HTTP Request                                                                                                          |
+| [`ApiResponse`](lib/apimatic-core/http/response/api_response.rb)   | Wrapper class for Api Response                                                                                                                                   |
+| [`HttpResponse`](lib/apimatic-core/http/response/http_response.rb) | Class which contains information about the HTTP Response                                                                                                         |
+| [`HttpCallContext`](lib/apimatic-core/http/http_call_context.rb)   | This class captures the HTTP request and response lifecycle during an API call and is used with clients or controllers that support pre- and post-request hooks. |
 
 ## Logger
 | Name                                                                                       | Description                                                         |
@@ -124,6 +124,15 @@ gem 'apimatic_core'
 | [`JsonPointerHelper`](lib/apimatic-core/utilities/json_pointer_helper.rb ) | Utility methods for getting and setting JSON pointer values in hashes.                                                 |
 | [`JsonPointer`](lib/apimatic-core/utilities/json_pointer.rb )              | Enables querying, updating, and deleting values in nested Ruby Hashes and Arrays using JSON Pointer syntax (RFC 6901). |
 | [`LoggerHelper`](lib/apimatic-core/utilities/logger_helper.rb )            | Utility methods for logging.                                                                                           |
+| [`RackRequestHelper`](lib/apimatic-core/utilities/rack_request_helper.rb ) | Utility methods for Rack::Request.                                                                                     |
+
+## Signature Verification
+| Name                                                                                                    | Description                                                                           |
+|---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`HmacSignatureVerifier`](lib/apimatic-core/security/signature_verification/hmac_signature_verifier.rb) | Verifies HMAC signatures using configurable templates, hash algorithms, and encoders. |
+| [`HexEncoder`](lib/apimatic-core/security/signature_verification/hmac_signature_verifier.rb)            | Encodes digest as lowercase hex.                                                      |
+| [`Base64Encoder`](lib/apimatic-core/security/signature_verification/hmac_signature_verifier.rb)         | Encodes digest as Base64.                                                             |
+| [`Base64UrlEncoder`](lib/apimatic-core/security/signature_verification/hmac_signature_verifier.rb)      | Encodes digest as URL-safe Base64 without padding.                                    |
 
 ## Links
 * [apimatic_core_interfaces](https://rubygems.org/gems/apimatic_core_interfaces)
