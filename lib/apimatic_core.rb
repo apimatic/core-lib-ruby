@@ -61,6 +61,7 @@ require_relative 'apimatic-core/utilities/logger_helper'
 require_relative 'apimatic-core/utilities/constants'
 require_relative 'apimatic-core/utilities/deep_clone_utils'
 require_relative 'apimatic-core/utilities/json_pointer'
+require_relative 'apimatic-core/utilities/rack_request_helper'
 
 require_relative 'apimatic-core/authentication/header_auth'
 require_relative 'apimatic-core/authentication/query_auth'
@@ -68,3 +69,5 @@ require_relative 'apimatic-core/authentication/multiple/auth_group'
 require_relative 'apimatic-core/authentication/multiple/and_auth_group'
 require_relative 'apimatic-core/authentication/multiple/or_auth_group'
 require_relative 'apimatic-core/authentication/multiple/single_auth'
+
+require_relative 'apimatic-core/security/signature_verification/hmac_signature_verifier'
